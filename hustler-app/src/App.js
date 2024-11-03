@@ -18,7 +18,8 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [allFlipped, setAllFlipped] = useState(false);
     const [showIcons, setShowIcons] = useState(false);
-    const [wiggleComplete, setWiggleComplete] = useState(false); // Track wiggle completion
+    const [wiggleComplete, setWiggleComplete] = useState(false);
+    const [isRoundInProgress, setIsRoundInProgress] = useState(false);
 
     const dropdownRef = useRef(null);
     const dollarAmounts = ["1$", "2$", "5$", "10$", "25$", "50$", "100$", "200$", "500$"];
@@ -96,7 +97,7 @@ function App() {
 
     const handleMultiplierClick = (multiplier) => {
         if (!isLoggedIn) {
-            openLoginModal(); // Open login modal if not logged in
+            openLoginModal();
             return;
         }
         setSelectedMultiplier(multiplier);
@@ -104,6 +105,7 @@ function App() {
         setWinningField(null);
         setAllFlipped(false);
         setShowIcons(false);
+        setIsRoundInProgress(false);
     };
 
     const handleBackClick = () => {
@@ -112,6 +114,7 @@ function App() {
         setWinningField(null);
         setAllFlipped(false);
         setShowIcons(false);
+        setIsRoundInProgress(false);
     };
 
     const checkBalanceAndPlay = async () => {
@@ -142,14 +145,12 @@ function App() {
             }
 
             setWinningField(data.winningField);
+            setIsRoundInProgress(true);
 
-            // Start flipping all buttons after wiggle animation completes
             setTimeout(() => setAllFlipped(true), 600);
 
-            // Show icons after buttons have flipped
             setTimeout(() => setShowIcons(true), 1200);
 
-            // Update balance, show "congratulations" briefly, and reset states
             setTimeout(() => {
                 if (data.result === "win") {
                     setWonAmount(`+${data.winnings} $`);
@@ -166,6 +167,7 @@ function App() {
                 setShowIcons(false);
                 setSelectedField(null);
                 setWinningField(null);
+                setIsRoundInProgress(false);
             }, 3000);
         } catch (error) {
             console.error("Error sending bet to backend:", error);
@@ -179,7 +181,7 @@ function App() {
     }, [selectedField]);
 
     const renderMultiplierButtons = () => {
-        const count = selectedMultiplier === "2x" ? 3 : selectedMultiplier === "4x" ? 6 : 12;
+        const count = selectedMultiplier === "2x" ? 2 : selectedMultiplier === "4x" ? 6 : 12;
         const containerClass = `dynamic-buttons-container dynamic-${count}`;
 
         const buttonVariants = {
@@ -198,9 +200,11 @@ function App() {
         };
 
         const handleButtonClick = (fieldNumber) => {
-            setSelectedField(fieldNumber);
-            setWiggleComplete(false);
-            setTimeout(() => setWiggleComplete(true), 400); // Trigger flip after wiggle
+            if (!isRoundInProgress) {
+                setSelectedField(fieldNumber);
+                setWiggleComplete(false);
+                setTimeout(() => setWiggleComplete(true), 400);
+            }
         };
 
         return (
@@ -238,6 +242,7 @@ function App() {
                                                 : "#ff00ff",
                                 },
                             }}
+                            whileHover={{ scale: 1.05 }}
                         >
                             {showIcons && winningField !== null
                                 ? isWinningField

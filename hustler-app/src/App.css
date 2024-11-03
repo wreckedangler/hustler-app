@@ -251,17 +251,25 @@ main {
 }
 
 
-
-
-
 .dynamic-buttons-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 buttons per row */
     gap: 15px;
     justify-content: center;
-    width: 100%; /* Ensures centered layout */
+    width: 100%;
     position: relative;
 }
+
+/* 2 buttons per row for 2x */
+.dynamic-buttons-container.dynamic-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* 3 buttons per row for 5x and 10x */
+.dynamic-buttons-container.dynamic-6,
+.dynamic-buttons-container.dynamic-12 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
 
 .dynamic-button {
     background-color: #ff00ff;
@@ -276,22 +284,26 @@ main {
 }
 
 /* Adjust button size based on the number of buttons */
-.dynamic-buttons-container.dynamic-3 .dynamic-button {
+.dynamic-buttons-container.dynamic-2 .dynamic-button {
     width: 250px;
     height: 167px;
     font-size: 76px;
+
+    justify-content: center;
 }
 
 .dynamic-buttons-container.dynamic-6 .dynamic-button {
     width: 150px;
     height: 100px;
     font-size: 46px;
+
 }
 
 .dynamic-buttons-container.dynamic-12 .dynamic-button {
     width: 120px;
     height: 80px;
     font-size: 30px;
+
 }
 
 .back-button {
@@ -365,8 +377,11 @@ main {
     transform: scale(1.05); /* Scale up slightly on hover */
 }
 
+.back-button {
+    transition: transform 0.4s ease; /* Smooth transition for the scale effect */
+}
 .box-button {
-    transition: transform 0.2s ease; /* Smooth transition for the scale effect */
+    transition: transform 0.4s ease; /* Smooth transition for the scale effect */
 }
 
 .box-button:hover {
@@ -420,4 +435,4 @@ main {
     border: 2px solid yellow; /* Gelber Rand */
 }
 
-  /*🔓💸C*/
+/*🔓💸C*/
