@@ -10,7 +10,7 @@ function App() {
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [balance, setBalance] = useState(0.0);
-    const [wonAmount, setWonAmount] = useState(null);
+    const [displayBalance, setDisplayBalance] = useState(0.0);
     const [selectedAmount, setSelectedAmount] = useState("1$");
     const [selectedMultiplier, setSelectedMultiplier] = useState(null);
     const [selectedField, setSelectedField] = useState(null);
@@ -61,6 +61,7 @@ function App() {
                 localStorage.setItem("token", data.token);
                 setUsername(data.user.username);
                 setBalance(parseFloat(data.user.balance) || 0);
+                setDisplayBalance(parseFloat(data.user.balance) || 0);
                 setIsLoggedIn(true);
                 closeLoginModal();
             } else {
@@ -152,16 +153,9 @@ function App() {
             setTimeout(() => setShowIcons(true), 1200);
 
             setTimeout(() => {
-                if (data.result === "win") {
-                    setWonAmount(`+${data.winnings} $`);
-                    setBalance((prevBalance) => prevBalance + data.winnings);
-                } else {
-                    setBalance((prevBalance) => prevBalance - betAmount);
-                }
-
-                if (data.result === "win") {
-                    setTimeout(() => setWonAmount(null), 2000);
-                }
+                const newBalance = data.result === "win" ? balance + data.winnings : balance - betAmount;
+                animateBalance(balance, newBalance);
+                setBalance(newBalance);
 
                 setAllFlipped(false);
                 setShowIcons(false);
@@ -179,6 +173,23 @@ function App() {
             checkBalanceAndPlay();
         }
     }, [selectedField]);
+
+    const animateBalance = (start, end) => {
+        const duration = 1000;
+        const startTime = performance.now();
+
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const currentBalance = start + (end - start) * progress;
+            setDisplayBalance(currentBalance.toFixed(2));
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        requestAnimationFrame(animate);
+    };
 
     const renderMultiplierButtons = () => {
         const count = selectedMultiplier === "2x" ? 2 : selectedMultiplier === "4x" ? 6 : 12;
@@ -254,7 +265,12 @@ function App() {
                         </motion.button>
                     );
                 })}
-                <button className="back-button" onClick={handleBackClick}>
+                <button
+                    className="back-button"
+                    onClick={handleBackClick}
+                    disabled={isRoundInProgress} // Disable if round in progress
+                    style={{ opacity: isRoundInProgress ? 0.5 : 1 }} // Visual feedback for disabled state
+                >
                     ↩
                 </button>
             </div>
@@ -279,11 +295,7 @@ function App() {
 
                 {isLoggedIn && (
                     <div className="balance">
-                        {wonAmount ? (
-                            <span className="congratulations">{wonAmount}</span>
-                        ) : (
-                            <span>${parseFloat(balance).toFixed(2) || '0.00'}</span>
-                        )}
+                        <span>${displayBalance}</span>
                     </div>
                 )}
 
