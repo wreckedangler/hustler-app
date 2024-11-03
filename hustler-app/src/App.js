@@ -1,5 +1,5 @@
-// App.js
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import "./App.css";
 
 function App() {
@@ -9,12 +9,16 @@ function App() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
-    const [balance, setBalance] = useState(0.0); // Ensure initial balance is a number
+    const [balance, setBalance] = useState(0.0);
     const [wonAmount, setWonAmount] = useState(null);
     const [selectedAmount, setSelectedAmount] = useState("1$");
     const [selectedMultiplier, setSelectedMultiplier] = useState(null);
     const [selectedField, setSelectedField] = useState(null);
     const [winningField, setWinningField] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [allFlipped, setAllFlipped] = useState(false);
+    const [showIcons, setShowIcons] = useState(false);
+    const [wiggleComplete, setWiggleComplete] = useState(false); // Track wiggle completion
 
     const dropdownRef = useRef(null);
     const dollarAmounts = ["1$", "2$", "5$", "10$", "25$", "50$", "100$", "200$", "500$"];
@@ -55,7 +59,8 @@ function App() {
             if (data.token) {
                 localStorage.setItem("token", data.token);
                 setUsername(data.user.username);
-                setBalance(parseFloat(data.user.balance) || 0); // Ensure balance is parsed as a float
+                setBalance(parseFloat(data.user.balance) || 0);
+                setIsLoggedIn(true);
                 closeLoginModal();
             } else {
                 alert("Login failed: " + data.error);
@@ -90,15 +95,23 @@ function App() {
     };
 
     const handleMultiplierClick = (multiplier) => {
+        if (!isLoggedIn) {
+            openLoginModal(); // Open login modal if not logged in
+            return;
+        }
         setSelectedMultiplier(multiplier);
         setSelectedField(null);
         setWinningField(null);
+        setAllFlipped(false);
+        setShowIcons(false);
     };
 
     const handleBackClick = () => {
         setSelectedMultiplier(null);
         setSelectedField(null);
         setWinningField(null);
+        setAllFlipped(false);
+        setShowIcons(false);
     };
 
     const checkBalanceAndPlay = async () => {
@@ -130,19 +143,30 @@ function App() {
 
             setWinningField(data.winningField);
 
-            if (data.result === "win") {
-                setWonAmount(`+${data.winnings} $`);
-                setBalance(balance + data.winnings);
-            } else {
-                setWonAmount(null);
-                setBalance(balance - betAmount);
-            }
+            // Start flipping all buttons after wiggle animation completes
+            setTimeout(() => setAllFlipped(true), 600);
 
+            // Show icons after buttons have flipped
+            setTimeout(() => setShowIcons(true), 1200);
+
+            // Update balance, show "congratulations" briefly, and reset states
             setTimeout(() => {
+                if (data.result === "win") {
+                    setWonAmount(`+${data.winnings} $`);
+                    setBalance((prevBalance) => prevBalance + data.winnings);
+                } else {
+                    setBalance((prevBalance) => prevBalance - betAmount);
+                }
+
+                if (data.result === "win") {
+                    setTimeout(() => setWonAmount(null), 2000);
+                }
+
+                setAllFlipped(false);
+                setShowIcons(false);
                 setSelectedField(null);
                 setWinningField(null);
-                setWonAmount(null);
-            }, data.result === "win" ? 3000 : 2000);
+            }, 3000);
         } catch (error) {
             console.error("Error sending bet to backend:", error);
         }
@@ -158,56 +182,105 @@ function App() {
         const count = selectedMultiplier === "2x" ? 3 : selectedMultiplier === "4x" ? 6 : 12;
         const containerClass = `dynamic-buttons-container dynamic-${count}`;
 
+        const buttonVariants = {
+            initial: { rotateY: 0, scale: 1, backgroundColor: "#ff00ff" },
+            wiggle: {
+                rotate: [0, -10, 10, -10, 10, 0],
+                scale: 1.1,
+                transition: { duration: 0.4 },
+            },
+            flipToReveal: {
+                rotateY: 180,
+                transition: { duration: 0.6, delay: 0.4 },
+            },
+            winning: { backgroundColor: "#28a745" },
+            losing: { backgroundColor: "#d71212" },
+        };
+
+        const handleButtonClick = (fieldNumber) => {
+            setSelectedField(fieldNumber);
+            setWiggleComplete(false);
+            setTimeout(() => setWiggleComplete(true), 400); // Trigger flip after wiggle
+        };
+
         return (
             <div className={containerClass}>
                 {Array.from({ length: count }, (_, i) => {
                     const fieldNumber = i + 1;
                     const isWinningField = fieldNumber === winningField;
-                    const isLosingField = fieldNumber === selectedField && !isWinningField && winningField !== null;
+                    const isSelected = fieldNumber === selectedField;
 
                     return (
-                        <button
+                        <motion.button
                             key={i}
-                            className={`dynamic-button ${isWinningField ? "winning-field" : ""} ${isLosingField ? "losing-field" : ""}`}
-                            onClick={() => setSelectedField(fieldNumber)}
-                            disabled={winningField !== null}
+                            className="dynamic-button"
+                            onClick={() => handleButtonClick(fieldNumber)}
+                            disabled={winningField !== null && !allFlipped}
+                            initial="initial"
+                            animate={
+                                isSelected
+                                    ? wiggleComplete
+                                        ? "flipToReveal"
+                                        : "wiggle"
+                                    : allFlipped && winningField !== null
+                                        ? "flipToReveal"
+                                        : "initial"
+                            }
+                            variants={{
+                                ...buttonVariants,
+                                flipToReveal: {
+                                    ...buttonVariants.flipToReveal,
+                                    backgroundColor:
+                                        isSelected && !isWinningField
+                                            ? "#d71212"
+                                            : isWinningField
+                                                ? "#28a745"
+                                                : "#ff00ff",
+                                },
+                            }}
                         >
-                            {winningField !== null ? (isWinningField ? "Win!" : "") : "?"}
-                        </button>
+                            {showIcons && winningField !== null
+                                ? isWinningField
+                                    ? "💸"
+                                    : isSelected && !isWinningField
+                                        ? "❌"
+                                        : ""
+                                : "💸"}
+                        </motion.button>
                     );
                 })}
-                <button className="back-button" onClick={handleBackClick}>Back</button>
+                <button className="back-button" onClick={handleBackClick}>
+                    ↩
+                </button>
             </div>
         );
     };
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsDropdownVisible(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
     return (
         <div className="App">
             <header>
-                <div className="user-name">{username}</div>
+                <div className="user-info">
+                    {isLoggedIn ? (
+                        <>
+                            <span className="logged-in-icon">🔓</span>
+                            <span className="user-name">{username}</span>
+                        </>
+                    ) : (
+                        <span className="logged-out-icon">🔒</span>
+                    )}
+                </div>
                 <div className="title">HUSTLER</div>
                 <div className="copyR">®</div>
 
-                <div className="balance">
-                    {wonAmount ? (
-                        <span className="congratulations">{wonAmount}</span>
-                    ) : (
-                        <span>Balance: ${parseFloat(balance).toFixed(2) || '0.00'}</span> // Fallback to 0.00
-                    )}
-                </div>
+                {isLoggedIn && (
+                    <div className="balance">
+                        {wonAmount ? (
+                            <span className="congratulations">{wonAmount}</span>
+                        ) : (
+                            <span>${parseFloat(balance).toFixed(2) || '0.00'}</span>
+                        )}
+                    </div>
+                )}
 
                 <button className="menu-button" onClick={toggleDropdown}>☰</button>
                 {isDropdownVisible && (
@@ -222,6 +295,12 @@ function App() {
             </header>
 
             <main>
+                {selectedMultiplier && (
+                    <div className="bet-amount-banner">
+                        {selectedAmount ? `${selectedAmount}` : "Kein Einsatz ausgewählt"}
+                    </div>
+                )}
+
                 {!selectedMultiplier ? (
                     <>
                         <div className="dollar-buttons">

@@ -26,7 +26,8 @@ header {
     position: absolute;
     right: 30px;
     transform: translateX(-50%);
-    color: #ffffff;
+    font-size: 23px;
+    color: #fdc445;
     margin-top: 10px;
 }
 
@@ -42,17 +43,26 @@ header {
 }
 
 .copyR {
-    position: absolute;
-    left: 960px;
+    position:absolute;
+    left: 63%;
     transform: translateX(-50%);
     font-weight: bold;
     font-size: 20px;
     color: #fdc445;
-    margin-top: 82px;
+    margin-top: 81px;
+}
+.logged-in-icon,
+.logged-out-icon {
+    position: absolute;
+    font-size: 23px;
+    margin-top: 30px;
+    margin-right: 8px;
+    margin-left: 10px;
+
 }
 
 .menu-button {
-    background-color: #1a1a1a;
+    background-color: #1f1f1f;
     color: white;
     border: none;
     border-radius: 50%;
@@ -67,14 +77,15 @@ header {
 
 main {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
+    flex-direction: column; /* Kinder vertikal stapeln */
+    align-items: center; /* Zentriert den Inhalt horizontal */
     gap: 20px;
+    padding-top: 10px; /* Optionaler Abstand über dem Banner */
+    padding-bottom: 10px; /* Optionaler Abstand unter dem Banner */
 }
 
 .box-button {
-    background-color: #171717;
+    background-color: #ff00ff;
     color: #fff;
     width: 300px;
     height: 200px;
@@ -248,13 +259,12 @@ main {
     grid-template-columns: repeat(3, 1fr); /* 3 buttons per row */
     gap: 15px;
     justify-content: center;
-    margin-top: 20px;
     width: 100%; /* Ensures centered layout */
     position: relative;
 }
 
 .dynamic-button {
-    background-color: #171717;
+    background-color: #ff00ff;
     color: #fff;
     font-size: 18px;
     font-weight: bold;
@@ -298,13 +308,6 @@ main {
     bottom: -60px; /* Move further down by adjusting this value */
 }
 
-main {
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center items horizontally */
-    flex-grow: 1;
-    gap: 20px;
-}
 
 .dollar-buttons {
     display: flex;
@@ -319,6 +322,7 @@ main {
     padding: 10px 15px;
     border: none;
     border-radius: 8px;
+    margin-top: 150px;
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
@@ -376,8 +380,44 @@ main {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 26px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
 }
 
+.back-button:hover {
+    transform: scale(1.05); /* Scale up slightly on hover */
+}
+
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.logged-in-icon,
+.logged-out-icon {
+    font-size: 1.5rem;
+    margin-right: 8px;
+    margin-left: 10px;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.bet-amount-banner {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #a413b7;
+    color: #ffff00;
+    width: 97%;
+    border-radius: 5px;
+    margin-top: 150px;
+    border: 2px solid yellow; /* Gelber Rand */
+}
+
+  /*🔓💸C*/
