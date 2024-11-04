@@ -22,7 +22,7 @@ function App() {
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
 
     const dropdownRef = useRef(null);
-    const dollarAmounts = ["1$", "2$", "5$", "10$", "25$", "50$", "100$", "200$", "500$"];
+    const dollarAmounts = ["1$", "2$", "5$", "10$", "25$", "50$", "100$", "200$", "500$", "1000$"];
 
     const toggleDropdown = () => {
         setIsDropdownVisible((prev) => !prev);
@@ -268,8 +268,8 @@ function App() {
                 <button
                     className="back-button"
                     onClick={handleBackClick}
-                    disabled={isRoundInProgress} // Disable if round in progress
-                    style={{ opacity: isRoundInProgress ? 0.5 : 1 }} // Visual feedback for disabled state
+                    disabled={isRoundInProgress}
+                    style={{ opacity: isRoundInProgress ? 0.5 : 1 }}
                 >
                     ↩
                 </button>
@@ -291,7 +291,7 @@ function App() {
                     )}
                 </div>
                 <div className="title">HUSTLER</div>
-                <div className="copyR">®</div>
+                <div className="copyR"></div>
 
                 {isLoggedIn && (
                     <div className="balance">
@@ -335,6 +335,11 @@ function App() {
                             <button className="box-button" onClick={() => handleMultiplierClick("2x")}>2x</button>
                             <button className="box-button" onClick={() => handleMultiplierClick("4x")}>5x</button>
                             <button className="box-button" onClick={() => handleMultiplierClick("8x")}>10x</button>
+                        </div>
+                        <div className="box-buttons">
+                            <button className="box-button" onClick={() => handleMultiplierClick("50x")}>50x</button>
+                            <button className="box-button" onClick={() => handleMultiplierClick("500x")}>500x</button>
+                            <button className="box-button" onClick={() => handleMultiplierClick("1000x")}>1000x</button>
                         </div>
                     </>
                 ) : (

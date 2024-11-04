@@ -10,7 +10,7 @@ module.exports = {
                 multiplier = 2;
 
                 // Determine winning field with a 49.9% chance of being the selected field
-                if (Math.random() <= 0.499) {
+                if (Math.random() <= 0.495) {
                     winningField = selectedField; // User wins 49.5% of the time
                 } else {
                     winningField = selectedField === 1 ? 2 : 1; // Otherwise, it's the other field (1 or 2)
@@ -31,6 +31,43 @@ module.exports = {
                 winningField = Math.floor(Math.random() * 12) + 1;
                 console.log(`8x Bet: Selected Field = ${selectedField}, Winning Field = ${winningField}`);
                 break;
+
+            case "50x":
+                multiplier = 50;
+                if (Math.random() <= 0.015) {
+                    winningField = selectedField; // Player wins
+                } else {
+                    // Get a random field that is not the selectedField (1 to 12)
+                    do {
+                        winningField = Math.floor(Math.random() * 12) + 1; // Fields are numbered from 1 to 12
+                    } while (winningField === selectedField);
+                }
+                break;
+
+            case "500x":
+                multiplier = 500;
+                if (Math.random() <= 0.0015) {
+                    winningField = selectedField; // Player wins
+                } else {
+                    // Get a random field that is not the selectedField (1 to 12)
+                    do {
+                        winningField = Math.floor(Math.random() * 12) + 1; // Fields are numbered from 1 to 12
+                    } while (winningField === selectedField);
+                }
+                break;
+
+            case "1000x":
+                multiplier = 1000;
+                if (Math.random() <= 0.0006) {
+                    winningField = selectedField; // Player wins
+                } else {
+                    // Get a random field that is not the selectedField (1 to 12)
+                    do {
+                        winningField = Math.floor(Math.random() * 12) + 1; // Fields are numbered from 1 to 12
+                    } while (winningField === selectedField);
+                }
+                break;
+
 
             default:
                 console.log("Invalid bet type");
