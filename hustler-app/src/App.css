@@ -316,8 +316,8 @@ main {
     font-size: 16px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: absolute;
-    right: 0; /* Aligns back button to the right */
-    bottom: -60px; /* Move further down by adjusting this value */
+    right: 350px; /* Aligns back button to the right */
+    bottom: 60px; /* Move further down by adjusting this value */
 }
 
 
@@ -434,5 +434,65 @@ main {
     margin-top: 150px;
     border: 2px solid yellow; /* Gelber Rand */
 }
+
+.large-jackpot-button {
+    width: 97%; /* Match the width of the bet-amount-banner */
+    font-size: 24px; /* Adjust font size for text */
+    padding: 20px; /* Match padding for alignment */
+    border-radius: 5px; /* Consistent with the banner */
+    background-color: #ffcc00; /* Maintain distinct button color */
+    color: #222; /* Contrasting text color */
+    font-weight: bold;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    text-align: center;
+    margin: 10px 0;
+    border: 2px solid yellow; /* Match banner's border style */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.large-jackpot-button:hover {
+    background-color: #ffb700; /* Slightly brighter yellow on hover */
+    transform: scale(1.05); /* Subtle enlargement for hover effect */
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.large-jackpot-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Slot Machine Reel Container */
+.slot-machine {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 97%; /* Match the button and banner width */
+    height: 100px; /* Consistent height for the slot machine */
+    margin: 20px auto;
+    border: 2px solid #ffcc00; /* Border similar to jackpot button */
+    border-radius: 10px;
+    background: #222;
+}
+
+/* Individual Reels */
+.reel {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+    color: #ffcc00;
+    border-right: 1px solid #444;
+}
+
+.reel:last-child {
+    border-right: none;
+}
+
+
 
 /*🔓💸C*/
