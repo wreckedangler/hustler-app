@@ -18,6 +18,7 @@ function GameBoard({
     const [allFlipped, setAllFlipped] = useState(false);
     const [showIcons, setShowIcons] = useState(false);
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
+    const [slotResult, setSlotResult] = useState(null); // State to hold slot machine result
 
     const handleBackClick = () => {
         setSelectedMultiplier(null);
@@ -26,6 +27,7 @@ function GameBoard({
         setAllFlipped(false);
         setShowIcons(false);
         setIsRoundInProgress(false);
+        setSlotResult(null); // Reset slot machine result
     };
 
     const checkBalanceAndPlay = async () => {
@@ -53,6 +55,8 @@ function GameBoard({
             });
 
             const data = await response.json();
+            console.log("Received data from backend:", data); // Debugging line
+
             if (data.error) {
                 alert(data.error);
                 return;
@@ -62,8 +66,9 @@ function GameBoard({
             setIsRoundInProgress(true);
 
             if (selectedMultiplier === "1m") {
-                handleSlotMachineAnimation(data.result === "win");
+                handleSlotMachineAnimation(data);
             } else {
+                // Existing logic for other games
                 setTimeout(() => setAllFlipped(true), 600);
                 setTimeout(() => setShowIcons(true), 1200);
 
@@ -85,30 +90,48 @@ function GameBoard({
         }
     };
 
-    const handleSlotMachineAnimation = (isWin) => {
-        // Implementiere die Slot Machine Animation
-        // ...
+    const handleSlotMachineAnimation = (data) => {
+        // Pass the entire data object to setSlotResult
+        setSlotResult({
+            isWin: data.result === "win",
+            winningSymbols: data.winningSymbols,
+            result: data.result,
+            winnings: data.winnings,
+        });
     };
 
     useEffect(() => {
         if (selectedField !== null) {
             checkBalanceAndPlay();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedField]);
 
     return (
         <div className="game-board">
             {selectedMultiplier === "1m" ? (
-                <SlotMachine
-                    isRoundInProgress={isRoundInProgress}
-                    setIsRoundInProgress={setIsRoundInProgress}
-                    balance={balance}
-                    setBalance={setBalance}
-                    animateBalance={animateBalance}
-                    selectedField={selectedField}
-                    setSelectedField={setSelectedField}
-                    openLoginModal={openLoginModal}
-                />
+                <>
+                    <SlotMachine
+                        isRoundInProgress={isRoundInProgress}
+                        setIsRoundInProgress={setIsRoundInProgress}
+                        balance={balance}
+                        setBalance={setBalance}
+                        animateBalance={animateBalance}
+                        selectedField={selectedField}
+                        setSelectedField={setSelectedField}
+                        openLoginModal={openLoginModal}
+                        slotResult={slotResult}
+                        setSlotResult={setSlotResult}
+                    />
+                    <button
+                        className="back-button"
+                        onClick={handleBackClick}
+                        disabled={isRoundInProgress}
+                        style={{ opacity: isRoundInProgress ? 0.5 : 1 }}
+                    >
+                        ↩
+                    </button>
+                </>
             ) : (
                 <div className="dynamic-buttons-wrapper">
                     <MultiplierButtons

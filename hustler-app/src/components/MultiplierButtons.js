@@ -40,9 +40,9 @@ function MultiplierButtons({
                 : selectedMultiplier === "10x"
                     ? 12
                     : selectedMultiplier === "50x"
-                        ? 50
+                        ? 12
                         : selectedMultiplier === "500x"
-                            ? 500
+                            ? 12
                             : 1;
 
     const containerClass = `dynamic-buttons-container dynamic-${count}`;

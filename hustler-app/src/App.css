@@ -406,10 +406,53 @@ main {
     border: 2px solid yellow;
 }
 
+/* Slot Machine Container */
+.slot-machine-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Slot Machine Display */
+.slot-machine {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    width: 300px;
+    height: 150px;
+    margin: 20px auto;
+    border: 4px solid #ffcc00;
+    border-radius: 10px;
+    background: #222;
+    position: relative;
+}
+
+/* Individual Reels */
+.slot-machine-reel {
+    width: 100px;
+    height: 150px;
+    overflow: hidden;
+    position: relative;
+    margin: 0 5px;
+}
+
+.slot-symbol {
+    width: 100%;
+    height: 150px;
+    font-size: 80px;
+    color: #ffcc00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Spin Button */
 .large-jackpot-button {
-    width: 97%;
+    width: 300px;
     font-size: 24px;
-    padding: 20px;
+    padding: 15px;
     border-radius: 5px;
     background-color: #ffcc00;
     color: #222;
@@ -434,34 +477,24 @@ main {
     box-shadow: none;
 }
 
-/* Slot Machine Reel Container */
-.slot-machine {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    width: 97%;
-    height: 100px;
-    margin: 20px auto;
-    border: 2px solid #ffcc00;
-    border-radius: 10px;
-    background: #222;
+/* Back Button */
+.slot-machine-container .back-button {
+    position: absolute;
+    right: 0;
+    bottom: -60px;
+    background-color: #444;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 26px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.4s ease;
 }
 
-/* Individual Reels */
-.slot-machine-reel {
-    width: 100px;
-    height: 100px;
-    margin: 0 5px;
-    text-align: center;
-    font-size: 60px;
-    color: #ffcc00;
+.slot-machine-container .back-button:hover {
+    transform: scale(1.05);
 }
 
-.slot-symbol {
-    width: 100%;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+

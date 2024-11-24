@@ -2,6 +2,9 @@ module.exports = {
     processBet: (betAmount, betType, selectedField) => {
         let multiplier;
         let winningField;
+        let winnings = 0;
+        let isWin = false;
+        let winningSymbols = []; // For the slot machine
 
         switch (betType) {
             case "2x": // 1 of 2 fields
@@ -11,6 +14,8 @@ module.exports = {
                 } else {
                     winningField = selectedField === 1 ? 2 : 1; // Alternate field wins
                 }
+                isWin = selectedField === winningField;
+                winnings = isWin ? betAmount * multiplier : 0;
                 break;
 
             case "5x": // 1 of 6 fields
@@ -22,6 +27,8 @@ module.exports = {
                         winningField = Math.floor(Math.random() * 6) + 1;
                     } while (winningField === selectedField);
                 }
+                isWin = selectedField === winningField;
+                winnings = isWin ? betAmount * multiplier : 0;
                 break;
 
             case "10x": // 1 of 12 fields
@@ -33,6 +40,8 @@ module.exports = {
                         winningField = Math.floor(Math.random() * 12) + 1;
                     } while (winningField === selectedField);
                 }
+                isWin = selectedField === winningField;
+                winnings = isWin ? betAmount * multiplier : 0;
                 break;
 
             case "50x": // 1 of 12 fields
@@ -44,6 +53,8 @@ module.exports = {
                         winningField = Math.floor(Math.random() * 12) + 1;
                     } while (winningField === selectedField);
                 }
+                isWin = selectedField === winningField;
+                winnings = isWin ? betAmount * multiplier : 0;
                 break;
 
             case "500x": // 1 of 12 fields
@@ -55,27 +66,51 @@ module.exports = {
                         winningField = Math.floor(Math.random() * 12) + 1;
                     } while (winningField === selectedField);
                 }
+                isWin = selectedField === winningField;
+                winnings = isWin ? betAmount * multiplier : 0;
                 break;
 
-            case "1m": // Fixed jackpot
-                multiplier = 0; // Multiplier not used for jackpot
+            case "1m": // Fixed jackpot for the slot machine
                 const jackpotChance = 0.000003; // Minimal chance for jackpot
+
+                // Slot symbols
+                const slotSymbols = ["🍒", "🍋", "🔔", "⭐", "💎"];
+
                 if (Math.random() <= jackpotChance) {
-                    winningField = selectedField;
+                    // Player wins
+                    winningSymbols = ["💎", "💎", "💎"]; // Three diamonds
+                    isWin = true;
+                    winnings = 1000000;
                 } else {
+                    // Player loses
                     do {
-                        winningField = Math.floor(Math.random() * 12) + 1;
-                    } while (winningField === selectedField);
+                        // Generate random symbols, ensuring not all the same
+                        winningSymbols = [];
+                        for (let i = 0; i < 3; i++) {
+                            const randomSymbol = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                            winningSymbols.push(randomSymbol);
+                        }
+                    } while (
+                        winningSymbols[0] === winningSymbols[1] &&
+                        winningSymbols[1] === winningSymbols[2]
+                        );
+                    isWin = false;
+                    winnings = 0;
                 }
-                break;
+
+                return {
+                    success: true,
+                    result: isWin ? "win" : "lose",
+                    winnings: winnings,
+                    winningSymbols: winningSymbols,
+                    isWin: isWin,
+                };
 
             default:
                 return { success: false, message: "Invalid bet type" };
         }
 
-        const isWin = selectedField === winningField;
-        const winnings = isWin ? (betType === "Jackpot" ? 1000000 : betAmount * multiplier) : 0;
-
+        // For non-slot machine bet types, return the result
         return {
             success: true,
             result: isWin ? "win" : "lose",
