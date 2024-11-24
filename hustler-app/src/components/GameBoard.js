@@ -110,31 +110,33 @@ function GameBoard({
                     openLoginModal={openLoginModal}
                 />
             ) : (
-                <MultiplierButtons
-                    selectedMultiplier={selectedMultiplier}
-                    selectedField={selectedField}
-                    setSelectedField={setSelectedField}
-                    winningField={winningField}
-                    isRoundInProgress={isRoundInProgress}
-                    allFlipped={allFlipped}
-                    showIcons={showIcons}
-                    setAllFlipped={setAllFlipped}
-                    setShowIcons={setShowIcons}
-                    balance={balance}
-                    setBalance={setBalance}
-                    animateBalance={animateBalance}
-                    openLoginModal={openLoginModal}
-                    isLoggedIn={isLoggedIn}
-                />
+                <div className="dynamic-buttons-wrapper">
+                    <MultiplierButtons
+                        selectedMultiplier={selectedMultiplier}
+                        selectedField={selectedField}
+                        setSelectedField={setSelectedField}
+                        winningField={winningField}
+                        isRoundInProgress={isRoundInProgress}
+                        allFlipped={allFlipped}
+                        showIcons={showIcons}
+                        setAllFlipped={setAllFlipped}
+                        setShowIcons={setShowIcons}
+                        balance={balance}
+                        setBalance={setBalance}
+                        animateBalance={animateBalance}
+                        openLoginModal={openLoginModal}
+                        isLoggedIn={isLoggedIn}
+                    />
+                    <button
+                        className="back-button"
+                        onClick={handleBackClick}
+                        disabled={isRoundInProgress}
+                        style={{ opacity: isRoundInProgress ? 0.5 : 1 }}
+                    >
+                        ↩
+                    </button>
+                </div>
             )}
-            <button
-                className="back-button"
-                onClick={handleBackClick}
-                disabled={isRoundInProgress}
-                style={{ opacity: isRoundInProgress ? 0.5 : 1 }}
-            >
-                ↩
-            </button>
         </div>
     );
 }
