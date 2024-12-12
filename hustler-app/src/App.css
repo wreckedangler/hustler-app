@@ -283,7 +283,16 @@ main {
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;;
+}
+
+@keyframes blink {
+    0% {
+        box-shadow: 0 0 10px 5px yellow;
+    }
+    100% {
+        box-shadow: 0 0 20px 10px orange;
+    }
 }
 
 .dynamic-buttons-container.dynamic-2 .dynamic-button {
@@ -397,7 +406,7 @@ main {
     font-size: 1.2rem;
     font-weight: bold;
     margin: 10px 0;
-    padding: 10px;
+    padding: 5px;
     background-color: #a413b7;
     color: #ffff00;
     width: 97%;

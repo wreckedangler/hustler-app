@@ -19,6 +19,7 @@ function MultiplierButtons({
                                isLoggedIn,
                            }) {
     const [wiggleComplete, setWiggleComplete] = useState(false);
+    const [currentRotation, setCurrentRotation] = useState(0); // Neuen State für die Rotation hinzufügen
 
     const handleButtonClick = (fieldNumber) => {
         if (!isLoggedIn) {
@@ -85,25 +86,37 @@ function MultiplierButtons({
                                     ? "flipToReveal"
                                     : "initial"
                         }
-                        variants={{
-                            ...buttonVariants,
-                            flipToReveal: {
-                                ...buttonVariants.flipToReveal,
-                                backgroundColor:
-                                    isSelected && !isWinningField
-                                        ? "#d71212" // Losing red
-                                        : isWinningField
-                                            ? "#28a745" // Winning green
-                                            : "#ff00ff", // Default
-                            },
-                        }}
+                        variants={buttonVariants}
                         whileHover={{ scale: 1.05 }}
+                        onUpdate={(latest) => {
+                            if (latest.rotateY !== undefined) {
+                                setCurrentRotation(latest.rotateY);
+                            }
+                        }}
+                        style={{
+                            backgroundColor:
+                                currentRotation >= 90
+                                    ? isSelected && isWinningField
+                                        ? "#28a745" // Winning green
+                                        : isSelected && !isWinningField
+                                            ? "#d71212" // Losing red
+                                            : "#ff00ff" // Default color
+                                    : "#ff00ff", // Default color before 90 degrees
+                            boxShadow:
+                                currentRotation >= 90 && isSelected && isWinningField
+                                    ? "0 0 10px 5px yellow"
+                                    : "none",
+                            animation:
+                                currentRotation >= 90 && isSelected && isWinningField
+                                    ? "blink 0.5s ease-in-out infinite alternate"
+                                    : "none",
+                        }}
                     >
                         {showIcons && winningField !== null
                             ? isWinningField
                                 ? "💸" // Win icon
                                 : isSelected && !isWinningField
-                                    ? "❌" // Lose icon
+                                    ? "" // Lose icon
                                     : ""
                             : "💸"}
                     </motion.button>
