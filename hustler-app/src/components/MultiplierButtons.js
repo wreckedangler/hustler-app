@@ -64,7 +64,7 @@ function MultiplierButtons({
                     : "#ff00ff", // Standardfarbe
             transition: {
                 rotateY: { duration: 0.6, delay: 0.4 },
-                backgroundColor: { delay: 0.3 },
+                backgroundColor: { delay: 0.6 },
 
             },
         }),
