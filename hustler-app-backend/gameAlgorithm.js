@@ -9,7 +9,7 @@ module.exports = {
         switch (betType) {
             case "2x": // 1 of 2 fields
                 multiplier = 2;
-                if (Math.random() <= 0.49) { // Player wins
+                if (Math.random() <= 0.45) { // Player wins
                     winningField = selectedField;
                 } else {
                     winningField = selectedField === 1 ? 2 : 1; // Alternate field wins

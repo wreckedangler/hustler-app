@@ -12,6 +12,7 @@ function LoginModal({
                     }) {
     const [usernameInput, setUsernameInput] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
     const [email, setEmail] = useState("");
 
     const handleLogin = async () => {
@@ -42,6 +43,11 @@ function LoginModal({
     };
 
     const handleRegister = async () => {
+        if (password !== passwordConfirm) {
+            alert("Passwörter stimmen nicht überein!");
+            return;
+        }
+
         try {
             const response = await fetch("http://localhost:5000/api/register", {
                 method: "POST",
@@ -67,32 +73,58 @@ function LoginModal({
         <div className="modal-backdrop" onClick={closeLoginModal}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <h2>{isRegisterMode ? "Register" : "Login"}</h2>
-                {isRegisterMode && (
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+
+                {isRegisterMode ? (
+                    <>
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={usernameInput}
+                            onChange={(e) => setUsernameInput(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Confirm Password"
+                            value={passwordConfirm}
+                            onChange={(e) => setPasswordConfirm(e.target.value)}
+                        />
+                        <button onClick={handleRegister}>Register</button>
+                    </>
+                ) : (
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={usernameInput}
+                            onChange={(e) => setUsernameInput(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button onClick={handleLogin}>Login</button>
+                    </>
                 )}
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={usernameInput}
-                    onChange={(e) => setUsernameInput(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button onClick={isRegisterMode ? handleRegister : handleLogin}>
-                    {isRegisterMode ? "Register" : "Login"}
-                </button>
+
                 <button className="close-button" onClick={closeLoginModal}>
                     Close
                 </button>
+
+                {/* Falls nur im Login-Modus (nicht im Register-Modus) angezeigt werden soll: */}
                 {!isRegisterMode && (
                     <div className="register-link">
                         <button className="register-button" onClick={openRegisterModal}>

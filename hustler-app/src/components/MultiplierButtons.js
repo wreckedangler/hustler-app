@@ -1,5 +1,5 @@
 // components/MultiplierButtons.js
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 function MultiplierButtons({
@@ -19,7 +19,8 @@ function MultiplierButtons({
                                isLoggedIn,
                            }) {
     const [wiggleComplete, setWiggleComplete] = useState(false);
-    const [rotationY, setRotationY] = useState(0); // Aktuelle Rotation in Grad (0 - 180)
+    const rotationYRef = useRef(0);
+    const [isRotationComplete, setIsRotationComplete] = useState(false);
 
     const handleButtonClick = (fieldNumber) => {
         if (!isLoggedIn) {
@@ -30,6 +31,7 @@ function MultiplierButtons({
             setSelectedField(fieldNumber);
             setWiggleComplete(false);
             setTimeout(() => setWiggleComplete(true), 400);
+            setIsRotationComplete(false);
         }
     };
 
@@ -61,13 +63,17 @@ function MultiplierButtons({
                 ? "#28a745" // Grün für Gewinner
                 : custom.isSelected
                     ? "#d71212" // Rot für Verlierer
-                    : "#ff00ff", // Standardfarbe
+                    : "#ff00ff", // Standard
             transition: {
                 rotateY: { duration: 0.6, delay: 0.4 },
                 backgroundColor: { delay: 0.6 },
-
             },
         }),
+        highlight: {
+            boxShadow: "0 0 10px 5px yellow",
+            animation: "blink 0.5s ease-in-out infinite alternate",
+            transition: { duration: 0.3, ease: "easeInOut", delay: 0 }
+        }
     };
 
     return (
@@ -77,6 +83,29 @@ function MultiplierButtons({
                 const isWinningField = fieldNumber === winningField;
                 const isSelected = fieldNumber === selectedField;
 
+                let animateSequence;
+                if (isSelected) {
+                    // Der ausgewählte Button
+                    if (wiggleComplete) {
+                        // Nach dem Wiggle in den Flip-State
+                        animateSequence = isRotationComplete && isWinningField
+                            ? ["flipToReveal", "highlight"]
+                            : "flipToReveal";
+                    } else {
+                        // Zuerst Wiggle, bevor geflippt wird
+                        animateSequence = "wiggle";
+                    }
+                } else {
+                    // Nicht ausgewählter Button
+                    if (allFlipped && winningField !== null) {
+                        animateSequence = isRotationComplete && isWinningField
+                            ? ["flipToReveal", "highlight"]
+                            : "flipToReveal";
+                    } else {
+                        animateSequence = "initial";
+                    }
+                }
+
                 return (
                     <motion.button
                         key={i}
@@ -84,43 +113,28 @@ function MultiplierButtons({
                         onClick={() => handleButtonClick(fieldNumber)}
                         disabled={winningField !== null && !allFlipped}
                         initial="initial"
-                        animate={
-                            isSelected
-                                ? wiggleComplete
-                                    ? "flipToReveal"
-                                    : "wiggle"
-                                : allFlipped && winningField !== null
-                                    ? "flipToReveal"
-                                    : "initial"
-                        }
+                        animate={animateSequence}
                         custom={{
                             isWinningField,
                             isSelected,
-                            rotationProgress: rotationY
+                            rotationProgress: rotationYRef.current
                         }}
                         variants={buttonVariants}
                         whileHover={{ scale: 1.05 }}
                         onUpdate={(latest) => {
                             if (latest.rotateY !== undefined) {
-                                setRotationY(latest.rotateY); // Speichere die Rotation in rotationY
+                                rotationYRef.current = latest.rotateY;
+                                if (latest.rotateY >= 179 && !isRotationComplete) {
+                                    setTimeout(() => setIsRotationComplete(true), 50);
+                                }
                             }
-                        }}
-                        style={{
-                            boxShadow:
-                                rotationY >= 90 && isSelected && isWinningField
-                                    ? "0 0 10px 5px yellow"
-                                    : "none",
-                            animation:
-                                rotationY >= 90 && isSelected && isWinningField
-                                    ? "blink 0.5s ease-in-out infinite alternate"
-                                    : "none",
                         }}
                     >
                         {showIcons && winningField !== null
                             ? isWinningField
-                                ? "💸" // Gewinnsymbol
+                                ? "💸"
                                 : isSelected && !isWinningField
-                                    ? "" // Verlierersymbol
+                                    ? ""
                                     : ""
                             : "💸"}
                     </motion.button>
