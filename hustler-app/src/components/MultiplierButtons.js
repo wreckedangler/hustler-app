@@ -19,7 +19,7 @@ function MultiplierButtons({
                                isLoggedIn,
                            }) {
     const [wiggleComplete, setWiggleComplete] = useState(false);
-    const [currentRotation, setCurrentRotation] = useState(0); // Neuen State für die Rotation hinzufügen
+    const [rotationY, setRotationY] = useState(0); // Aktuelle Rotation in Grad (0 - 180)
 
     const handleButtonClick = (fieldNumber) => {
         if (!isLoggedIn) {
@@ -49,18 +49,25 @@ function MultiplierButtons({
     const containerClass = `dynamic-buttons-container dynamic-${count}`;
 
     const buttonVariants = {
-        initial: { rotateY: 0, scale: 1, backgroundColor: "#ff00ff" },
+        initial: { rotateY: 0, scale: 1 },
         wiggle: {
             rotate: [0, -10, 10, -10, 10, 0],
             scale: 1.1,
             transition: { duration: 0.4 },
         },
-        flipToReveal: {
+        flipToReveal: (custom) => ({
             rotateY: 180,
-            transition: { duration: 0.6, delay: 0.4 },
-        },
-        winning: { backgroundColor: "#28a745" },
-        losing: { backgroundColor: "#d71212" },
+            backgroundColor: custom.isWinningField
+                ? "#28a745" // Grün für Gewinner
+                : custom.isSelected
+                    ? "#d71212" // Rot für Verlierer
+                    : "#ff00ff", // Standardfarbe
+            transition: {
+                rotateY: { duration: 0.6, delay: 0.4 },
+                backgroundColor: { delay: 0.3 },
+
+            },
+        }),
     };
 
     return (
@@ -86,37 +93,34 @@ function MultiplierButtons({
                                     ? "flipToReveal"
                                     : "initial"
                         }
+                        custom={{
+                            isWinningField,
+                            isSelected,
+                            rotationProgress: rotationY
+                        }}
                         variants={buttonVariants}
                         whileHover={{ scale: 1.05 }}
                         onUpdate={(latest) => {
                             if (latest.rotateY !== undefined) {
-                                setCurrentRotation(latest.rotateY);
+                                setRotationY(latest.rotateY); // Speichere die Rotation in rotationY
                             }
                         }}
                         style={{
-                            backgroundColor:
-                                currentRotation >= 90
-                                    ? isSelected && isWinningField
-                                        ? "#28a745" // Winning green
-                                        : isSelected && !isWinningField
-                                            ? "#d71212" // Losing red
-                                            : "#ff00ff" // Default color
-                                    : "#ff00ff", // Default color before 90 degrees
                             boxShadow:
-                                currentRotation >= 90 && isSelected && isWinningField
+                                rotationY >= 90 && isSelected && isWinningField
                                     ? "0 0 10px 5px yellow"
                                     : "none",
                             animation:
-                                currentRotation >= 90 && isSelected && isWinningField
+                                rotationY >= 90 && isSelected && isWinningField
                                     ? "blink 0.5s ease-in-out infinite alternate"
                                     : "none",
                         }}
                     >
                         {showIcons && winningField !== null
                             ? isWinningField
-                                ? "💸" // Win icon
+                                ? "💸" // Gewinnsymbol
                                 : isSelected && !isWinningField
-                                    ? "" // Lose icon
+                                    ? "" // Verlierersymbol
                                     : ""
                             : "💸"}
                     </motion.button>
