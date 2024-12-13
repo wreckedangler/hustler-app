@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -6,6 +5,7 @@ const pool = require("./db");
 const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
 require("dotenv").config();
+const { createWallet, encryptPrivateKey } = require('./wallet'); // Import des Wallet-Moduls
 
 const app = express();
 const PORT = 5000;
@@ -15,28 +15,48 @@ app.use(cors({ origin: "http://localhost:3000" }));
 // Registration
 app.post("/api/register", async (req, res) => {
     const { username, email, password } = req.body;
-    try {
-        const userCheck = await pool.query(
-            "SELECT * FROM users WHERE username = $1 OR email = $2",
-            [username, email]
-        );
 
+    try {
+        const userCheck = await pool.query("SELECT * FROM users WHERE username = $1 OR email = $2", [username, email]);
         if (userCheck.rows.length > 0) {
             return res.status(400).json({ error: "Username or email already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        const { address: walletAddress, privateKey } = createWallet();
+        if (!walletAddress || !privateKey) {
+            throw new Error('Wallet creation failed');
+        }
+
+        const encryptedPrivateKey = encryptPrivateKey(privateKey);
+        if (!encryptedPrivateKey) {
+            throw new Error('Failed to encrypt private key');
+        }
+
         const result = await pool.query(
-            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, balance",
-            [username, email, hashedPassword]
+            `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key) 
+            VALUES ($1, $2, $3, $4, $5) 
+            RETURNING id, username, balance, wallet_address`,
+            [username, email, hashedPassword, walletAddress, encryptedPrivateKey]
         );
 
-        res.status(201).json({ message: "Registration successful", user: result.rows[0] });
+        res.status(201).json({
+            message: "Registration successful",
+            user: {
+                id: result.rows[0].id,
+                username: result.rows[0].username,
+                balance: result.rows[0].balance,
+                walletAddress: result.rows[0].wallet_address
+            }
+        });
+
     } catch (error) {
-        console.error("Error during registration:", error);
-        res.status(500).json({ error: "User registration failed" });
+        console.error("Error during registration:", error.message);
+        res.status(500).json({ error: "User registration failed", details: error.message });
     }
 });
+
 
 // Login
 app.post("/api/login", async (req, res) => {
