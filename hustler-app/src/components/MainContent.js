@@ -9,8 +9,6 @@ function MainContent({
                          isLoggedIn,
                          balance,
                          setBalance,
-                         displayBalance,
-                         setDisplayBalance,
                          openLoginModal,
                          animateBalance,
                      }) {

@@ -9,7 +9,6 @@ function Header({
                     displayBalance,
                     openLoginModal,
                     openRegisterModal,
-                    balance,
                 }) {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
