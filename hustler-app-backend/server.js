@@ -12,6 +12,37 @@ const PORT = 5000;
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000" }));
 
+// Function to synchronize user balance with wallet balance
+const syncUserBalance = async (userId) => {
+    try {
+        const userResult = await pool.query(
+            "SELECT wallet_address FROM users WHERE id = $1",
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            throw new Error("User not found");
+        }
+
+        const walletAddress = userResult.rows[0].wallet_address;
+
+        // 🔥 Get the balance of the wallet (for ETH or USDT)
+        const usdtAddress = process.env.USDT_CONTRACT_ADDRESS; // ERC-20 token address for USDT
+        const balance = await getTokenBalance(walletAddress, usdtAddress); // Use getTokenBalance for USDT
+
+        // Update the user's balance in the database
+        await pool.query(
+            "UPDATE users SET balance = $1 WHERE id = $2",
+            [balance, userId]
+        );
+
+        return balance;
+    } catch (error) {
+        console.error("Error during balance synchronization:", error.message);
+        throw new Error('Failed to synchronize balance');
+    }
+};
+
 // Registration
 app.post("/api/register", async (req, res) => {
     const { username, email, password } = req.body;
@@ -35,9 +66,9 @@ app.post("/api/register", async (req, res) => {
         }
 
         const result = await pool.query(
-            `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key) 
-            VALUES ($1, $2, $3, $4, $5) 
-            RETURNING id, username, balance, wallet_address`,
+            `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, username, balance, wallet_address`,
             [username, email, hashedPassword, walletAddress, encryptedPrivateKey]
         );
 
@@ -57,7 +88,6 @@ app.post("/api/register", async (req, res) => {
     }
 });
 
-
 // Login
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
@@ -72,11 +102,23 @@ app.post("/api/login", async (req, res) => {
             return res.status(400).json({ error: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.json({ token, user: { username: user.rows[0].username, balance: user.rows[0].balance } });
+        const userId = user.rows[0].id;
+
+        // 🔥 Synchronize balance on login
+        const newBalance = await syncUserBalance(userId);
+
+        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        res.json({
+            token,
+            user: {
+                id: userId,
+                username: user.rows[0].username,
+                balance: newBalance
+            }
+        });
     } catch (error) {
-        console.error("Error during login:", error);
-        res.status(500).json({ error: "Login failed" });
+        console.error("Error during login:", error.message);
+        res.status(500).json({ error: "Login failed", details: error.message });
     }
 });
 

@@ -1,4 +1,3 @@
-// components/Header.js
 import React, { useState, useRef, useEffect } from "react";
 import UserInfo from "./UserInfo";
 import MenuButton from "./MenuButton";
@@ -19,7 +18,7 @@ function Header({
         setIsDropdownVisible((prev) => !prev);
     };
 
-    // Schließen des Dropdowns, wenn außerhalb geklickt wird
+    // Close the dropdown if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -40,12 +39,16 @@ function Header({
         <header>
             <UserInfo isLoggedIn={isLoggedIn} username={username} />
             <div className="title">HUSTLER</div>
-            {isLoggedIn && (
-                <div className="balance">
-                    <span>${displayBalance}</span>
-                </div>
-            )}
-            <MenuButton toggleDropdown={toggleDropdown} />
+
+            <div className="right-header">
+                {isLoggedIn && (
+                    <div className="balance">
+                        <span>${displayBalance}</span>
+                    </div>
+                )}
+                <MenuButton toggleDropdown={toggleDropdown} />
+            </div>
+
             {isDropdownVisible && (
                 <DropdownMenu
                     openLoginModal={openLoginModal}
