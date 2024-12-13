@@ -51,6 +51,7 @@ header {
     font-size: 76px;
     color: #fdc445;
     margin-top: 100px;
+
 }
 
 .copyR {
@@ -73,16 +74,28 @@ header {
 }
 
 .menu-button {
-    background-color: #070707;
+    background-color: #444444;
     color: #fdc445;
     border: none;
     border-radius: 50%;
+    margin-top: 40px;
     width: 40px;
     height: 40px;
     font-size: 20px;
     cursor: pointer;
-    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease; /* Smooth transition for hover effect */
 }
+
+.menu-button:hover {
+    background-color: #383838; /* Change background color on hover */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4); /* Add a shadow effect */
+    color: #fdc445; /* Change the text/icon color */
+}
+
 
 
 main {
@@ -118,11 +131,11 @@ main {
     align-items: center;
     font-size: 76px;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: transform 0.4s ease;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
 }
 
 .box-button:hover {
@@ -291,7 +304,7 @@ main {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;;
 }
 
@@ -344,6 +357,7 @@ main {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s ease;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .dollar-button.selected {
@@ -377,7 +391,7 @@ main {
     border-radius: 8px;
     cursor: pointer;
     font-size: 26px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     margin-top: 20px;
     position: absolute;
     right: 0;
@@ -422,6 +436,7 @@ main {
     border-radius: 5px;
     margin-top: 150px;
     border: 2px solid yellow;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Slot Machine Container */
