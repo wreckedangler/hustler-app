@@ -3,16 +3,18 @@ import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
 import SlotMachine from "./SlotMachine";
 
+
 function GameBoard({
                        selectedMultiplier,
                        selectedAmount,
-                       balance,
+
                        setBalance,
                        isLoggedIn,
                        setSelectedMultiplier,
                        animateBalance,
                        openLoginModal,
                    }) {
+    const [balance, setLocalBalance] = useState(0); // State für die Balance
     const [selectedField, setSelectedField] = useState(null);
     const [winningField, setWinningField] = useState(null);
     const [allFlipped, setAllFlipped] = useState(false);
@@ -28,6 +30,30 @@ function GameBoard({
         setShowIcons(false);
         setIsRoundInProgress(false);
         setSlotResult(null); // Reset slot machine result
+    };
+
+    // 🛠️ **Balance vom Backend abrufen**
+    const fetchBalanceFromDB = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/api/get-balance", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch balance from server');
+            }
+
+            const data = await response.json();
+            console.log('Balance from DB:', data.balance); // Debugging
+            setLocalBalance(data.balance);
+            setBalance(data.balance); // Optional: falls du die Balance global setzen willst
+        } catch (error) {
+            console.error("Error fetching balance from backend:", error);
+        }
     };
 
     const checkBalanceAndPlay = async () => {

@@ -4,13 +4,91 @@ const jwt = require("jsonwebtoken");
 const pool = require("./db");
 const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
+const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWallets } = require('./potWallet');
+const { createWallet, encryptPrivateKey, getTokenBalance} = require('./wallet'); // Import des Wallet-Moduls
 require("dotenv").config();
-const { createWallet, encryptPrivateKey } = require('./wallet'); // Import des Wallet-Moduls
 
 const app = express();
 const PORT = 5000;
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000" }));
+
+
+// Middleware
+const authenticateToken = (req, res, next) => {
+    const token = req.header("Authorization")?.split(" ")[1];
+    if (!token) return res.status(401).json({ error: "Access denied" });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: "Invalid token" });
+        req.user = user;
+        next();
+    });
+};
+
+app.get("/api/get-balance", authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const result = await pool.query(
+            "SELECT balance FROM users WHERE id = $1",
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const balance = result.rows[0].balance;
+        res.status(200).json({ balance });
+    } catch (error) {
+        console.error("Error fetching user balance:", error.message);
+        res.status(500).json({ error: "Failed to fetch balance" });
+    }
+});
+
+
+app.get("/api/list-pot-wallets", async (req, res) => {
+    try {
+        const wallets = await listAllPotWallets();
+        res.status(200).json({ message: "Pot wallets listed", wallets });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to list pot wallets", details: error.message });
+    }
+});
+
+
+app.get("/api/get-active-pot-wallet", async (req, res) => {
+    try {
+        const wallet = await getActivePotWallet();
+        res.status(200).json({ message: "Active pot wallet", wallet });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to get active pot wallet", details: error.message });
+    }
+});
+
+
+app.post("/api/set-active-pot-wallet", async (req, res) => {
+    const { walletAddress } = req.body;
+
+    try {
+        const wallet = await setActivePotWallet(walletAddress);
+        res.status(200).json({ message: "Active pot wallet set", wallet });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to set active pot wallet", details: error.message });
+    }
+});
+
+
+app.post("/api/create-pot-wallet", async (req, res) => {
+    try {
+        const wallet = await createPotWallet();
+        res.status(201).json({ message: "Pot wallet created", wallet });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to create pot wallet", details: error.message });
+    }
+});
+
 
 // Function to synchronize user balance with wallet balance
 const syncUserBalance = async (userId) => {
@@ -43,7 +121,7 @@ const syncUserBalance = async (userId) => {
     }
 };
 
-// Registration
+// 🛠️ Registrierungsroute
 app.post("/api/register", async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -55,16 +133,21 @@ app.post("/api/register", async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const { address: walletAddress, privateKey } = createWallet();
-        if (!walletAddress || !privateKey) {
+        // 🟢 1. Wallet erstellen
+        const wallet = createWallet(); // 🔥 Ruft createWallet auf
+        if (!wallet || !wallet.privateKey) {
             throw new Error('Wallet creation failed');
         }
 
-        const encryptedPrivateKey = encryptPrivateKey(privateKey);
+        const { address: walletAddress, privateKey } = wallet;
+
+        // 🟢 2. Privaten Schlüssel verschlüsseln
+        const encryptedPrivateKey = encryptPrivateKey(privateKey); // 🔥 Verschlüssele den privaten Schlüssel
         if (!encryptedPrivateKey) {
             throw new Error('Failed to encrypt private key');
         }
 
+        // 🟢 3. Speichere den Benutzer in der Datenbank
         const result = await pool.query(
             `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key)
              VALUES ($1, $2, $3, $4, $5)
@@ -87,6 +170,7 @@ app.post("/api/register", async (req, res) => {
         res.status(500).json({ error: "User registration failed", details: error.message });
     }
 });
+
 
 // Login
 app.post("/api/login", async (req, res) => {
@@ -122,17 +206,6 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
-// Middleware
-const authenticateToken = (req, res, next) => {
-    const token = req.header("Authorization")?.split(" ")[1];
-    if (!token) return res.status(401).json({ error: "Access denied" });
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ error: "Invalid token" });
-        req.user = user;
-        next();
-    });
-};
 
 // Game Play and Pot Logic
 app.post("/api/play", authenticateToken, async (req, res) => {
