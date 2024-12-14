@@ -77,6 +77,7 @@ function Header({
 
             {isDropdownVisible && (
                 <DropdownMenu
+                    isLoggedIn={isLoggedIn}
                     openLoginModal={openLoginModal}
                     openRegisterModal={openRegisterModal}
                     openDepositModal={openDepositModal}

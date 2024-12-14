@@ -14,6 +14,7 @@ function App() {
     const [balance, setBalance] = useState(0.0);
     const [displayBalance, setDisplayBalance] = useState(0.0);
 
+
     // Funktionen zum Öffnen/Schließen von Modalen
     const openLoginModal = () => {
         setIsLoginModalVisible(true);
@@ -51,6 +52,7 @@ function App() {
         <div className="App">
             <Header
                 isLoggedIn={isLoggedIn}
+                setIsLoggedIn={setIsLoggedIn}
                 username={username}
                 displayBalance={displayBalance}
                 openLoginModal={openLoginModal}
