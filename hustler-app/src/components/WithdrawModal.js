@@ -15,17 +15,17 @@ const WithdrawModal = ({ closeModal, submitWithdraw }) => {
                 <h2>Withdraw</h2>
                 <input
                     type="text"
-                    placeholder="Enter wallet address"
+                    placeholder="Wallet address"
                     value={withdrawAddress}
                     onChange={(e) => setWithdrawAddress(e.target.value)}
                 />
                 <input
                     type="number"
-                    placeholder="Enter amount"
+                    placeholder="Amount"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                 />
-                <button onClick={handleWithdraw}>Submit Withdraw</button>
+                <button onClick={handleWithdraw}>Submit</button>
                 <button className="close-button" onClick={closeModal}>Close</button>
             </div>
         </div>

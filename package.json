@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "ethers": "^6.13.4",
-    "inquirer": "^12.2.0"
+    "inquirer": "^12.2.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

@@ -1,10 +1,10 @@
-// components/DepositModal.js
 import React, { useEffect, useState } from 'react';
+import QRCodeGenerator from './QRCodeGenerator'; // Import QRCodeGenerator component
 
 const DepositModal = ({ closeModal }) => {
     const [walletAddress, setWalletAddress] = useState('');
 
-    // Fetch the wallet address from the server when the modal opens
+    // 🟢 Wallet-Adresse beim Öffnen des Modals abrufen
     useEffect(() => {
         const fetchWalletAddress = async () => {
             try {
@@ -32,16 +32,37 @@ const DepositModal = ({ closeModal }) => {
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(walletAddress);
-        alert('Wallet address copied to clipboard!');
+        alert('📋 Wallet address copied to clipboard!');
     };
 
     return (
         <div className="modal-backdrop" onClick={closeModal}>
             <div className="modal deposit-modal" onClick={(e) => e.stopPropagation()}>
-                <h2>Deposit</h2>
+                <h1>Deposit</h1>
+
+                {/* 🟢 QR-Code Generator */}
+                <div className="qr-code-container">
+                    <QRCodeGenerator walletAddress={walletAddress} size={180} />
+                </div>
+
                 <p>Send funds to the following address:</p>
-                <input type="text" value={walletAddress} readOnly />
-                <button onClick={copyToClipboard}>Copy to Clipboard</button>
+
+                <div className="wallet-address-container">
+                    <input
+                        type="text"
+                        value={walletAddress}
+                        readOnly
+                        className="wallet-address-input"
+                    />
+                </div>
+
+                <button
+                    onClick={copyToClipboard}
+                    className="copy-button"
+                >
+                    Copy address
+                </button>
+
                 <button className="close-button" onClick={closeModal}>Close</button>
             </div>
         </div>

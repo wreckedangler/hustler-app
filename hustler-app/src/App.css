@@ -200,7 +200,14 @@ main {
 }
 
 .modal h2 {
-    font-size: 24px;
+    margin-top: 1px;
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #fdc445;
+}
+.modal h1 {
+    margin-top: 1px;
+    font-size: 52px;
     margin-bottom: 20px;
     color: #fdc445;
 }
@@ -214,6 +221,7 @@ main {
     border-radius: 5px;
     outline: none;
     font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     margin-bottom: 15px;
     transition: border-color 0.3s;
 }
@@ -228,7 +236,7 @@ main {
 
 .modal button {
     padding: 12px;
-    background-color: #30569a;
+    background-color: #383838;
     color: white;
     border: none;
     border-radius: 5px;
@@ -236,11 +244,12 @@ main {
     font-size: 16px;
     width: 100%;
     transition: background-color 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     margin-top: 10px;
 }
 
 .modal button:hover {
-    background-color: #467ac9;
+    background-color: #444444;
 }
 
 .close-button {
@@ -530,23 +539,80 @@ main {
     transform: scale(1.05);
 }
 
+/* Deposit Modal Styling */
 .deposit-modal {
-    width: 560px; /* Nur für das Deposit Modal */
-    height: auto; /* Höhe passt sich an den Inhalt an */
-    max-width: 81%;
-    padding: 50px; /* Mehr Padding */
+    width: 560px;
+    padding: 20px;
+    background-color: #222;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.wallet-address-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.wallet-address-container input {
+    width: 240px;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.wallet-address-container button {
+    background-color: #30569a;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.wallet-address-container button:hover {
+    background-color: #467ac9;
+}
+
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.copy-button {
+    background-color: #444;
+    color: white;
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+    background-color: #555;
 }
 
 .deposit-modal input[type="text"] {
+    color: #28a745;
     font-size: 20px; /* Größere Schrift */
     padding: 15px;
-    width: 87%;
+    width: 498px;
     border: 2px solid #555; /* Deutlicherer Rahmen */
 }
 
 .deposit-modal button {
     padding: 15px 20px;
-    width: 93%;
+    width: 95%;
     font-size: 16px; /* Größere Buttons */
 }
 
