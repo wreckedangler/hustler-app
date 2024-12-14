@@ -7,10 +7,11 @@ import WithdrawModal from "./WithdrawModal";
 
 function Header({
                     isLoggedIn,
+                    setIsLoggedIn,
                     username,
                     displayBalance,
                     openLoginModal,
-                    openRegisterModal,
+                    openRegisterModal
                 }) {
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
@@ -19,6 +20,16 @@ function Header({
 
     const toggleDropdown = () => {
         setIsDropdownVisible((prev) => !prev);
+    };
+
+    // 🟢 **handleLogout Funktion**
+    const handleLogout = () => {
+        console.log('🚪 Logging out...');
+        localStorage.removeItem('token'); //
+        setIsLoggedIn(false); //
+
+        setIsDropdownVisible(false); //
+        console.log('🟢 User has been logged out');
     };
 
     // Close the dropdown if clicked outside
@@ -77,6 +88,7 @@ function Header({
 
             {isDropdownVisible && (
                 <DropdownMenu
+                    handleLogout={handleLogout}
                     isLoggedIn={isLoggedIn}
                     openLoginModal={openLoginModal}
                     openRegisterModal={openRegisterModal}
