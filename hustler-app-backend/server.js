@@ -26,6 +26,28 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Funktion zum Abrufen der Wallet-Adresse des Benutzers
+app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {
+    const userId = req.user.id; // Die Benutzer-ID aus dem Auth-Token abrufen
+
+    try {
+        const result = await pool.query(
+            "SELECT wallet_address FROM users WHERE id = $1",
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const walletAddress = result.rows[0].wallet_address;
+        res.status(200).json({ walletAddress });
+    } catch (error) {
+        console.error("Error fetching wallet address:", error.message);
+        res.status(500).json({ error: "Failed to fetch wallet address" });
+    }
+});
+
 app.get("/api/get-balance", authenticateToken, async (req, res) => {
     const userId = req.user.id;
 

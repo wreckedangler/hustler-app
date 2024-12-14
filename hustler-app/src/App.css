@@ -530,4 +530,23 @@ main {
     transform: scale(1.05);
 }
 
+.deposit-modal {
+    width: 560px; /* Nur für das Deposit Modal */
+    height: auto; /* Höhe passt sich an den Inhalt an */
+    max-width: 81%;
+    padding: 50px; /* Mehr Padding */
+}
+
+.deposit-modal input[type="text"] {
+    font-size: 20px; /* Größere Schrift */
+    padding: 15px;
+    width: 87%;
+    border: 2px solid #555; /* Deutlicherer Rahmen */
+}
+
+.deposit-modal button {
+    padding: 15px 20px;
+    width: 93%;
+    font-size: 16px; /* Größere Buttons */
+}
 
