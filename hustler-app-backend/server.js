@@ -143,6 +143,40 @@ const syncUserBalance = async (userId) => {
     }
 };
 
+// Check if email is already in use
+app.get("/api/check-email", async (req, res) => {
+    const { email } = req.query;
+
+    try {
+        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (result.rows.length > 0) {
+            return res.json({ available: false });
+        } else {
+            return res.json({ available: true });
+        }
+    } catch (error) {
+        console.error("Error checking email:", error.message);
+        res.status(500).json({ error: "Failed to check email" });
+    }
+});
+
+
+app.get("/api/check-username", async (req, res) => {
+    const { username } = req.query;
+    try {
+        const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        if (result.rows.length > 0) {
+            res.json({ available: false });
+        } else {
+            res.json({ available: true });
+        }
+    } catch (error) {
+        console.error("Error checking username:", error.message);
+        res.status(500).json({ error: "Failed to check username" });
+    }
+});
+
+
 // 🛠️ Registrierungsroute
 app.post("/api/register", async (req, res) => {
     const { username, email, password } = req.body;

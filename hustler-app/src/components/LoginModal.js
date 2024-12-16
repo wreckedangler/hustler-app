@@ -1,4 +1,3 @@
-// components/LoginModal.js
 import React, { useState } from "react";
 
 function LoginModal({
@@ -14,14 +13,74 @@ function LoginModal({
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [email, setEmail] = useState("");
+    const [usernameStatus, setUsernameStatus] = useState(null);
+    const [usernameError, setUsernameError] = useState("");
+    const [emailStatus, setEmailStatus] = useState(null);
+    const [emailError, setEmailError] = useState("");
 
+    // 🟢 Validate Username
+    const validateUsername = (username) => {
+        const regex = /^[a-zA-Z0-9_]{3,16}$/;
+        if (!regex.test(username)) {
+            return "❌ Username must be 3-16 characters long and only contain letters, numbers, or underscores.";
+        }
+        return "";
+    };
+
+    // 🟢 Check Username Availability
+    const handleUsernameCheck = async (username) => {
+        const validationError = validateUsername(username);
+        if (validationError) {
+            setUsernameError(validationError);
+            setUsernameStatus(null);
+            return;
+        }
+        setUsernameError("");
+
+        try {
+            const response = await fetch(
+                `http://localhost:5000/api/check-username?username=${username}`
+            );
+            const data = await response.json();
+            setUsernameStatus(data.available ? "✅ Username is available" : "❌ Username is already taken");
+        } catch (error) {
+            console.error("Error checking username:", error);
+            setUsernameStatus("⚠️ Error checking username availability.");
+        }
+    };
+
+    // 🟢 Validate Email
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
+        return regex.test(email) ? "" : "❌ Invalid email format.";
+    };
+
+    // 🟢 Check Email Availability
+    const handleEmailCheck = async (email) => {
+        const validationError = validateEmail(email);
+        if (validationError) {
+            setEmailError(validationError);
+            setEmailStatus(null);
+            return;
+        }
+        setEmailError("");
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/check-email?email=${email}`);
+            const data = await response.json();
+            setEmailStatus(data.available ? "✅ Email is available" : "❌ Email is already in use.");
+        } catch (error) {
+            console.error("Error checking email:", error);
+            setEmailStatus("⚠️ Error checking email availability.");
+        }
+    };
+
+    // 🟢 Handle Login
     const handleLogin = async () => {
         try {
             const response = await fetch("http://localhost:5000/api/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: usernameInput, password }),
             });
             const data = await response.json();
@@ -37,23 +96,26 @@ function LoginModal({
                 alert("Login failed: " + data.error);
             }
         } catch (error) {
-            console.error("Error during login:", error);
             alert("An error occurred during login.");
         }
     };
 
+    // 🟢 Handle Register
     const handleRegister = async () => {
         if (password !== passwordConfirm) {
-            alert("Passwörter stimmen nicht überein!");
+            alert("Passwords do not match!");
+            return;
+        }
+
+        if (usernameError || emailError) {
+            alert("Please fix the validation errors before proceeding.");
             return;
         }
 
         try {
             const response = await fetch("http://localhost:5000/api/register", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: usernameInput, email, password }),
             });
             const data = await response.json();
@@ -64,7 +126,6 @@ function LoginModal({
                 alert("Registration failed: " + data.error);
             }
         } catch (error) {
-            console.error("Error during registration:", error);
             alert("An error occurred during registration.");
         }
     };
@@ -76,18 +137,33 @@ function LoginModal({
 
                 {isRegisterMode ? (
                     <>
+                        {/* Email Input */}
                         <input
                             type="email"
                             placeholder="Email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => {
+                                setEmail(e.target.value);
+                                handleEmailCheck(e.target.value);
+                            }}
                         />
+                        {emailError && <p style={{ color: "red", fontSize: "0.8rem" }}>{emailError}</p>}
+                        {emailStatus && <p style={{ fontSize: "0.8rem" }}>{emailStatus}</p>}
+
+                        {/* Username Input */}
                         <input
                             type="text"
                             placeholder="Username"
                             value={usernameInput}
-                            onChange={(e) => setUsernameInput(e.target.value)}
+                            onChange={(e) => {
+                                setUsernameInput(e.target.value);
+                                handleUsernameCheck(e.target.value);
+                            }}
                         />
+                        {usernameError && <p style={{ color: "red", fontSize: "0.8rem" }}>{usernameError}</p>}
+                        {usernameStatus && <p style={{ fontSize: "0.8rem" }}>{usernameStatus}</p>}
+
+                        {/* Password Input */}
                         <input
                             type="password"
                             placeholder="Password"
@@ -100,6 +176,7 @@ function LoginModal({
                             value={passwordConfirm}
                             onChange={(e) => setPasswordConfirm(e.target.value)}
                         />
+
                         <button onClick={handleRegister}>Register</button>
                     </>
                 ) : (
@@ -124,7 +201,6 @@ function LoginModal({
                     Close
                 </button>
 
-                {/* Falls nur im Login-Modus (nicht im Register-Modus) angezeigt werden soll: */}
                 {!isRegisterMode && (
                     <div className="register-link">
                         <button className="register-button" onClick={openRegisterModal}>
