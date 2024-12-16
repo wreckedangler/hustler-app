@@ -26,6 +26,42 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+const { sendUSDT } = require("./sendUSDT");
+
+// API-Route zum Senden von USDT
+app.post("/api/send-usdt", authenticateToken, async (req, res) => {
+    const { recipientAddress, amount } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Wallet-Informationen des Benutzers aus der Datenbank abrufen
+        const userResult = await pool.query(
+            "SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1",
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: "User wallet not found." });
+        }
+
+        const { wallet_address, encrypted_private_key } = userResult.rows[0];
+        const senderPrivateKey = decryptPrivateKey(encrypted_private_key); // Entschlüsselung der Private Keys
+
+        // USDT senden
+        const result = await sendUSDT(senderPrivateKey, wallet_address, recipientAddress, amount, userId);
+
+        if (result.success) {
+            res.status(200).json({ message: "USDT sent successfully.", txHash: result.txHash });
+        } else {
+            res.status(500).json({ error: "Failed to send USDT.", details: result.error });
+        }
+    } catch (error) {
+        console.error("❌ Error during USDT transfer:", error.message);
+        res.status(500).json({ error: "An error occurred while sending USDT." });
+    }
+});
+
+
 // Funktion zum Abrufen der Wallet-Adresse des Benutzers
 app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {
     const userId = req.user.id; // Die Benutzer-ID aus dem Auth-Token abrufen

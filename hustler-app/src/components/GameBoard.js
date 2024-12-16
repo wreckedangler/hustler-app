@@ -61,6 +61,7 @@ function GameBoard({
             selectedMultiplier === "1m"
                 ? 10
                 : parseFloat(selectedAmount.replace("$", ""));
+        await fetchBalanceFromDB()
         if (balance < betAmount) {
             alert("Insufficient balance for this bet.");
             return;
