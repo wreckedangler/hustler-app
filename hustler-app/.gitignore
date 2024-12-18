@@ -10,7 +10,7 @@
 
 # production
 /build
-
+/hustler-app-backend/exportPrivateKeys.js
 # misc
 .DS_Store
 .env.local

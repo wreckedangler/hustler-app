@@ -6,6 +6,7 @@ const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
 const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWallets } = require('./potWallet');
 const { createWallet, encryptPrivateKey, getTokenBalance} = require('./wallet'); // Import des Wallet-Moduls
+const { sendUSDT } = require("./sendUSDT");
 require("dotenv").config();
 
 const app = express();
@@ -26,7 +27,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-const { sendUSDT } = require("./sendUSDT");
 
 // API-Route zum Senden von USDT
 app.post("/api/send-usdt", authenticateToken, async (req, res) => {
@@ -298,8 +298,6 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
-
-// Game Play and Pot Logic
 app.post("/api/play", authenticateToken, async (req, res) => {
     let { betAmount, betType, selectedField } = req.body;
     const userId = req.user.id;
@@ -314,39 +312,73 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     }
 
     try {
-        const potResult = await pool.query("SELECT amount FROM pot LIMIT 1");
-        let potAmount = parseFloat(potResult.rows[0].amount);
-
-        if (gameResult.result === "win") {
-            if (potAmount >= gameResult.winnings) {
-                await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [gameResult.winnings, userId]);
-                await pool.query("UPDATE pot SET amount = amount - $1", [gameResult.winnings]);
-                potAmount -= gameResult.winnings;
-            } else {
-                return res.status(400).json({ error: "Insufficient pot funds for payout" });
-            }
-        } else {
-            await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [betAmount, userId]);
-            await pool.query("UPDATE pot SET amount = amount + $1", [betAmount]);
-            potAmount += betAmount;
+        //  **User Wallet abrufen**
+        const userResult = await pool.query("SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1", [userId]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
         }
 
+        const userWalletAddress = userResult.rows[0].wallet_address;
+        const userPrivateKey = decryptPrivateKey(userResult.rows[0].encrypted_private_key);
+
+        //  **Pot Wallet abrufen**
+        const potWalletResult = await pool.query("SELECT wallet_address, encrypted_private_key FROM pot_wallets WHERE is_active = true LIMIT 1");
+        if (potWalletResult.rows.length === 0) {
+            return res.status(404).json({ error: "No active pot wallet found" });
+        }
+
+        const potWalletAddress = potWalletResult.rows[0].wallet_address;
+        const potPrivateKey = decryptPrivateKey(potWalletResult.rows[0].encrypted_private_key);
+
+        //  **Spieler gewinnt**
+        if (gameResult.result === "win") {
+            if (!potWalletAddress) {
+                return res.status(400).json({ error: "No pot wallet available for payout" });
+            }
+
+            console.log(`🏆 Player wins! Paying ${gameResult.winnings} USDT from Pot to User.`);
+
+            const payoutResult = await sendUSDT(potPrivateKey, potWalletAddress, userWalletAddress, gameResult.winnings, userId);
+
+            if (!payoutResult.success) {
+                return res.status(500).json({ error: "Failed to send winnings to player.", details: payoutResult.error });
+            }
+
+            await pool.query("UPDATE pot_wallets SET balance = balance - $1 WHERE wallet_address = $2", [gameResult.winnings, potWalletAddress]);
+
+            //  **Spieler verliert**
+        } else {
+            console.log(`💸 Player loses! Sending ${betAmount} USDT from User to Pot.`);
+
+            const depositResult = await sendUSDT(userPrivateKey, userWalletAddress, potWalletAddress, betAmount, userId);
+
+            if (!depositResult.success) {
+                return res.status(500).json({ error: "Failed to send bet amount to pot.", details: depositResult.error });
+            }
+
+            await pool.query("UPDATE pot_wallets SET balance = balance + $1 WHERE wallet_address = $2", [betAmount, potWalletAddress]);
+        }
+
+        //  **Spieltransaktion speichern**
         await pool.query(
-            "INSERT INTO game_transactions (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            `INSERT INTO game_transactions 
+            (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
         );
 
         res.json({
             result: gameResult.result,
             winningField: gameResult.winningField,
-            winnings: gameResult.winnings,
-            currentPot: potAmount
+            winnings: gameResult.winnings
         });
+
     } catch (error) {
-        console.error("Error during gameplay:", error);
-        res.status(500).json({ error: "Game data saving failed" });
+        console.error("Error during gameplay:", error.message);
+        res.status(500).json({ error: "Game data saving failed", details: error.message });
     }
 });
+
 
 // Deposit
 app.post("/api/deposit", authenticateToken, async (req, res) => {

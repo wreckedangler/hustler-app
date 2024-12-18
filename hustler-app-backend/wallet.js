@@ -99,10 +99,42 @@ const createWallet = () => {
     }
 };
 
+// 🔥 Function to decrypt the encrypted private key
+const decryptPrivateKey = (encryptedPrivateKey) => {
+    try {
+        const algorithm = 'aes-256-cbc'; // Same algorithm used for encryption
+        const secretKey = process.env.SECRET_KEY; // Your secret key from .env
+        if (!secretKey) {
+            throw new Error('SECRET_KEY is not defined in .env file');
+        }
+
+        if (secretKey.length !== 64) {
+            throw new Error('SECRET_KEY must be 64 hexadecimal characters (32 bytes)');
+        }
+
+        const keyBuffer = Buffer.from(secretKey, 'hex');
+
+        // Parse the encrypted data (IV and encrypted key)
+        const encryptedData = JSON.parse(encryptedPrivateKey);
+        const iv = Buffer.from(encryptedData.iv, 'hex');
+        const encryptedText = encryptedData.encryptedPrivateKey;
+
+        const decipher = crypto.createDecipheriv(algorithm, keyBuffer, iv);
+        let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+
+        return decrypted;
+    } catch (error) {
+        console.error('❌ Error decrypting private key:', error.message);
+        return null;
+    }
+};
+
 // 🛠️ Exportiere die Funktion
 module.exports = {
     createWallet, // 🔥 WICHTIG
     getWalletBalance,
     getTokenBalance,
     encryptPrivateKey,
+    decryptPrivateKey,
 };
