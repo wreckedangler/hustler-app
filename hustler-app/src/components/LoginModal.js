@@ -17,6 +17,8 @@ function LoginModal({
     const [usernameError, setUsernameError] = useState("");
     const [emailStatus, setEmailStatus] = useState(null);
     const [emailError, setEmailError] = useState("");
+    const [isLoading, setIsLoading] = useState(false); // 🟢 Loading state
+    const [showModal, setShowModal] = useState(true); // 🟢 Control modal visibility
 
     // 🟢 Validate Username
     const validateUsername = (username) => {
@@ -77,6 +79,8 @@ function LoginModal({
 
     // 🟢 Handle Login
     const handleLogin = async () => {
+        setIsLoading(true); // 🟢 Show loading
+        setShowModal(false); // 🟢 Hide modal
         try {
             const response = await fetch("http://localhost:5000/api/login", {
                 method: "POST",
@@ -97,6 +101,8 @@ function LoginModal({
             }
         } catch (error) {
             alert("An error occurred during login.");
+        } finally {
+            setIsLoading(false); // 🟢 Hide loading
         }
     };
 
@@ -112,6 +118,8 @@ function LoginModal({
             return;
         }
 
+        setIsLoading(true); // 🟢 Show loading
+        setShowModal(false); // 🟢 Hide modal
         try {
             const response = await fetch("http://localhost:5000/api/register", {
                 method: "POST",
@@ -127,88 +135,83 @@ function LoginModal({
             }
         } catch (error) {
             alert("An error occurred during registration.");
+        } finally {
+            setIsLoading(false); // 🟢 Hide loading
         }
     };
 
     return (
-        <div className="modal-backdrop" onClick={closeLoginModal}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <h2>{isRegisterMode ? "Register" : "Login"}</h2>
+        <div className="modal-backdrop">
+            {isLoading && (
+                <div className="loading-backdrop">
+                    <div className="spinner"></div>
+                </div>
+            )}
+            {showModal && (
+                <div className="modal" onClick={(e) => e.stopPropagation()}>
+                    <h2>{isRegisterMode ? "Register" : "Login"}</h2>
 
-                {isRegisterMode ? (
-                    <>
-                        {/* Email Input */}
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => {
-                                setEmail(e.target.value);
-                                handleEmailCheck(e.target.value);
-                            }}
-                        />
-                        {emailError && <p style={{ color: "red", fontSize: "0.8rem" }}>{emailError}</p>}
-                        {emailStatus && <p style={{ fontSize: "0.8rem" }}>{emailStatus}</p>}
+                    {isRegisterMode ? (
+                        <>
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                    handleEmailCheck(e.target.value);
+                                }}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                value={usernameInput}
+                                onChange={(e) => {
+                                    setUsernameInput(e.target.value);
+                                    handleUsernameCheck(e.target.value);
+                                }}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Confirm Password"
+                                value={passwordConfirm}
+                                onChange={(e) => setPasswordConfirm(e.target.value)}
+                            />
+                            <button onClick={handleRegister} disabled={isLoading}>
+                                {isLoading ? 'Registering...' : 'Register'}
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                value={usernameInput}
+                                onChange={(e) => setUsernameInput(e.target.value)}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button onClick={handleLogin} disabled={isLoading}>
+                                {isLoading ? 'Logging in...' : 'Login'}
+                            </button>
+                        </>
+                    )}
 
-                        {/* Username Input */}
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={usernameInput}
-                            onChange={(e) => {
-                                setUsernameInput(e.target.value);
-                                handleUsernameCheck(e.target.value);
-                            }}
-                        />
-                        {usernameError && <p style={{ color: "red", fontSize: "0.8rem" }}>{usernameError}</p>}
-                        {usernameStatus && <p style={{ fontSize: "0.8rem" }}>{usernameStatus}</p>}
-
-                        {/* Password Input */}
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={passwordConfirm}
-                            onChange={(e) => setPasswordConfirm(e.target.value)}
-                        />
-
-                        <button onClick={handleRegister}>Register</button>
-                    </>
-                ) : (
-                    <>
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={usernameInput}
-                            onChange={(e) => setUsernameInput(e.target.value)}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <button onClick={handleLogin}>Login</button>
-                    </>
-                )}
-
-                <button className="close-button" onClick={closeLoginModal}>
-                    Close
-                </button>
-
-                {!isRegisterMode && (
-                    <div className="register-link">
-                        <button className="register-button" onClick={openRegisterModal}>
-                            Register
-                        </button>
-                    </div>
-                )}
-            </div>
+                    <button className="close-button" onClick={closeLoginModal}>
+                        Close
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

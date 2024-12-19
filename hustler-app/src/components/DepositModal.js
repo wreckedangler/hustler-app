@@ -38,14 +38,21 @@ const DepositModal = ({ closeModal }) => {
     return (
         <div className="modal-backdrop" onClick={closeModal}>
             <div className="modal deposit-modal" onClick={(e) => e.stopPropagation()}>
-                <h1>Deposit</h1>
+                <h1>Your Address</h1>
 
                 {/* 🟢 QR-Code Generator */}
                 <div className="qr-code-container">
                     <QRCodeGenerator walletAddress={walletAddress} size={180} />
                 </div>
 
-                <p>Only send USDT (ERC-20) to your account-wallet:</p>
+                <p>
+                    <strong><big>Your USDT-Address</big></strong><br/>
+                    <br/>
+                    Use this address to deposit USDT (ERC-20) to your account.<br/>
+                    <br/>
+                    <small><em>Sending any other tokens or coins may result in permanent loss of funds.</em></small>
+                </p>
+
 
                 <div className="wallet-address-container">
                     <div className="input-icon">
