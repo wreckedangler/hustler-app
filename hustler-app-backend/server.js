@@ -276,6 +276,33 @@ app.post('/api/logout', authenticateToken, async (req, res) => {
     }
 });
 
+// 🟢 **Check Login Status**
+app.get('/api/check-login', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const userResult = await pool.query(
+            'SELECT username, balance, is_logged_in FROM users WHERE id = $1',
+            [userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ isLoggedIn: false, message: 'User not found' });
+        }
+
+        const user = userResult.rows[0];
+        res.json({
+            isLoggedIn: user.is_logged_in,
+            username: user.username,
+            balance: user.balance,
+        });
+    } catch (error) {
+        console.error('❌ Error checking login status:', error.message);
+        res.status(500).json({ error: 'Failed to check login status' });
+    }
+});
+
+
 // Login
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;

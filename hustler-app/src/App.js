@@ -1,5 +1,5 @@
 // App.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
@@ -14,6 +14,39 @@ function App() {
     const [balance, setBalance] = useState(0.0);
     const [displayBalance, setDisplayBalance] = useState(0.0);
 
+    // 🟢 **Fetch Login State from Server**
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/check-login', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to check login status');
+                }
+
+                const data = await response.json();
+                if (data.isLoggedIn) {
+                    setIsLoggedIn(true);
+                    setUsername(data.username);
+                    setBalance(data.balance);
+                    setDisplayBalance(data.balance);
+                    console.log('✅ User is logged in:', data.username);
+                } else {
+                    console.log('🚪 User is not logged in');
+                }
+            } catch (error) {
+                console.error('❌ Error checking login status:', error.message);
+            }
+        };
+
+        checkLoginStatus();
+    }, []);
 
     // Funktionen zum Öffnen/Schließen von Modalen
     const openLoginModal = () => {

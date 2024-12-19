@@ -96,12 +96,21 @@ function Header({
             <div className="title">HUSTLER</div>
 
             <div className="right-header">
-                {isLoggedIn && (
-                    <div className="balance">
-                        <span>${displayBalance}</span>
-                    </div>
+                {isLoggedIn ? (
+                    <>
+                        <div className="balance">
+                            <span>${parseFloat(displayBalance).toFixed(2)}</span>
+                        </div>
+                        <MenuButton toggleDropdown={toggleDropdown}/>
+                    </>
+                ) : (
+                    <button
+                        className="login-button"
+                        onClick={openLoginModal}
+                    >
+                        Login
+                    </button>
                 )}
-                <MenuButton toggleDropdown={toggleDropdown} />
             </div>
 
             {isDropdownVisible && (
