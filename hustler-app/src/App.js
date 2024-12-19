@@ -1,5 +1,5 @@
 // App.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
@@ -13,6 +13,8 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [balance, setBalance] = useState(0.0);
     const [displayBalance, setDisplayBalance] = useState(0.0);
+
+    const inactivityTimer = useRef(null); // 🔥 Timer reference
 
     // 🟢 **Fetch Login State from Server**
     useEffect(() => {
@@ -47,6 +49,47 @@ function App() {
 
         checkLoginStatus();
     }, []);
+
+    // 🟢 **Inactivity Timer Setup**
+    useEffect(() => {
+        const handleUserActivity = () => {
+            console.log("🕹️ User activity detected, resetting timer...");
+            resetInactivityTimer();
+        };
+
+        // **Events to track user activity**
+        window.addEventListener('mousemove', handleUserActivity);
+        window.addEventListener('keydown', handleUserActivity);
+        window.addEventListener('click', handleUserActivity);
+        window.addEventListener('scroll', handleUserActivity);
+
+        // **Start the inactivity timer**
+        startInactivityTimer();
+
+        return () => {
+            window.removeEventListener('mousemove', handleUserActivity);
+            window.removeEventListener('keydown', handleUserActivity);
+            window.removeEventListener('click', handleUserActivity);
+            window.removeEventListener('scroll', handleUserActivity);
+            clearTimeout(inactivityTimer.current);
+        };
+    }, [isLoggedIn]);
+
+    // 🟢 **Start the Inactivity Timer**
+    const startInactivityTimer = () => {
+        if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+        inactivityTimer.current = setTimeout(() => {
+            console.log("⏳ User inactive for 30 minutes. Logging out...");
+            Header.handleLogout();
+        }, 1800000); // 30 minutes = 30 * 60 * 1000 ms
+    };
+
+    // 🟢 **Reset the Inactivity Timer**
+    const resetInactivityTimer = () => {
+        if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+        startInactivityTimer();
+    };
+
 
     // Funktionen zum Öffnen/Schließen von Modalen
     const openLoginModal = () => {

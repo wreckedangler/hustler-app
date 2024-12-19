@@ -45,9 +45,12 @@ const DepositModal = ({ closeModal }) => {
                     <QRCodeGenerator walletAddress={walletAddress} size={180} />
                 </div>
 
-                <p>Send funds to the following address:</p>
+                <p>Only send USDT (ERC-20) to your account-wallet:</p>
 
                 <div className="wallet-address-container">
+                    <div className="input-icon">
+                        <img src="/tether-usdt-logo.svg" alt="wallet-icon" />
+                    </div>
                     <input
                         type="text"
                         value={walletAddress}
@@ -56,14 +59,18 @@ const DepositModal = ({ closeModal }) => {
                     />
                 </div>
 
-                <button
-                    onClick={copyToClipboard}
-                    className="copy-button"
-                >
-                    Copy address
-                </button>
+                <div className="button-container">
+                    <button
+                        onClick={copyToClipboard}
+                        className="copy-button"
+                    >
+                        Copy address
+                    </button>
 
-                <button className="close-button" onClick={closeModal}>Close</button>
+                    <button className="close-button" onClick={closeModal}>
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     );

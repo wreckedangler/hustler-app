@@ -3,6 +3,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-x: hidden;
+    overflow-y: auto;
     height: 100vh;
     font-family: Arial, sans-serif;
     background-color: #313131;
@@ -38,8 +40,9 @@ header {
 .user-name {
     position: absolute;
     left: 60px;
-    top: 20px;
+    margin-top: 45px;
     color: #fdc445;
+    font-size: 23px;
 }
 
 .right-header {
@@ -86,30 +89,31 @@ header {
 .logged-out-icon {
     position: absolute;
     font-size: 23px;
-    margin-top: 30px;
+    margin-top: 35px;
     margin-right: 8px;
     margin-left: 10px;
 }
 
 .menu-button {
-    background-color: #101010;
+    background-color: #313131;
     color: #fdc445;
     border: none;
     border-radius: 50%;
     margin-top: 40px;
     width: 40px;
     height: 40px;
-    font-size: 20px;
+    font-size: 23px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+    justify-content: center;
+
     transition: all 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .menu-button:hover {
-    background-color: #383838; /* Change background color on hover */
+    background-color: #444444; /* Change background color on hover */
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4); /* Add a shadow effect */
     color: #fdc445; /* Change the text/icon color */
 }
@@ -135,8 +139,8 @@ main {
 .box-buttons {
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 18px;
+
 }
 
 .box-button {
@@ -160,6 +164,29 @@ main {
     transform: scale(1.05);
 }
 
+.jackpot-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.jackpot-button {
+    background-color: #e67e22;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.jackpot-button:hover {
+    background-color: #d35400;
+}
+
 
 .dropdown-menu {
     position: absolute;
@@ -178,6 +205,15 @@ main {
     list-style-type: none;
     margin: 0;
     padding: 0;
+}
+.dropdown-menu ul li {
+    display: block; /* Standardmäßig als Block */
+    margin: 5px 10px; /* Abstand zu den Rändern */
+    padding: 10px 20px; /* Innenabstand für Text */
+    border-radius: 5px; /* Runde Kanten */
+    cursor: pointer;
+    background-color: transparent;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dropdown-menu li {
@@ -466,97 +502,6 @@ main {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-/* Slot Machine Container */
-.slot-machine-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
-
-/* Slot Machine Display */
-.slot-machine {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    width: 300px;
-    height: 150px;
-    margin: 20px auto;
-    border: 4px solid #ffcc00;
-    border-radius: 10px;
-    background: #222;
-    position: relative;
-}
-
-/* Individual Reels */
-.slot-machine-reel {
-    width: 100px;
-    height: 150px;
-    overflow: hidden;
-    position: relative;
-    margin: 0 5px;
-}
-
-.slot-symbol {
-    width: 100%;
-    height: 150px;
-    font-size: 80px;
-    color: #ffcc00;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Spin Button */
-.large-jackpot-button {
-    width: 300px;
-    font-size: 24px;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #ffcc00;
-    color: #222;
-    font-weight: bold;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    text-align: center;
-    margin: 10px 0;
-    border: 2px solid yellow;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.large-jackpot-button:hover {
-    background-color: #ffb700;
-    transform: scale(1.05);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
-}
-
-.large-jackpot-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-/* Back Button */
-.slot-machine-container .back-button {
-    position: absolute;
-    right: 0;
-    bottom: -60px;
-    background-color: #444;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 26px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.4s ease;
-}
-
-.slot-machine-container .back-button:hover {
-    transform: scale(1.05);
-}
-
 /* Deposit Modal Styling */
 .deposit-modal {
     width: 560px;
@@ -574,63 +519,85 @@ main {
     margin-bottom: 15px;
 }
 
-.wallet-address-container input {
-    width: 240px;
-    padding: 10px;
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #444;
-    border-radius: 5px;
-    text-align: center;
-}
-
-.wallet-address-container button {
-    background-color: #30569a;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-left: 10px;
-    cursor: pointer;
-}
-
-.wallet-address-container button:hover {
-    background-color: #467ac9;
-}
-
 .qr-code-container {
+    width: auto;
+    height: 180px;
+    display: inline-block;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 2px solid #fdc445;
+    justify-content: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between; /* Puts equal space between buttons */
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+.deposit-modal .copy-button,
+.deposit-modal .close-button {
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
-}
-
-.copy-button {
-    background-color: #444;
-    color: white;
-    margin-top: 10px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 5px;
+    align-items: center; /* Ensures vertical alignment */
+    padding: 10px 20px;
+    width: 271px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+    margin: 0 9px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
 }
 
-.copy-button:hover {
-    background-color: #555;
+
+.deposit-modal .close-button:hover {
+    background-color: #f44336;
+}
+.deposit-modal .copy-button:hover {
+    background-color: #4caf50;
 }
 
-.deposit-modal input[type="text"] {
-    color: #28a745;
-    font-size: 20px; /* Größere Schrift */
-    padding: 15px;
-    width: 498px;
-    border: 2px solid #555; /* Deutlicherer Rahmen */
+
+
+/* Wallet Address Container */
+.wallet-address-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
 }
 
-.deposit-modal button {
-    padding: 15px 20px;
-    width: 95%;
-    font-size: 16px; /* Größere Buttons */
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 39%;
+    transform: translateY(-50%);
+    width: 24px; /* Width of the icon */
+    height: 24px; /* Height of the icon */
 }
+
+.input-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.deposit-modal .wallet-address-input {
+    padding-left: 50px; /* Make space for the icon */
+    color: #fdc445;
+    font-size: 20px;
+    width: 100%;
+    border: 2px solid #fdc445;
+    border-radius: 8px;
+    background-color: #222;
+}
+
+
 

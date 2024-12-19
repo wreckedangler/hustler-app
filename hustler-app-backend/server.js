@@ -86,6 +86,7 @@ app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {
 
 app.get("/api/get-balance", authenticateToken, async (req, res) => {
     const userId = req.user.id;
+    await syncUserBalance()
 
     try {
         const result = await pool.query(

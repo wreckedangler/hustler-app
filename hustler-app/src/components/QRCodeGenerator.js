@@ -7,9 +7,7 @@ const QRCodeGenerator = ({ walletAddress, size = 128 }) => {
     }
 
     return (
-        <div className="qr-code-container">
             <QRCodeSVG value={walletAddress} size={size} />
-        </div>
     );
 };
 

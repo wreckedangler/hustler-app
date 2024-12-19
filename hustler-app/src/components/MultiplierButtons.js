@@ -10,11 +10,6 @@ function MultiplierButtons({
                                isRoundInProgress,
                                allFlipped,
                                showIcons,
-                               setAllFlipped,
-                               setShowIcons,
-                               balance,
-                               setBalance,
-                               animateBalance,
                                openLoginModal,
                                isLoggedIn,
                            }) {

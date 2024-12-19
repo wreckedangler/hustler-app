@@ -7,7 +7,6 @@ import SlotMachine from "./SlotMachine";
 function GameBoard({
                        selectedMultiplier,
                        selectedAmount,
-
                        setBalance,
                        isLoggedIn,
                        setSelectedMultiplier,

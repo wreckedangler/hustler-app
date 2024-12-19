@@ -12,7 +12,7 @@ const DropdownMenu = React.forwardRef(({ openLoginModal, openRegisterModal, open
                     <>
                         <li onClick={openDepositModal}>Deposit</li>
                         <li onClick={openWithdrawModal}>Withdraw</li>
-                        <li onClick={handleLogout}>Logout</li>
+                        <li onClick={handleLogout}>Logout </li>
                     </>
                 ) : (
                     <li onClick={openLoginModal}>Login</li>
