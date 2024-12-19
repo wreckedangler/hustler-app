@@ -6,11 +6,10 @@ function UserInfo({ isLoggedIn, username }) {
         <div className="user-info">
             {isLoggedIn ? (
                 <>
-                    <span className="logged-in-icon">🔓</span>
                     <span className="user-name">{username}</span>
                 </>
             ) : (
-                <span className="logged-out-icon">🔒</span>
+                <span className="user-name"></span>
             )}
         </div>
     );

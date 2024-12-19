@@ -1,28 +1,36 @@
-// components/GameBoard.js
 import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
-import SlotMachine from "./SlotMachine";
-
+import DollarAmountSelector from "./DollarAmountSelector";
 
 function GameBoard({
                        selectedMultiplier,
                        selectedAmount,
+                       setSelectedAmount, // Add this prop to dynamically update the amount
                        setBalance,
                        isLoggedIn,
                        setSelectedMultiplier,
                        animateBalance,
                        openLoginModal,
                    }) {
-    const [balance, setLocalBalance] = useState(0); // State für die Balance
+    const [balance, setLocalBalance] = useState(0); // State for the balance
     const [selectedField, setSelectedField] = useState(null);
     const [winningField, setWinningField] = useState(null);
     const [allFlipped, setAllFlipped] = useState(false);
     const [showIcons, setShowIcons] = useState(false);
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
     const [slotResult, setSlotResult] = useState(null); // State to hold slot machine result
+    let [previousAmount] = useState(selectedAmount); // Store the previous amount
+
+    // Dynamically set the selectedAmount if the multiplier is 20k, 50k, or 100k
+    useEffect(() => {
+        if (["20k", "50k", "100k"].includes(selectedMultiplier)) {
+            setSelectedAmount("10$"); // Set selectedAmount to $10
+        }
+    }, [selectedMultiplier, selectedAmount, setSelectedAmount]);
 
     const handleBackClick = () => {
         setSelectedMultiplier(null);
+        setSelectedAmount(previousAmount); // Restore the previous amount
         setSelectedField(null);
         setWinningField(null);
         setAllFlipped(false);
@@ -31,7 +39,7 @@ function GameBoard({
         setSlotResult(null); // Reset slot machine result
     };
 
-    // 🛠️ **Balance vom Backend abrufen**
+    // Fetch balance from the backend
     const fetchBalanceFromDB = async () => {
         try {
             const response = await fetch("http://localhost:5000/api/get-balance", {
@@ -43,24 +51,20 @@ function GameBoard({
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch balance from server');
+                throw new Error("Failed to fetch balance from server");
             }
 
             const data = await response.json();
-            console.log('Balance from DB:', data.balance); // Debugging
             setLocalBalance(data.balance);
-            setBalance(data.balance); // Optional: falls du die Balance global setzen willst
+            setBalance(data.balance); // Optionally set the global balance
         } catch (error) {
             console.error("Error fetching balance from backend:", error);
         }
     };
 
     const checkBalanceAndPlay = async () => {
-        const betAmount =
-            selectedMultiplier === "1m"
-                ? 10
-                : parseFloat(selectedAmount.replace("$", ""));
-        await fetchBalanceFromDB()
+        const betAmount = parseFloat(selectedAmount.replace("$", ""));
+        await fetchBalanceFromDB();
         if (balance < betAmount) {
             alert("Insufficient balance for this bet.");
             return;
@@ -81,7 +85,6 @@ function GameBoard({
             });
 
             const data = await response.json();
-            console.log("Received data from backend:", data); // Debugging line
 
             if (data.error) {
                 alert(data.error);
@@ -91,39 +94,24 @@ function GameBoard({
             setWinningField(data.winningField);
             setIsRoundInProgress(true);
 
-            if (selectedMultiplier === "1m") {
-                handleSlotMachineAnimation(data);
-            } else {
-                // Existing logic for other games
-                setTimeout(() => setAllFlipped(true), 600);
-                setTimeout(() => setShowIcons(true), 1200);
+            setTimeout(() => setAllFlipped(true), 600);
+            setTimeout(() => setShowIcons(true), 1200);
 
-                setTimeout(() => {
-                    const newBalance =
-                        data.result === "win" ? balance + data.winnings : balance - betAmount;
-                    animateBalance(balance, newBalance);
-                    setBalance(newBalance);
+            setTimeout(() => {
+                const newBalance =
+                    data.result === "win" ? balance + data.winnings : balance - betAmount;
+                animateBalance(balance, newBalance);
+                setBalance(newBalance);
 
-                    setAllFlipped(false);
-                    setShowIcons(false);
-                    setSelectedField(null);
-                    setWinningField(null);
-                    setIsRoundInProgress(false);
-                }, 3000);
-            }
+                setAllFlipped(false);
+                setShowIcons(false);
+                setSelectedField(null);
+                setWinningField(null);
+                setIsRoundInProgress(false);
+            }, 3000);
         } catch (error) {
             console.error("Error sending bet to backend:", error);
         }
-    };
-
-    const handleSlotMachineAnimation = (data) => {
-        // Pass the entire data object to setSlotResult
-        setSlotResult({
-            isWin: data.result === "win",
-            winningSymbols: data.winningSymbols,
-            result: data.result,
-            winnings: data.winnings,
-        });
     };
 
     useEffect(() => {
@@ -136,28 +124,7 @@ function GameBoard({
     return (
         <div className="game-board">
             {selectedMultiplier === "1m" ? (
-                <>
-                    <SlotMachine
-                        isRoundInProgress={isRoundInProgress}
-                        setIsRoundInProgress={setIsRoundInProgress}
-                        balance={balance}
-                        setBalance={setBalance}
-                        animateBalance={animateBalance}
-                        selectedField={selectedField}
-                        setSelectedField={setSelectedField}
-                        openLoginModal={openLoginModal}
-                        slotResult={slotResult}
-                        setSlotResult={setSlotResult}
-                    />
-                    <button
-                        className="back-button"
-                        onClick={handleBackClick}
-                        disabled={isRoundInProgress}
-                        style={{ opacity: isRoundInProgress ? 0.5 : 1 }}
-                    >
-                        ↩
-                    </button>
-                </>
+                <></>
             ) : (
                 <div className="dynamic-buttons-wrapper">
                     <MultiplierButtons

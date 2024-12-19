@@ -1,4 +1,3 @@
-// components/MultiplierButtons.js
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
@@ -16,6 +15,19 @@ function MultiplierButtons({
     const [wiggleComplete, setWiggleComplete] = useState(false);
     const rotationYRef = useRef(0);
     const [isRotationComplete, setIsRotationComplete] = useState(false);
+
+    // Map multipliers to emojis
+    const multiplierEmojis = {
+        "2x": "💸",
+        "5x": "💸",
+        "10x": "💸",
+        "20k": "🍀",
+        "50k": "🍀",
+        "100k": "🍀",
+    };
+
+    // Get the emoji for the selected multiplier
+    const currentEmoji = multiplierEmojis[selectedMultiplier] || "💸";
 
     const handleButtonClick = (fieldNumber) => {
         if (!isLoggedIn) {
@@ -37,11 +49,7 @@ function MultiplierButtons({
                 ? 6
                 : selectedMultiplier === "10x"
                     ? 12
-                    : selectedMultiplier === "50x"
-                        ? 12
-                        : selectedMultiplier === "500x"
-                            ? 12
-                            : 1;
+                    : 1;
 
     const containerClass = `dynamic-buttons-container dynamic-${count}`;
 
@@ -55,10 +63,10 @@ function MultiplierButtons({
         flipToReveal: (custom) => ({
             rotateY: 180,
             backgroundColor: custom.isWinningField
-                ? "#28a745" // Grün für Gewinner
+                ? "#28a745" // Green for winner
                 : custom.isSelected
-                    ? "#d71212" // Rot für Verlierer
-                    : "#ff00ff", // Standard
+                    ? "#d71212" // Red for loser
+                    : "#ff00ff", // Default
             transition: {
                 rotateY: { duration: 0.6, delay: 0.4 },
                 backgroundColor: { delay: 0.6 },
@@ -67,8 +75,8 @@ function MultiplierButtons({
         highlight: {
             boxShadow: "0 0 10px 5px yellow",
             animation: "blink 0.5s ease-in-out infinite alternate",
-            transition: { duration: 0.3, ease: "easeInOut", delay: 0 }
-        }
+            transition: { duration: 0.3, ease: "easeInOut", delay: 0 },
+        },
     };
 
     return (
@@ -80,22 +88,24 @@ function MultiplierButtons({
 
                 let animateSequence;
                 if (isSelected) {
-                    // Der ausgewählte Button
+                    // Selected button
                     if (wiggleComplete) {
-                        // Nach dem Wiggle in den Flip-State
-                        animateSequence = isRotationComplete && isWinningField
-                            ? ["flipToReveal", "highlight"]
-                            : "flipToReveal";
+                        // After wiggle, move to flip state
+                        animateSequence =
+                            isRotationComplete && isWinningField
+                                ? ["flipToReveal", "highlight"]
+                                : "flipToReveal";
                     } else {
-                        // Zuerst Wiggle, bevor geflippt wird
+                        // Wiggle first, then flip
                         animateSequence = "wiggle";
                     }
                 } else {
-                    // Nicht ausgewählter Button
+                    // Unselected button
                     if (allFlipped && winningField !== null) {
-                        animateSequence = isRotationComplete && isWinningField
-                            ? ["flipToReveal", "highlight"]
-                            : "flipToReveal";
+                        animateSequence =
+                            isRotationComplete && isWinningField
+                                ? ["flipToReveal", "highlight"]
+                                : "flipToReveal";
                     } else {
                         animateSequence = "initial";
                     }
@@ -112,7 +122,7 @@ function MultiplierButtons({
                         custom={{
                             isWinningField,
                             isSelected,
-                            rotationProgress: rotationYRef.current
+                            rotationProgress: rotationYRef.current,
                         }}
                         variants={buttonVariants}
                         whileHover={{ scale: 1.05 }}
@@ -127,11 +137,11 @@ function MultiplierButtons({
                     >
                         {showIcons && winningField !== null
                             ? isWinningField
-                                ? "💸"
+                                ? currentEmoji
                                 : isSelected && !isWinningField
                                     ? ""
-                                    : ""
-                            : "💸"}
+                                    : "💸"
+                            : currentEmoji}
                     </motion.button>
                 );
             })}

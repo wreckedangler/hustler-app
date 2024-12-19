@@ -5,6 +5,7 @@ import DollarAmountSelector from "./DollarAmountSelector";
 import MultiplierSelector from "./MultiplierSelector";
 import GameBoard from "./GameBoard";
 
+
 function MainContent({
                          isLoggedIn,
                          balance,
@@ -39,6 +40,7 @@ function MainContent({
                 <GameBoard
                     selectedMultiplier={selectedMultiplier}
                     selectedAmount={selectedAmount}
+                    setSelectedAmount={setSelectedAmount}
                     balance={balance}
                     setBalance={setBalance}
                     isLoggedIn={isLoggedIn}
