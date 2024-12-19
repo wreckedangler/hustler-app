@@ -1,7 +1,7 @@
 const gameLogic = require("../hustler-app-backend/gameAlgorithm");
 
 function simulateStrategyPlayer(initialBalance, initialPot, goal) {
-    const betAmounts = [1, 2, 5, 10, 25, 50, 100, 200, 500, 1000];
+    const betAmounts = [1, 2, 5, 10, 25, 50];
     const betType = "2x";
     const totalFields = 2;
     let balance = initialBalance;
@@ -10,19 +10,14 @@ function simulateStrategyPlayer(initialBalance, initialPot, goal) {
     let totalBets = 0;
     let totalWinnings = 0;
     let totalGames = 0;
+    let goalReached;
 
     while (balance > 0 && pot > 0 && balance < goal) {
         const betAmount = betAmounts[currentBetIndex];
 
         if (betAmount > balance) {
-            // Reset to the smallest bet if the current bet is unaffordable
-            currentBetIndex = 0;
+            currentBetIndex = 0; // Reset to the smallest bet if the current bet is unaffordable
             continue;
-        }
-
-        if (betAmount > pot) {
-            console.log(`Pot cannot cover the next bet (${betAmount}) with current pot (${pot}).`);
-            break; // Stop playing if the pot cannot cover the bet
         }
 
         // Place the bet
@@ -36,16 +31,23 @@ function simulateStrategyPlayer(initialBalance, initialPot, goal) {
         totalGames++;
 
         if (result.result === "win") {
-            // Player wins, reset to the smallest bet and add winnings to balance
-            balance += result.winnings;
-            totalWinnings += result.winnings;
-            pot -= result.winnings; // Subtract winnings from the pot
-            currentBetIndex = 0; // Reset to smallest bet
+            const winnings = result.winnings;
+
+            if (winnings > pot) {
+                goalReached = true
+                console.log("Pot got fucked")
+
+            }
+
+            pot -= winnings; // Subtract winnings from the pot
+            balance += winnings; // Add winnings to the player's balance
+            totalWinnings += winnings;
+            currentBetIndex = 0; // Reset to the smallest bet
         } else {
-            // Player loses, move to the next bet amount
-            currentBetIndex = Math.min(currentBetIndex + 1, betAmounts.length - 1);
+            currentBetIndex = Math.min(currentBetIndex + 1, betAmounts.length - 1); // Move to the next bet amount
         }
     }
+
 
     return {
         finalBalance: balance,
@@ -53,28 +55,37 @@ function simulateStrategyPlayer(initialBalance, initialPot, goal) {
         totalBets,
         totalWinnings,
         totalGames,
-        goalReached: balance >= goal,
+        goalReached,
     };
 }
 
 function runSimulations(times, initialBalance, initialPot, goal) {
     let goalReachedCount = 0;
+    let totalBets = 0;
+    let totalWinnings = 0;
+    let totalGames = 0;
 
     for (let i = 0; i < times; i++) {
         const result = simulateStrategyPlayer(initialBalance, initialPot, goal);
+        totalBets += result.totalBets;
+        totalWinnings += result.totalWinnings;
+        totalGames += result.totalGames;
         if (result.goalReached) goalReachedCount++;
     }
 
     console.log("Overall Simulation Results:");
     console.log(`Number of Simulations: ${times}`);
-    console.log(`Goal Reached: ${goalReachedCount} times (${((goalReachedCount / times) * 100).toFixed(2)}%)`);
+    console.log(`Pot fucked: ${goalReachedCount} times (${((goalReachedCount / times) * 100).toFixed(2)}%)`);
     console.log(`Goal Not Reached: ${times - goalReachedCount} times (${(((times - goalReachedCount) / times) * 100).toFixed(2)}%)`);
+    console.log(`Total Bets Placed: ${totalBets}`);
+    console.log(`Total Winnings: ${totalWinnings}`);
+    console.log(`Total Games Played: ${totalGames}`);
 }
 
 // Simulation parameters
 const initialBalance = 1000; // Starting balance for the player
-const initialPot = 10000; // Starting amount in the pot
+const initialPot = 1000; // Starting amount in the pot
 const goal = 2000; // Player's goal balance
-const simulationCount = 100000; // Number of simulations to run
+const simulationCount = 1; // Number of simulations to run
 
 runSimulations(simulationCount, initialBalance, initialPot, goal);

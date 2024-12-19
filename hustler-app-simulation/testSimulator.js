@@ -1,32 +1,29 @@
 const gameLogic = require("../hustler-app-backend/gameAlgorithm");
 
 function simulateGames(initialPot, numberOfGames) {
-    const betTypes = ["2x", "4x", "8x", "50x", "500x", "Jackpot"];
+    const betTypes = ["2x", "5x", "10x", "20k", "50k", "100k"];
     let pot = initialPot;
     let totalBets = 0;
     let totalWinnings = 0;
     let totalGames = 0;
+    let potEmptiedAtGame = null;
+    let milestones = { 30000: null, 75000: null, 150000: null };
     let betStats = {
         "2x": { count: 0, totalBet: 0, totalWin: 0 },
-        "4x": { count: 0, totalBet: 0, totalWin: 0 },
-        "8x": { count: 0, totalBet: 0, totalWin: 0 },
-        "50x": { count: 0, totalBet: 0, totalWin: 0 },
-        "500x": { count: 0, totalBet: 0, totalWin: 0 },
-        "Jackpot": { count: 0, totalBet: 0, totalWin: 0 },
+        "5x": { count: 0, totalBet: 0, totalWin: 0 },
+        "10x": { count: 0, totalBet: 0, totalWin: 0 },
+        "20k": { count: 0, totalBet: 0, totalWin: 0 },
+        "50k": { count: 0, totalBet: 0, totalWin: 0 },
+        "100k": { count: 0, totalBet: 0, totalWin: 0 },
     };
 
-    // Wahrscheinlichkeiten für die normalen Einsätze
     const betAmounts = [
-        { value: 1, probability: 0.15 },
-        { value: 2, probability: 0.1 },
-        { value: 5, probability: 0.4 },
+        { value: 1, probability: 0.13 },
+        { value: 2, probability: 0.13 },
+        { value: 5, probability: 0.14 },
         { value: 10, probability: 0.2 },
-        { value: 25, probability: 0.05 },
-        { value: 50, probability: 0.04 },
-        { value: 100, probability: 0.03 },
-        { value: 200, probability: 0.02 },
-        { value: 500, probability: 0.009 },
-        { value: 1000, probability: 0.001 }
+        { value: 25, probability: 0.2 },
+        { value: 50, probability: 0.2 },
     ];
 
     const getBetAmount = () => {
@@ -42,14 +39,31 @@ function simulateGames(initialPot, numberOfGames) {
     };
 
     for (let i = 0; i < numberOfGames; i++) {
-        const isJackpot = Math.random() <= 0.8; // 80% Wahrscheinlichkeit für Jackpot
-        const betType = isJackpot ? "Jackpot" : betTypes[Math.floor(Math.random() * (betTypes.length - 1))];
+        if (pot <= 0) {
+            potEmptiedAtGame = i;
+            break;
+        }
+
+        for (const milestone of [30000, 75000, 150000]) {
+            if (pot >= milestone && milestones[milestone] === null) {
+                milestones[milestone] = i;
+                console.log(`Der Pot hat ${milestone} nach ${i} Spielen erreicht.`);
+            }
+        }
+
+        const isFifty = Math.random() <= 0.5;
+        const betType = isFifty
+            ? '2x'
+            : betTypes[Math.floor(Math.random() * (betTypes.length -1)) + 1];
 
         let betAmount = getBetAmount();
         let totalFields = 12;
         if (betType === "2x") totalFields = 2;
-        if (betType === "4x") totalFields = 6;
-        if (betType === "Jackpot") betAmount = 10; // Jackpot kostet immer 10
+        if (betType === "5x") totalFields = 6;
+        if (betType === "10x") totalFields = 12;
+        if (betType === "20k") betAmount = 10;
+        if (betType === "50k") betAmount = 10;
+        if (betType === "100k") betAmount = 10;
 
         const selectedField = Math.floor(Math.random() * totalFields) + 1;
         pot += betAmount;
@@ -73,12 +87,14 @@ function simulateGames(initialPot, numberOfGames) {
         totalBets,
         totalWinnings,
         finalPot: pot,
+        potEmptiedAtGame,
+        milestones,
         betStats,
     };
 }
 
-const initialPot = 10000;
-const numberOfGames = 1000000000;
+const initialPot = 1000;
+const numberOfGames = 10000;
 
 const simulationResults = simulateGames(initialPot, numberOfGames);
 
@@ -87,6 +103,11 @@ console.log(`Gesamteinsätze ($): ${simulationResults.totalBets}`);
 console.log(`Gesamtgewinne ($): ${simulationResults.totalWinnings}`);
 console.log(`Endstand Pot ($): ${simulationResults.finalPot}`);
 console.log(`Gewinn für Hustler: ${Math.round((simulationResults.totalBets - simulationResults.totalWinnings) / simulationResults.totalBets * 100)}%`);
+if (simulationResults.potEmptiedAtGame !== null) {
+    console.log(`Der Pot wurde nach ${simulationResults.potEmptiedAtGame} Spielen geleert.`);
+} else {
+    console.log("Der Pot wurde nicht geleert.");
+}
 console.log("Details nach Spielmodus:");
 console.log(simulationResults.betStats);
 

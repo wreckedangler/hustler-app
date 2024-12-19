@@ -7,7 +7,7 @@ function LoginModal({
                         setUsername,
                         setBalance,
                         setDisplayBalance,
-                        openRegisterModal,
+                        startTokenExpirationWatcher,
                     }) {
     const [usernameInput, setUsernameInput] = useState("");
     const [password, setPassword] = useState("");
@@ -96,6 +96,8 @@ function LoginModal({
                 setDisplayBalance(userBalance);
                 setIsLoggedIn(true);
                 closeLoginModal();
+                startTokenExpirationWatcher();
+
             } else {
                 alert("Login failed: " + data.error);
             }

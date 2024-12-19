@@ -341,6 +341,7 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
+
 app.post("/api/play", authenticateToken, async (req, res) => {
     let { betAmount, betType, selectedField } = req.body;
     const userId = req.user.id;
