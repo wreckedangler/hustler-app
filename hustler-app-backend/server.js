@@ -263,6 +263,18 @@ app.post("/api/register", async (req, res) => {
     }
 });
 
+// 🔥 **Logout User**
+app.post('/api/logout', authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        await pool.query('UPDATE users SET is_logged_in = FALSE WHERE id = $1', [userId]);
+        res.json({ message: 'User logged out successfully' });
+    } catch (error) {
+        console.error('Error during logout:', error.message);
+        res.status(500).json({ error: 'Logout failed', details: error.message });
+    }
+});
 
 // Login
 app.post("/api/login", async (req, res) => {
@@ -279,6 +291,9 @@ app.post("/api/login", async (req, res) => {
         }
 
         const userId = user.rows[0].id;
+
+        await pool.query('UPDATE users SET last_login = NOW(), is_logged_in = TRUE WHERE id = $1', [userId]);
+
 
         // 🔥 Synchronize balance on login
         const newBalance = await syncUserBalance(userId);
@@ -379,24 +394,6 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     }
 });
 
-
-// Deposit
-app.post("/api/deposit", authenticateToken, async (req, res) => {
-    const { amount } = req.body;
-    const userId = req.user.id;
-
-    try {
-        await pool.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [amount, userId]);
-        await pool.query(
-            "INSERT INTO transactions (user_id, transaction_type, amount) VALUES ($1, 'deposit', $2)",
-            [userId, amount]
-        );
-        res.json({ message: "Deposit successful", newBalance: amount });
-    } catch (error) {
-        console.error("Error during deposit:", error);
-        res.status(500).json({ error: "Deposit failed" });
-    }
-});
 
 // Withdraw
 app.post("/api/withdraw", authenticateToken, async (req, res) => {

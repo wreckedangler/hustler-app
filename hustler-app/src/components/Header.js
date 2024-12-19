@@ -23,14 +23,32 @@ function Header({
     };
 
     // 🟢 **handleLogout Funktion**
-    const handleLogout = () => {
+    const handleLogout = async () => {
         console.log('🚪 Logging out...');
-        localStorage.removeItem('token'); //
-        setIsLoggedIn(false); //
 
-        setIsDropdownVisible(false); //
-        console.log('🟢 User has been logged out');
+        try {
+            const response = await fetch('http://localhost:5000/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to log out from server');
+            }
+
+            localStorage.removeItem('token'); // Remove token from local storage
+            setIsLoggedIn(false); // Set local login status to false
+            setIsDropdownVisible(false); // Close dropdown menu
+
+            console.log('🟢 User has been logged out successfully');
+        } catch (error) {
+            console.error('❌ Error during logout:', error.message);
+        }
     };
+
 
     // Close the dropdown if clicked outside
     useEffect(() => {
