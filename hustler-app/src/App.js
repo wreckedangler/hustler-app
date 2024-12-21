@@ -3,9 +3,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
+import {ErrorProvider} from "./contexts/ErrorContext";
 import "./App.css";
 
 function App() {
+
+
     // Globaler Zustand
     const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -206,38 +209,40 @@ function App() {
     };
 
     return (
-        <div className="App">
-            <Header
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-                username={username}
-                displayBalance={displayBalance}
-                openLoginModal={openLoginModal}
-                openRegisterModal={openRegisterModal}
-                balance={balance}
-            />
-            <MainContent
-                isLoggedIn={isLoggedIn}
-                balance={balance}
-                setBalance={setBalance}
-                displayBalance={displayBalance}
-                setDisplayBalance={setDisplayBalance}
-                openLoginModal={openLoginModal}
-                animateBalance={animateBalance}
-            />
-            {isLoginModalVisible && (
-                <LoginModal
-                    isRegisterMode={isRegisterMode}
-                    closeLoginModal={closeLoginModal}
+        <ErrorProvider>
+            <div className="App">
+                <Header
+                    isLoggedIn={isLoggedIn}
                     setIsLoggedIn={setIsLoggedIn}
-                    setUsername={setUsername}
-                    setBalance={setBalance}
-                    setDisplayBalance={setDisplayBalance}
+                    username={username}
+                    displayBalance={displayBalance}
+                    openLoginModal={openLoginModal}
                     openRegisterModal={openRegisterModal}
-                    startTokenExpirationWatcher={startTokenExpirationWatcher}
+                    balance={balance}
                 />
-            )}
-        </div>
+                <MainContent
+                    isLoggedIn={isLoggedIn}
+                    balance={balance}
+                    setBalance={setBalance}
+                    displayBalance={displayBalance}
+                    setDisplayBalance={setDisplayBalance}
+                    openLoginModal={openLoginModal}
+                    animateBalance={animateBalance}
+                />
+                {isLoginModalVisible && (
+                    <LoginModal
+                        isRegisterMode={isRegisterMode}
+                        closeLoginModal={closeLoginModal}
+                        setIsLoggedIn={setIsLoggedIn}
+                        setUsername={setUsername}
+                        setBalance={setBalance}
+                        setDisplayBalance={setDisplayBalance}
+                        openRegisterModal={openRegisterModal}
+                        startTokenExpirationWatcher={startTokenExpirationWatcher}
+                    />
+                )}
+            </div>
+        </ErrorProvider>
     );
 }
 

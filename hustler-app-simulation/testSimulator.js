@@ -93,8 +93,8 @@ function simulateGames(initialPot, numberOfGames) {
     };
 }
 
-const initialPot = 1000;
-const numberOfGames = 10000;
+const initialPot = 10000;
+const numberOfGames = 10000000;
 
 const simulationResults = simulateGames(initialPot, numberOfGames);
 

@@ -254,7 +254,7 @@ main {
     width: 324px;
     padding: 12px;
     background-color: #333;
-    color: #ddd;
+    color: #ffffff;
     border: 1px solid #444;
     border-radius: 5px;
     outline: none;
@@ -282,7 +282,7 @@ main {
     font-size: 16px;
     width: 100%;
     transition: background-color 0.3s;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     margin-top: 10px;
 }
 
@@ -628,3 +628,38 @@ main {
     100% { transform: rotate(360deg); }
 }
 
+.error-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.error-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.error-content h3 {
+    margin-top: 0;
+    color: red;
+}
+
+.error-content button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    background: red;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}

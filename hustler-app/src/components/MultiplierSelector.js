@@ -28,13 +28,13 @@ function MultiplierSelector({ setSelectedMultiplier, isLoggedIn, openLoginModal 
             {/* Second Row of Buttons */}
             <div className="box-buttons">
                 <button className="box-button" onClick={() => handleMultiplierClick("20k")}>
-                    $20k
+                    💵
                 </button>
                 <button className="box-button" onClick={() => handleMultiplierClick("50k")}>
-                    $50k
+                    💵
                 </button>
                 <button className="box-button" onClick={() => handleMultiplierClick("100k")}>
-                    $100k
+                    💵
                 </button>
             </div>
         </>
