@@ -125,7 +125,7 @@ function LoginModal({
                 closeLoginModal();
                 startTokenExpirationWatcher();
             } else {
-                showError("Login failed: " + data.error);
+                showError(data.error);
                 setShowModal(true); // 🟢 Show modal again on login failure
             }
         } catch (error) {

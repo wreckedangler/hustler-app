@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
 import DollarAmountSelector from "./DollarAmountSelector";
+import { useError } from "../contexts/ErrorContext";
 
 function GameBoard({
                        selectedMultiplier,
@@ -18,9 +19,8 @@ function GameBoard({
     const [allFlipped, setAllFlipped] = useState(false);
     const [showIcons, setShowIcons] = useState(false);
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
-    const [slotResult, setSlotResult] = useState(null); // State to hold slot machine result
     let [previousAmount] = useState(selectedAmount); // Store the previous amount
-
+    const {showError} = useError()
     // Dynamically set the selectedAmount if the multiplier is 20k, 50k, or 100k
     useEffect(() => {
         if (["20k", "50k", "100k"].includes(selectedMultiplier)) {
@@ -36,7 +36,6 @@ function GameBoard({
         setAllFlipped(false);
         setShowIcons(false);
         setIsRoundInProgress(false);
-        setSlotResult(null); // Reset slot machine result
     };
 
     // Fetch balance from the backend
@@ -66,7 +65,7 @@ function GameBoard({
         const betAmount = parseFloat(selectedAmount.replace("$", ""));
         await fetchBalanceFromDB();
         if (balance < betAmount) {
-            alert("Insufficient balance for this bet.");
+            showError("Insufficient balance for this bet.");
             return;
         }
 
@@ -87,7 +86,7 @@ function GameBoard({
             const data = await response.json();
 
             if (data.error) {
-                alert(data.error);
+                showError(data.error);
                 return;
             }
 

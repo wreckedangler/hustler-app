@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
+
 function MultiplierButtons({
                                selectedMultiplier,
                                selectedField,
@@ -15,6 +16,7 @@ function MultiplierButtons({
     const [wiggleComplete, setWiggleComplete] = useState(false);
     const rotationYRef = useRef(0);
     const [isRotationComplete, setIsRotationComplete] = useState(false);
+
 
     // Map multipliers to emojis
     const multiplierEmojis = {

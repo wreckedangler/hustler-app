@@ -86,7 +86,7 @@ app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {
 
 app.get("/api/get-balance", authenticateToken, async (req, res) => {
     const userId = req.user.id;
-    await syncUserBalance()
+    await syncUserBalance(userId)
 
     try {
         const result = await pool.query(
@@ -156,7 +156,6 @@ const syncUserBalance = async (userId) => {
             "SELECT wallet_address FROM users WHERE id = $1",
             [userId]
         );
-
         if (userResult.rows.length === 0) {
             throw new Error("User not found");
         }
