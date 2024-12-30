@@ -169,6 +169,12 @@ main {
     transform: scale(1.05);
 }
 
+.button-image {
+    width: 300px; /* Passt das Bild an die Breite des Buttons an */
+    height: 200px; /* Bewahrt das Seitenverhältnis */
+    object-fit: cover; /* Skaliert das Bild, um den Button zu füllen */
+    border-radius: 8px;
+}
 
 
 .dropdown-menu {
