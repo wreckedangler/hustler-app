@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
-import {ErrorProvider} from "./contexts/ErrorContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import "./App.css";
 
 function App() {
@@ -16,7 +16,6 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [balance, setBalance] = useState(0.0);
     const [displayBalance, setDisplayBalance] = useState(0.0);
-
     const inactivityTimer = useRef(null); // 🔥 Timer reference
 
     /**
@@ -77,7 +76,7 @@ function App() {
 
     // 🟢 **Handle Logout**
     const handleLogout = async () => {
-        console.log('🚪 Logging out...');
+        alert('Logging out...');
 
         try {
             const response = await fetch('http://localhost:5000/api/logout', {
@@ -89,14 +88,14 @@ function App() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to log out from server');
+                alert('Failed to log out from server');
             }
 
             localStorage.removeItem('token'); // Remove token from local storage
             setIsLoggedIn(false); // Set local login status to false
-            console.log('🟢 User has been logged out successfully');
+            alert('Successfully logged out');
         } catch (error) {
-            console.error('❌ Error during logout:', error.message);
+            console.log('Error during logout:', error.message);
         }
     };
 
@@ -209,7 +208,7 @@ function App() {
     };
 
     return (
-        <ErrorProvider>
+        <NotificationProvider>
             <div className="App">
                 <Header
                     isLoggedIn={isLoggedIn}
@@ -243,7 +242,7 @@ function App() {
                     />
                 )}
             </div>
-        </ErrorProvider>
+        </NotificationProvider>
     );
 }
 

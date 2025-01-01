@@ -19,12 +19,12 @@ function MultiplierButtons({
     // Map multipliers to front and back image paths
     const multiplierImages = {
         front: {
-            "2x": "/luckycharm.jpg",
-            "5x": "/luckycharm.jpg",
-            "10x": "/luckycharm.jpg",
-            "20k": "/luckycharm.jpg",
-            "50k": "/luckycharm.jpg",
-            "100k": "/luckycharm.jpg",
+            "2x": "/default.jpg",
+            "5x": "/default.jpg",
+            "10x": "/default.jpg",
+            "20k": "/default.jpg",
+            "50k": "/default.jpg",
+            "100k": "/default.jpg",
         },
         back: "/backside.jpg", // Standard-Bild für die Rückseite
     };
@@ -136,11 +136,12 @@ function MultiplierButtons({
                                 <img
                                     src="/win.jpg"
                                     alt={`${selectedMultiplier} icon`}
+                                    className="button-image"
                                 />
                             ) : isSelected && !isWinningField ? (
-                                <img src="/loose.jpg" alt="" />
+                                <img src="/nothing.jpg" alt="" />
                             ) : (
-                                <img src="/luckycharm.jpg" alt="Default icon" />
+                                <img src="/backside.jpg" alt="Default icon" />
                             )
                         ) : (
                             <img

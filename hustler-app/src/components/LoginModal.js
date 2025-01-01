@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {useError} from "../contexts/ErrorContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 function LoginModal({
                         isRegisterMode,
@@ -21,7 +21,7 @@ function LoginModal({
     const [isLoading, setIsLoading] = useState(false);
     const [showModal, setShowModal] = useState(true);
     const [isRegistering, setIsRegistering] = useState(isRegisterMode);
-    const {showError} = useError()
+    const { showNotification } = useNotification();
 
     const [usernameDebounce, setUsernameDebounce] = useState("");
     const [emailDebounce, setEmailDebounce] = useState("");
@@ -125,11 +125,11 @@ function LoginModal({
                 closeLoginModal();
                 startTokenExpirationWatcher();
             } else {
-                showError(data.error);
+                showNotification(data.error, "error");
                 setShowModal(true); // 🟢 Show modal again on login failure
             }
         } catch (error) {
-            showError(error.message);
+            showNotification(error.message, "error");
             setShowModal(true); // 🟢 Show modal again on error
         } finally {
             setIsLoading(false);
@@ -138,12 +138,12 @@ function LoginModal({
 
     const handleRegister = async () => {
         if (password !== passwordConfirm) {
-            alert("Passwords do not match!");
+            showNotification("Passwords do not match!", "warning");
             return;
         }
 
         if (usernameError || emailError) {
-            alert("Please fix the validation errors before proceeding.");
+            showNotification("Please fix the validation errors before proceeding.", "warning");
             return;
         }
 
@@ -157,13 +157,13 @@ function LoginModal({
             });
             const data = await response.json();
             if (data.message) {
-                alert("Registration successful! You can now log in.");
+                showNotification("Registration successful! You can now log in.", "success");
                 closeLoginModal();
             } else {
-                alert("Registration failed: " + data.error);
+                showNotification("Registration failed: " + data.error, "error");
             }
         } catch (error) {
-            alert("An error occurred during registration.");
+            showNotification("An error occurred during registration.", "error");
         } finally {
             setIsLoading(false);
         }

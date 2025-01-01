@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
-import DollarAmountSelector from "./DollarAmountSelector";
-import { useError } from "../contexts/ErrorContext";
-import userInfo from "./UserInfo";
+import { useNotification } from "../contexts/NotificationContext";
+
 
 function GameBoard({
                        selectedMultiplier,
@@ -22,7 +21,7 @@ function GameBoard({
     const [showIcons, setShowIcons] = useState(false);
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
     let [previousAmount] = useState(selectedAmount); // Store the previous amount
-    const {showError} = useError()
+    const {showNotification} = useNotification()
     // Dynamically set the selectedAmount if the multiplier is 20k, 50k, or 100k
     useEffect(() => {
         if (["20k", "50k", "100k"].includes(selectedMultiplier)) {
@@ -70,7 +69,7 @@ function GameBoard({
         if (username !== "Hustler") {
             await fetchBalanceFromDB();
             if (balance < betAmount) {
-                showError("Insufficient balance for this bet.");
+                showNotification("Insufficient balance for this bet.", "error");
                 return;
             }
         }
@@ -92,7 +91,7 @@ function GameBoard({
             const data = await response.json();
 
             if (data.error) {
-                showError(data.error);
+                showNotification(data.error, "error");
                 return;
             }
 
@@ -115,7 +114,7 @@ function GameBoard({
                 setIsRoundInProgress(false);
             }, 3000);
         } catch (error) {
-            console.error("Error sending bet to backend:", error);
+            showNotification("Error sending bet to backend:" + error, "error");
         }
     };
 
