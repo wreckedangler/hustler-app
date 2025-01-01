@@ -12,6 +12,7 @@ function MainContent({
                          setBalance,
                          openLoginModal,
                          animateBalance,
+                         username,
                      }) {
     const [selectedMultiplier, setSelectedMultiplier] = useState(null);
     const [selectedAmount, setSelectedAmount] = useState("1$");
@@ -47,6 +48,7 @@ function MainContent({
                     setSelectedMultiplier={setSelectedMultiplier}
                     animateBalance={animateBalance}
                     openLoginModal={openLoginModal}
+                    username={username}
                 />
             )}
         </main>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
 import DollarAmountSelector from "./DollarAmountSelector";
 import { useError } from "../contexts/ErrorContext";
+import userInfo from "./UserInfo";
 
 function GameBoard({
                        selectedMultiplier,
@@ -12,6 +13,7 @@ function GameBoard({
                        setSelectedMultiplier,
                        animateBalance,
                        openLoginModal,
+                       username,
                    }) {
     const [balance, setLocalBalance] = useState(0); // State for the balance
     const [selectedField, setSelectedField] = useState(null);
@@ -63,10 +65,14 @@ function GameBoard({
 
     const checkBalanceAndPlay = async () => {
         const betAmount = parseFloat(selectedAmount.replace("$", ""));
-        await fetchBalanceFromDB();
-        if (balance < betAmount) {
-            showError("Insufficient balance for this bet.");
-            return;
+
+        // Balance-Prüfung überspringen, wenn der Benutzer "Hustler" ist
+        if (username !== "Hustler") {
+            await fetchBalanceFromDB();
+            if (balance < betAmount) {
+                showError("Insufficient balance for this bet.");
+                return;
+            }
         }
 
         try {

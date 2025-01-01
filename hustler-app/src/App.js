@@ -228,6 +228,7 @@ function App() {
                     setDisplayBalance={setDisplayBalance}
                     openLoginModal={openLoginModal}
                     animateBalance={animateBalance}
+                    username={username}
                 />
                 {isLoginModalVisible && (
                     <LoginModal

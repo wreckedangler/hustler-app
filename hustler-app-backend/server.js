@@ -348,24 +348,44 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     // Ensure betAmount is numeric
     betAmount = typeof betAmount === 'string' ? parseFloat(betAmount.replace('$', '')) : betAmount;
 
-    const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
-
-    if (!gameResult.success) {
-        return res.status(400).json({ error: gameResult.message });
-    }
-
     try {
-        //  **User Wallet abrufen**
-        const userResult = await pool.query("SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1", [userId]);
+        // **Benutzerdaten abrufen**
+        const userResult = await pool.query("SELECT username FROM users WHERE id = $1", [userId]);
         if (userResult.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const userWalletAddress = userResult.rows[0].wallet_address;
-        const userPrivateKey = decryptPrivateKey(userResult.rows[0].encrypted_private_key);
+        const username = userResult.rows[0].username;
 
-        //  **Pot Wallet abrufen**
-        const potWalletResult = await pool.query("SELECT wallet_address, encrypted_private_key FROM pot_wallets WHERE is_active = true LIMIT 1");
+        // **Nur processBet ausführen, wenn der Benutzer "Hustler" heißt**
+        if (username === "Hustler") {
+            const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
+            return res.json(gameResult); // Nur das Ergebnis von processBet zurückgeben
+        }
+
+        // **Normale Spiellogik für andere Benutzer**
+        const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
+
+        if (!gameResult.success) {
+            return res.status(400).json({ error: gameResult.message });
+        }
+
+        // **User Wallet abrufen**
+        const userWalletResult = await pool.query(
+            "SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1",
+            [userId]
+        );
+        if (userWalletResult.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const userWalletAddress = userWalletResult.rows[0].wallet_address;
+        const userPrivateKey = decryptPrivateKey(userWalletResult.rows[0].encrypted_private_key);
+
+        // **Pot Wallet abrufen**
+        const potWalletResult = await pool.query(
+            "SELECT wallet_address, encrypted_private_key FROM pot_wallets WHERE is_active = true LIMIT 1"
+        );
         if (potWalletResult.rows.length === 0) {
             return res.status(404).json({ error: "No active pot wallet found" });
         }
@@ -373,54 +393,81 @@ app.post("/api/play", authenticateToken, async (req, res) => {
         const potWalletAddress = potWalletResult.rows[0].wallet_address;
         const potPrivateKey = decryptPrivateKey(potWalletResult.rows[0].encrypted_private_key);
 
-        //  **Spieler gewinnt**
         if (gameResult.result === "win") {
             if (!potWalletAddress) {
                 return res.status(400).json({ error: "No pot wallet available for payout" });
             }
 
             console.log(`🏆 Player wins! Paying ${gameResult.winnings} USDT from Pot to User.`);
-
-            const payoutResult = await sendUSDT(potPrivateKey, potWalletAddress, userWalletAddress, gameResult.winnings, userId);
+            const payoutResult = await sendUSDT(
+                potPrivateKey,
+                potWalletAddress,
+                userWalletAddress,
+                gameResult.winnings,
+                userId
+            );
 
             if (!payoutResult.success) {
-                return res.status(500).json({ error: "Failed to send winnings to player.", details: payoutResult.error });
+                return res.status(500).json({
+                    error: "Failed to send winnings to player.",
+                    details: payoutResult.error,
+                });
             }
 
-            await pool.query("UPDATE pot_wallets SET balance = balance - $1 WHERE wallet_address = $2", [gameResult.winnings, potWalletAddress]);
-
-            //  **Spieler verliert**
+            await pool.query(
+                "UPDATE pot_wallets SET balance = balance - $1 WHERE wallet_address = $2",
+                [gameResult.winnings, potWalletAddress]
+            );
         } else {
             console.log(`💸 Player loses! Sending ${betAmount} USDT from User to Pot.`);
-
-            const depositResult = await sendUSDT(userPrivateKey, userWalletAddress, potWalletAddress, betAmount, userId);
+            const depositResult = await sendUSDT(
+                userPrivateKey,
+                userWalletAddress,
+                potWalletAddress,
+                betAmount,
+                userId
+            );
 
             if (!depositResult.success) {
-                return res.status(500).json({ error: "Failed to send bet amount to pot.", details: depositResult.error });
+                return res.status(500).json({
+                    error: "Failed to send bet amount to pot.",
+                    details: depositResult.error,
+                });
             }
 
-            await pool.query("UPDATE pot_wallets SET balance = balance + $1 WHERE wallet_address = $2", [betAmount, potWalletAddress]);
+            await pool.query(
+                "UPDATE pot_wallets SET balance = balance + $1 WHERE wallet_address = $2",
+                [betAmount, potWalletAddress]
+            );
         }
 
-        //  **Spieltransaktion speichern**
+        // **Spieltransaktion speichern**
         await pool.query(
             `INSERT INTO game_transactions 
             (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
+            [
+                userId,
+                betAmount,
+                gameResult.multiplier,
+                selectedField,
+                gameResult.winningField,
+                gameResult.winnings,
+                gameResult.result,
+            ]
         );
 
         res.json({
             result: gameResult.result,
             winningField: gameResult.winningField,
-            winnings: gameResult.winnings
+            winnings: gameResult.winnings,
         });
-
     } catch (error) {
         console.error("Error during gameplay:", error.message);
         res.status(500).json({ error: "Game data saving failed", details: error.message });
     }
 });
+
 
 
 // Withdraw
