@@ -15,13 +15,25 @@ function MultiplierSelector({ setSelectedMultiplier, isLoggedIn, openLoginModal 
             {/* First Row of Buttons */}
             <div className="box-buttons">
                 <button className="box-button" onClick={() => handleMultiplierClick("2x")}>
-                    2x
+                    <img
+                        src="/2x.jpg"
+                        alt="2x"
+                        className="button-image"
+                    />
                 </button>
                 <button className="box-button" onClick={() => handleMultiplierClick("5x")}>
-                    5x
+                    <img
+                        src="/5x.jpg"
+                        alt="2x"
+                        className="button-image"
+                    />
                 </button>
                 <button className="box-button" onClick={() => handleMultiplierClick("10x")}>
-                    10x
+                    <img
+                        src="/10x.jpg"
+                        alt="2x"
+                        className="button-image"
+                    />
                 </button>
             </div>
 
@@ -29,14 +41,14 @@ function MultiplierSelector({ setSelectedMultiplier, isLoggedIn, openLoginModal 
             <div className="box-buttons">
                 <button className="box-button" onClick={() => handleMultiplierClick("20k")}>
                     <img
-                        src="/epic.jpeg"
+                        src="/epic.jpg"
                         alt="20k $"
                         className="button-image"
                     />
                 </button>
                 <button className="box-button" onClick={() => handleMultiplierClick("50k")}>
                     <img
-                        src="/mystic.jpeg"
+                        src="/mystic.jpg"
                         alt="50k $"
                         className="button-image"
                     />

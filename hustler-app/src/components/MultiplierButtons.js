@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
-
 function MultiplierButtons({
                                selectedMultiplier,
                                selectedField,
@@ -17,19 +16,18 @@ function MultiplierButtons({
     const rotationYRef = useRef(0);
     const [isRotationComplete, setIsRotationComplete] = useState(false);
 
-
-    // Map multipliers to emojis
-    const multiplierEmojis = {
-        "2x": "💸",
-        "5x": "💸",
-        "10x": "💸",
-        "20k": "🍀",
-        "50k": "🍀",
-        "100k": "🍀",
+    // Map multipliers to front and back image paths
+    const multiplierImages = {
+        front: {
+            "2x": "/luckycharm.jpg",
+            "5x": "/luckycharm.jpg",
+            "10x": "/luckycharm.jpg",
+            "20k": "/luckycharm.jpg",
+            "50k": "/luckycharm.jpg",
+            "100k": "/luckycharm.jpg",
+        },
+        back: "/backside.jpg", // Standard-Bild für die Rückseite
     };
-
-    // Get the emoji for the selected multiplier
-    const currentEmoji = multiplierEmojis[selectedMultiplier] || "💸";
 
     const handleButtonClick = (fieldNumber) => {
         if (!isLoggedIn) {
@@ -64,14 +62,8 @@ function MultiplierButtons({
         },
         flipToReveal: (custom) => ({
             rotateY: 180,
-            backgroundColor: custom.isWinningField
-                ? "#28a745" // Green for winner
-                : custom.isSelected
-                    ? "#d71212" // Red for loser
-                    : "#ff00ff", // Default
             transition: {
                 rotateY: { duration: 0.6, delay: 0.4 },
-                backgroundColor: { delay: 0.6 },
             },
         }),
         highlight: {
@@ -90,19 +82,15 @@ function MultiplierButtons({
 
                 let animateSequence;
                 if (isSelected) {
-                    // Selected button
                     if (wiggleComplete) {
-                        // After wiggle, move to flip state
                         animateSequence =
                             isRotationComplete && isWinningField
                                 ? ["flipToReveal", "highlight"]
                                 : "flipToReveal";
                     } else {
-                        // Wiggle first, then flip
                         animateSequence = "wiggle";
                     }
                 } else {
-                    // Unselected button
                     if (allFlipped && winningField !== null) {
                         animateSequence =
                             isRotationComplete && isWinningField
@@ -112,6 +100,12 @@ function MultiplierButtons({
                         animateSequence = "initial";
                     }
                 }
+
+                // Dynamically choose the image based on rotation
+                const imageToShow =
+                    rotationYRef.current >= 90
+                        ? multiplierImages.back // Rückseite
+                        : multiplierImages.front[selectedMultiplier]; // Vorderseite
 
                 return (
                     <motion.button
@@ -137,13 +131,23 @@ function MultiplierButtons({
                             }
                         }}
                     >
-                        {showIcons && winningField !== null
-                            ? isWinningField
-                                ? currentEmoji
-                                : isSelected && !isWinningField
-                                    ? ""
-                                    : "💸"
-                            : currentEmoji}
+                        {showIcons && winningField !== null ? (
+                            isWinningField ? (
+                                <img
+                                    src="/win.jpg"
+                                    alt={`${selectedMultiplier} icon`}
+                                />
+                            ) : isSelected && !isWinningField ? (
+                                <img src="/loose.jpg" alt="" />
+                            ) : (
+                                <img src="/luckycharm.jpg" alt="Default icon" />
+                            )
+                        ) : (
+                            <img
+                                src={imageToShow}
+                                alt={`${selectedMultiplier} icon`}
+                            />
+                        )}
                     </motion.button>
                 );
             })}

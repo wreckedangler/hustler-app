@@ -673,3 +673,41 @@ main {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
 }
+
+
+
+
+.dynamic-buttons-container.dynamic-2 .dynamic-button img{
+    width: 250px;
+    margin-left: -6px;
+    margin-top: -1px;
+    height: 167px;
+    border-radius: 8px;
+    justify-content: center;
+}
+
+.dynamic-buttons-container.dynamic-6 .dynamic-button img{
+    width: 150px;
+    height: 100px;
+    margin-left: -6px;
+    margin-top: -1px;
+    border-radius: 8px;
+}
+
+.dynamic-buttons-container.dynamic-12 .dynamic-button img{
+    width: 120px;
+    height: 80px;
+    margin-left: -6px;
+    margin-top: -1px;
+    border-radius: 8px;
+}
+
+.dynamic-buttons-container.dynamic-1 .dynamic-button img{
+    width: 300px;
+    height: 200px;
+    margin-left: -6px;
+    margin-top: -1px;
+    border-radius: 8px;
+    justify-content: center;
+
+}
