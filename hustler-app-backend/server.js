@@ -5,7 +5,7 @@ const pool = require("./db");
 const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
 const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWallets } = require('./potWallet');
-const { createWallet, encryptPrivateKey, getTokenBalance} = require('./wallet'); // Import des Wallet-Moduls
+const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey} = require('./wallet'); // Import des Wallet-Moduls
 const { sendUSDT } = require("./sendUSDT");
 require("dotenv").config();
 

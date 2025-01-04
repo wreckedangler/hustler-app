@@ -45,7 +45,7 @@ module.exports = {
 
             case "20k": // 1 of 12 fields
                 multiplier = 2000;
-                if (Math.random() <= 0.0000000000002) { // Player wins
+                if (Math.random() <= 0.0000000000000000000002) { // Player wins
                     winningField = selectedField;
                 } else {
                     winningField = 0
@@ -56,7 +56,7 @@ module.exports = {
 
             case "50k": // 1 of 12 fields
                 multiplier = 5000;
-                if (Math.random() <= 0.000000000000015) { // Player wins
+                if (Math.random() <= 0.000000000000000000015) { // Player wins
                     winningField = selectedField;
                 } else {
                     winningField = 0
@@ -67,7 +67,7 @@ module.exports = {
 
             case "100k": // 1 of 12 fields
                 multiplier = 10000;
-                if (Math.random() <= 0.00000000000000008) { // Player wins
+                if (Math.random() <= 0.0000000000000000000000008) { // Player wins
                     winningField = selectedField;
                 } else {
                     winningField = 0
