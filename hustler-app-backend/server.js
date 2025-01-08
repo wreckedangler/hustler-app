@@ -86,7 +86,6 @@ app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {
 
 app.get("/api/get-balance", authenticateToken, async (req, res) => {
     const userId = req.user.id;
-    await syncUserBalance(userId)
 
     try {
         const result = await pool.query(
@@ -149,35 +148,6 @@ app.post("/api/create-pot-wallet", async (req, res) => {
 });
 
 
-// Function to synchronize user balance with wallet balance
-const syncUserBalance = async (userId) => {
-    try {
-        const userResult = await pool.query(
-            "SELECT wallet_address FROM users WHERE id = $1",
-            [userId]
-        );
-        if (userResult.rows.length === 0) {
-            throw new Error("User not found");
-        }
-
-        const walletAddress = userResult.rows[0].wallet_address;
-
-        // 🔥 Get the balance of the wallet (for ETH or USDT)
-        const usdtAddress = process.env.USDT_CONTRACT_ADDRESS; // ERC-20 token address for USDT
-        const balance = await getTokenBalance(walletAddress, usdtAddress); // Use getTokenBalance for USDT
-
-        // Update the user's balance in the database
-        await pool.query(
-            "UPDATE users SET balance = $1 WHERE id = $2",
-            [balance, userId]
-        );
-
-        return balance;
-    } catch (error) {
-        console.error("Error during balance synchronization:", error.message);
-        throw new Error('Failed to synchronize balance');
-    }
-};
 
 // Check if email is already in use
 app.get("/api/check-email", async (req, res) => {
@@ -307,11 +277,19 @@ app.get('/api/check-login', authenticateToken, async (req, res) => {
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+        // Fetch user details and balance
+        const userQuery = `
+            SELECT id, username, password, balance 
+            FROM users 
+            WHERE username = $1
+        `;
+        const user = await pool.query(userQuery, [username]);
+
         if (user.rows.length === 0) {
             return res.status(400).json({ error: "Invalid credentials" });
         }
 
+        // Verify password
         const isMatch = await bcrypt.compare(password, user.rows[0].password);
         if (!isMatch) {
             return res.status(400).json({ error: "Invalid credentials" });
@@ -319,19 +297,19 @@ app.post("/api/login", async (req, res) => {
 
         const userId = user.rows[0].id;
 
+        // Update login metadata
         await pool.query('UPDATE users SET last_login = NOW(), is_logged_in = TRUE WHERE id = $1', [userId]);
 
-
-        // 🔥 Synchronize balance on login
-        const newBalance = await syncUserBalance(userId);
-
+        // Generate JWT token
         const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+        // Respond with user details and balance
         res.json({
             token,
             user: {
                 id: userId,
                 username: user.rows[0].username,
-                balance: newBalance
+                balance: parseFloat(user.rows[0].balance), // Ensure balance is a number
             }
         });
     } catch (error) {
@@ -339,6 +317,7 @@ app.post("/api/login", async (req, res) => {
         res.status(500).json({ error: "Login failed", details: error.message });
     }
 });
+
 
 
 app.post("/api/play", authenticateToken, async (req, res) => {
@@ -349,99 +328,38 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     betAmount = typeof betAmount === 'string' ? parseFloat(betAmount.replace('$', '')) : betAmount;
 
     try {
-        // **Benutzerdaten abrufen**
-        const userResult = await pool.query("SELECT username FROM users WHERE id = $1", [userId]);
+        // Fetch user data
+        const userResult = await pool.query("SELECT balance FROM users WHERE id = $1", [userId]);
         if (userResult.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const username = userResult.rows[0].username;
+        const currentBalance = parseFloat(userResult.rows[0].balance);
 
-        // **Nur processBet ausführen, wenn der Benutzer "Hustler" heißt**
-        if (username === "Hustler") {
-            const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
-            return res.json(gameResult); // Nur das Ergebnis von processBet zurückgeben
+        // Check if user has sufficient balance
+        if (currentBalance < betAmount) {
+            return res.status(400).json({ error: "Insufficient balance" });
         }
 
-        // **Normale Spiellogik für andere Benutzer**
+        // Process the game bet
         const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
 
         if (!gameResult.success) {
             return res.status(400).json({ error: gameResult.message });
         }
 
-        // **User Wallet abrufen**
-        const userWalletResult = await pool.query(
-            "SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1",
-            [userId]
-        );
-        if (userWalletResult.rows.length === 0) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        const userWalletAddress = userWalletResult.rows[0].wallet_address;
-        const userPrivateKey = decryptPrivateKey(userWalletResult.rows[0].encrypted_private_key);
-
-        // **Pot Wallet abrufen**
-        const potWalletResult = await pool.query(
-            "SELECT wallet_address, encrypted_private_key FROM pot_wallets WHERE is_active = true LIMIT 1"
-        );
-        if (potWalletResult.rows.length === 0) {
-            return res.status(404).json({ error: "No active pot wallet found" });
-        }
-
-        const potWalletAddress = potWalletResult.rows[0].wallet_address;
-        const potPrivateKey = decryptPrivateKey(potWalletResult.rows[0].encrypted_private_key);
-
+        // Update user balance based on game result
+        let newBalance = currentBalance;
         if (gameResult.result === "win") {
-            if (!potWalletAddress) {
-                return res.status(400).json({ error: "No pot wallet available for payout" });
-            }
-
-            console.log(`🏆 Player wins! Paying ${gameResult.winnings} USDT from Pot to User.`);
-            const payoutResult = await sendUSDT(
-                potPrivateKey,
-                potWalletAddress,
-                userWalletAddress,
-                gameResult.winnings,
-                userId
-            );
-
-            if (!payoutResult.success) {
-                return res.status(500).json({
-                    error: "Failed to send winnings to player.",
-                    details: payoutResult.error,
-                });
-            }
-
-            await pool.query(
-                "UPDATE pot_wallets SET balance = balance - $1 WHERE wallet_address = $2",
-                [gameResult.winnings, potWalletAddress]
-            );
+            newBalance += gameResult.winnings;
         } else {
-            console.log(`💸 Player loses! Sending ${betAmount} USDT from User to Pot.`);
-            const depositResult = await sendUSDT(
-                userPrivateKey,
-                userWalletAddress,
-                potWalletAddress,
-                betAmount,
-                userId
-            );
-
-            if (!depositResult.success) {
-                return res.status(500).json({
-                    error: "Failed to send bet amount to pot.",
-                    details: depositResult.error,
-                });
-            }
-
-            await pool.query(
-                "UPDATE pot_wallets SET balance = balance + $1 WHERE wallet_address = $2",
-                [betAmount, potWalletAddress]
-            );
+            newBalance -= betAmount;
         }
 
-        // **Spieltransaktion speichern**
+        // Update the user's balance in the database
+        await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [newBalance, userId]);
+
+        // Save the game transaction
         await pool.query(
             `INSERT INTO game_transactions 
             (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
@@ -457,17 +375,18 @@ app.post("/api/play", authenticateToken, async (req, res) => {
             ]
         );
 
+        // Return the game result
         res.json({
             result: gameResult.result,
             winningField: gameResult.winningField,
             winnings: gameResult.winnings,
+            newBalance,
         });
     } catch (error) {
         console.error("Error during gameplay:", error.message);
         res.status(500).json({ error: "Game data saving failed", details: error.message });
     }
 });
-
 
 
 // Withdraw
