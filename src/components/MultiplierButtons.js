@@ -26,7 +26,7 @@ function MultiplierButtons({
             "50k": "/default.jpg",
             "100k": "/default.jpg",
         },
-        back: "/backside.jpg", // Standard-Bild für die Rückseite
+        back: "/nothing.jpg", // Standard-Bild für die Rückseite
     };
 
     const handleButtonClick = (fieldNumber) => {
@@ -141,7 +141,7 @@ function MultiplierButtons({
                             ) : isSelected && !isWinningField ? (
                                 <img src="/nothing.jpg" alt="" />
                             ) : (
-                                <img src="/backside.jpg" alt="Default icon" />
+                                <img src="/nothing.jpg" alt="Default icon" />
                             )
                         ) : (
                             <img
