@@ -3,20 +3,24 @@ import React, { useState, useEffect, useRef } from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
+import WithdrawModal from "./components/WithdrawModal";
+import DropdownMenu from "./components/DropdownMenu";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import "./App.css";
 
 function App() {
-
-
-    // Globaler Zustand
+    // Global state
     const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
+    const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
+    const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
     const [username, setUsername] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [balance, setBalance] = useState(0.0);
     const [displayBalance, setDisplayBalance] = useState(0.0);
-    const inactivityTimer = useRef(null); // 🔥 Timer reference
+    const [defaultWithdrawAddress, setDefaultWithdrawAddress] = useState(""); // Store the default withdrawal address
+    const inactivityTimer = useRef(null);
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false)
 
     /**
      * 🔥 Get expiration time from JWT Token
@@ -25,7 +29,7 @@ function App() {
      */
     const getTokenExpiration = (token) => {
         if (!token) return null;
-        const [, payload] = token.split('.');
+        const [, payload] = token.split(".");
         const decodedPayload = JSON.parse(atob(payload));
         return decodedPayload.exp * 1000; // Convert to milliseconds
     };
@@ -35,24 +39,24 @@ function App() {
      */
     const refreshToken = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/refresh-token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken: localStorage.getItem('refreshToken') }),
+            const response = await fetch("http://localhost:5000/api/refresh-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refreshToken: localStorage.getItem("refreshToken") }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to refresh token');
+                throw new Error("Failed to refresh token");
             }
 
             const data = await response.json();
-            localStorage.setItem('token', data.token); // Save new token
-            console.log('🔄 Token successfully refreshed');
+            localStorage.setItem("token", data.token); // Save new token
+            console.log("🔄 Token successfully refreshed");
             startTokenExpirationWatcher(data.token); // Restart the watcher
             return data.token;
         } catch (error) {
-            console.error('❌ Error refreshing token:', error);
-            handleLogout(); // If token can't be refreshed, log out
+            console.error("❌ Error refreshing token:", error);
+            await handleLogout(); // If token can't be refreshed, log out
         }
     };
 
@@ -69,49 +73,48 @@ function App() {
 
         // Refresh token 5 minutes before it expires
         setTimeout(async () => {
-            console.log('🔄 Refreshing token before expiration...');
+            console.log("🔄 Refreshing token before expiration...");
             await refreshToken();
         }, timeUntilExpiration - 5 * 60 * 1000); // 5 minutes before expiration
     };
 
-    // 🟢 **Handle Logout**
+    // 🟢 Handle Logout
     const handleLogout = async () => {
-
         try {
-            const response = await fetch('http://localhost:5000/api/logout', {
-                method: 'POST',
+            const response = await fetch("http://localhost:5000/api/logout", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
 
             if (!response.ok) {
-                console.log('Failed to log out from server');
+                console.log("Failed to log out from server");
             }
 
-            localStorage.removeItem('token'); // Remove token from local storage
+            localStorage.removeItem("token"); // Remove token from local storage
             setIsLoggedIn(false); // Set local login status to false
-            // alert('Successfully logged out');
+            closeDropdown()
         } catch (error) {
-            console.log('Error during logout:', error.message);
+            console.log("Error during logout:", error.message);
         }
     };
 
-    // 🟢 **Fetch Login State from Server**
+    // 🟢 Fetch Login State from Server
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/check-login', {
-                    method: 'GET',
+                const response = await fetch("http://localhost:5000/api/check-login", {
+                    method: "GET",
                     headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to check login status');
+                    throw new Error("Failed to check login status");
                 }
 
                 const data = await response.json();
@@ -120,60 +123,129 @@ function App() {
                     setUsername(data.username);
                     setBalance(data.balance);
                     setDisplayBalance(data.balance);
-                    console.log('✅ User is logged in:', data.username);
+                    console.log("✅ User is logged in:", data.username);
                 } else {
-                    console.log('🚪 User is not logged in');
+                    console.log("🚪 User is not logged in");
                 }
             } catch (error) {
-                console.error('❌ Error checking login status:', error.message);
+                console.error("❌ Error checking login status:", error.message);
             }
         };
 
         checkLoginStatus();
     }, []);
 
-    // 🟢 **Inactivity Timer Setup**
+    // 🟢 Inactivity Timer Setup
     useEffect(() => {
         const handleUserActivity = () => {
             console.log("🕹️ User activity detected, resetting timer...");
             resetInactivityTimer();
         };
 
-        // **Events to track user activity**
-        window.addEventListener('mousemove', handleUserActivity);
-        window.addEventListener('keydown', handleUserActivity);
-        window.addEventListener('click', handleUserActivity);
-        window.addEventListener('scroll', handleUserActivity);
+        // Events to track user activity
+        window.addEventListener("mousemove", handleUserActivity);
+        window.addEventListener("keydown", handleUserActivity);
+        window.addEventListener("click", handleUserActivity);
+        window.addEventListener("scroll", handleUserActivity);
 
-        // **Start the inactivity timer**
+        // Start the inactivity timer
         startInactivityTimer();
 
         return () => {
-            window.removeEventListener('mousemove', handleUserActivity);
-            window.removeEventListener('keydown', handleUserActivity);
-            window.removeEventListener('click', handleUserActivity);
-            window.removeEventListener('scroll', handleUserActivity);
+            window.removeEventListener("mousemove", handleUserActivity);
+            window.removeEventListener("keydown", handleUserActivity);
+            window.removeEventListener("click", handleUserActivity);
+            window.removeEventListener("scroll", handleUserActivity);
             clearTimeout(inactivityTimer.current);
         };
     }, [isLoggedIn]);
 
-    // 🟢 **Start the Inactivity Timer**
+    // Start the Inactivity Timer
     const startInactivityTimer = () => {
         if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
         inactivityTimer.current = setTimeout(() => {
             console.log("⏳ User inactive for 30 minutes. Logging out...");
             handleLogout();
-        }, 1800000); // 30 minutes = 30 * 60 * 1000 ms 1800000
+        }, 1800000); // 30 minutes = 30 * 60 * 1000 ms
     };
 
-    // 🟢 **Reset the Inactivity Timer**
+    // Reset the Inactivity Timer
     const resetInactivityTimer = () => {
         if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
         startInactivityTimer();
     };
 
+    // Fetch default withdrawal address
+    const getDefaultWithdrawAddress = async () => {
+        try {
+            const response = await fetch("http://localhost:5000/api/default-withdraw-address", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
 
-    // Funktionen zum Öffnen/Schließen von Modalen
+            if (!response.ok) {
+                throw new Error("Failed to fetch default withdraw address");
+            }
+
+            const data = await response.json();
+            return data.address;
+        } catch (error) {
+            console.error("❌ Error fetching default withdraw address:", error.message);
+            return "";
+        }
+    };
+
+    // Save default withdrawal address
+    const saveDefaultWithdrawAddress = async (address) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/default-withdraw-address", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({ address }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to save default withdraw address");
+            }
+
+            console.log("✅ Default withdrawal address saved successfully");
+        } catch (error) {
+            console.error("❌ Error saving default withdraw address:", error.message);
+        }
+    };
+
+    // Handle withdrawal submission
+    const handleWithdraw = async (address, amount) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/withdraw", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: JSON.stringify({ address, amount }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to process withdrawal");
+            }
+
+            const data = await response.json();
+            setBalance(data.newBalance); // Update balance
+            setDisplayBalance(data.newBalance);
+            console.log("✅ Withdrawal successful");
+        } catch (error) {
+            console.error("❌ Error during withdrawal:", error.message);
+        }
+    };
+
+    // Modal control functions
     const openLoginModal = () => {
         setIsLoginModalVisible(true);
         setIsRegisterMode(false);
@@ -188,7 +260,22 @@ function App() {
         setIsLoginModalVisible(false);
     };
 
-    // Funktion zum Aktualisieren des Balances mit Animation
+    const openWithdrawModal = async () => {
+        const defaultAddress = await getDefaultWithdrawAddress();
+        setDefaultWithdrawAddress(defaultAddress);
+        setIsWithdrawModalVisible(true);
+    };
+
+
+    const closeWithdrawModal = () => {
+        setIsWithdrawModalVisible(false);
+    };
+
+    const closeDropdown = () => {
+        setIsDropdownVisible(false);
+    };
+
+    // Balance animation
     const animateBalance = (start, end) => {
         const duration = 1000;
         const startTime = performance.now();
@@ -217,6 +304,11 @@ function App() {
                     openLoginModal={openLoginModal}
                     openRegisterModal={openRegisterModal}
                     balance={balance}
+                    openWithdrawModal={openWithdrawModal}
+                    handleLogout={handleLogout}
+                    submitWithdraw={handleWithdraw}
+                    isDropdownVisible={isDropdownVisible}
+                    setIsDropdownVisible={setIsDropdownVisible}
                 />
                 <MainContent
                     isLoggedIn={isLoggedIn}
@@ -238,6 +330,15 @@ function App() {
                         setDisplayBalance={setDisplayBalance}
                         openRegisterModal={openRegisterModal}
                         startTokenExpirationWatcher={startTokenExpirationWatcher}
+                    />
+                )}
+                {isWithdrawModalVisible && (
+                    <WithdrawModal
+                        closeModal={closeWithdrawModal}
+                        submitWithdraw={handleWithdraw}
+                        availableBalance={balance}
+                        getDefaultAddress={getDefaultWithdrawAddress}
+                        saveDefaultAddress={saveDefaultWithdrawAddress}
                     />
                 )}
             </div>

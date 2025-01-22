@@ -53,7 +53,7 @@ async function processTransferEvent(log) {
             [userId, recipientAddress, parseFloat(amount), log.transactionHash]
         );
 
-        console.log(`✅ Updated balance for user ID ${userId}`);
+        console.log(`✅  Updated balance for user ID ${userId}`);
     }
 }
 
@@ -62,7 +62,7 @@ async function startBlockchainListener() {
     await loadUserWallets();
     setInterval(loadUserWallets, 5 * 60 * 1000);
 
-    console.log("🚀 Blockchain listener started!");
+    console.log("Blockchain listener started!");
 
     const filter = {
         address: usdtContractAddress,
@@ -78,7 +78,7 @@ async function startBlockchainListener() {
     });
 
     provider.on("block", (blockNumber) => {
-        console.log(`⛓️ New block mined: ${blockNumber}`);
+        console.log(`New block mined: ${blockNumber}`);
     });
 }
 
