@@ -61,6 +61,53 @@ app.post("/api/send-usdt", authenticateToken, async (req, res) => {
     }
 });
 
+app.post("/api/save-default-withdraw-address", authenticateToken, async (req, res) => {
+    const { withdrawAddress } = req.body;
+    const userId = req.user.id;
+
+    console.log("Server wurde aufgerufen."); // Debugging
+    console.log("Empfangene Adresse:", withdrawAddress); // Debugging
+
+    if (!withdrawAddress || !/^0x[a-fA-F0-9]{40}$/.test(withdrawAddress.trim())) {
+        console.log("Ungültige Adresse:", withdrawAddress); // Debugging
+        return res.status(400).json({ error: "Invalid wallet address format." });
+    }
+
+    try {
+        await pool.query(
+            "UPDATE users SET default_withdraw_address = $1 WHERE id = $2",
+            [withdrawAddress, userId]
+        );
+        console.log("Adresse erfolgreich gespeichert:", withdrawAddress); // Debugging
+        res.status(200).json({ message: "Default withdraw address saved successfully." });
+    } catch (error) {
+        console.error("Fehler beim Speichern der Adresse:", error.message);
+        res.status(500).json({ error: "Failed to save default withdraw address.", details: error.message });
+    }
+});
+
+
+// Abrufen der Standard-Auszahlungsadresse
+app.get("/api/get-default-withdraw-address", authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const result = await pool.query(
+            "SELECT default_withdraw_address FROM users WHERE id = $1",
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        const defaultAddress = result.rows[0].default_withdraw_address;
+        res.status(200).json({ defaultAddress });
+    } catch (error) {
+        console.error("Error fetching default withdraw address:", error.message);
+        res.status(500).json({ error: "Failed to fetch default withdraw address.", details: error.message });
+    }
+});
 
 // Funktion zum Abrufen der Wallet-Adresse des Benutzers
 app.get("/api/get-wallet-address", authenticateToken, async (req, res) => {

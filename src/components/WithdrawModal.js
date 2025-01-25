@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {NotificationProvider, useNotification} from "../contexts/NotificationContext";
 
 const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDefaultAddress, saveDefaultAddress }) => {
     const [withdrawAddress, setWithdrawAddress] = useState('');
@@ -7,6 +8,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
     const [isValid, setIsValid] = useState(false);
     const [addressError, setAddressError] = useState('');
     const [amountError, setAmountError] = useState('');
+    const { showNotification } = useNotification();
 
     // Load the default address when the modal loads
     useEffect(() => {
@@ -45,13 +47,28 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
         setIsValid(!addressError && !amountError);
     }, [withdrawAddress, withdrawAmount, availableBalance, addressError, amountError]);
 
-    const handleSaveDefaultAddress = () => {
+    const handleSaveDefaultAddress = async () => {
         if (saveDefaultAddress) {
-            saveDefaultAddress(withdrawAddress);
-            setDefaultAddress(withdrawAddress); // Update the local default address
-            alert('Default address saved successfully.');
+            console.log("Übergebene Adresse:", withdrawAddress); // Debugging-Log
+            try {
+                const response = await saveDefaultAddress(withdrawAddress); // Adresse an die Funktion übergeben
+                if (response && response.message) {
+                    showNotification(response.message, "success");
+                } else {
+                    showNotification('Default address maybe saved successfully.', "info");
+                }
+                setDefaultAddress(withdrawAddress);
+            } catch (error) {
+                if (error.response && error.response.message) {
+                    showNotification(error.response.message, "error");
+                } else {
+                    showNotification('Failed to save default address.', "error");
+                }
+            }
         }
     };
+
+
 
     const handleWithdraw = () => {
         if (!isValid) return;
@@ -63,19 +80,43 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
             <div className="modal" onClick={(e) => e.stopPropagation()}>
                 <h2>Withdraw</h2>
                 <p>
-                    <strong><big>Available Balance: ${parseFloat(availableBalance).toFixed(2)}</big></strong>
+                    <strong>
+                        <big>Available Balance: ${parseFloat(availableBalance).toFixed(2)}</big>
+                    </strong>
                 </p>
-                {addressError && <p className="error"><em>{addressError} </em></p>}
+
+                {/* Fehleranzeige für die Adresse */}
+                {addressError && (
+                    <p className="error">
+                        <em>{addressError}</em>
+                    </p>
+                )}
+
                 {/* Wallet Address Input */}
                 <input
                     type="text"
                     placeholder="Wallet address"
                     value={withdrawAddress}
-                    onChange={(e) => setWithdrawAddress(e.target.value)}
+                    onChange={(e) => setWithdrawAddress(e.target.value)} // Adresse aktualisieren
+                    onFocus={async () => {
+                        // Wenn das Eingabefeld fokussiert wird, Standardadresse erneut laden, falls sie nicht gesetzt ist
+                        if (!withdrawAddress && getDefaultAddress) {
+                            const address = await getDefaultAddress();
+                            if (address) {
+                                setWithdrawAddress(address);
+                            }
+                        }
+                    }}
                 />
 
-                {amountError && <p className="error"><em>{amountError}</em></p>}
-                {/* Amount Input */}
+                {/* Fehleranzeige für den Betrag */}
+                {amountError && (
+                    <p className="error">
+                        <em>{amountError}</em>
+                    </p>
+                )}
+
+                {/* Betragseingabe */}
                 <input
                     type="number"
                     placeholder="Amount"
@@ -84,7 +125,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
                 />
                 <p></p>
 
-                {/* Submit Button */}
+                {/* Aktionen */}
                 <button onClick={handleWithdraw} disabled={!isValid}>
                     Submit
                 </button>
@@ -95,6 +136,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
             </div>
         </div>
     );
+
 };
 
 export default WithdrawModal;

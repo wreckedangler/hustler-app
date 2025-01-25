@@ -1,11 +1,10 @@
 // App.js
-import React, { useState, useEffect, useRef } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Header from "./components/Header";
 import MainContent from "./components/MainContent";
 import LoginModal from "./components/LoginModal";
 import WithdrawModal from "./components/WithdrawModal";
-import DropdownMenu from "./components/DropdownMenu";
-import { NotificationProvider } from "./contexts/NotificationContext";
+import {NotificationProvider} from "./contexts/NotificationContext";
 import "./App.css";
 
 function App() {
@@ -178,7 +177,7 @@ function App() {
     // Fetch default withdrawal address
     const getDefaultWithdrawAddress = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/default-withdraw-address", {
+            const response = await fetch("http://localhost:5000/api/get-default-withdraw-address", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -191,34 +190,35 @@ function App() {
             }
 
             const data = await response.json();
-            return data.address;
+            return data.defaultAddress;
         } catch (error) {
             console.error("❌ Error fetching default withdraw address:", error.message);
             return "";
         }
     };
 
-    // Save default withdrawal address
     const saveDefaultWithdrawAddress = async (address) => {
         try {
-            const response = await fetch("http://localhost:5000/api/default-withdraw-address", {
+            const response = await fetch("http://localhost:5000/api/save-default-withdraw-address", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Token hinzufügen
                 },
-                body: JSON.stringify({ address }),
+                body: JSON.stringify({ withdrawAddress: address }), // Adresse korrekt übergeben
             });
 
             if (!response.ok) {
-                throw new Error("Failed to save default withdraw address");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Unknown error occurred.");
             }
 
-            console.log("✅ Default withdrawal address saved successfully");
+            return await response.json(); // Antwort zurückgeben
         } catch (error) {
-            console.error("❌ Error saving default withdraw address:", error.message);
+            throw error;
         }
     };
+
 
     // Handle withdrawal submission
     const handleWithdraw = async (address, amount) => {
