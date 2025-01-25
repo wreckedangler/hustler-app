@@ -65,11 +65,7 @@ app.post("/api/save-default-withdraw-address", authenticateToken, async (req, re
     const { withdrawAddress } = req.body;
     const userId = req.user.id;
 
-    console.log("Server wurde aufgerufen."); // Debugging
-    console.log("Empfangene Adresse:", withdrawAddress); // Debugging
-
     if (!withdrawAddress || !/^0x[a-fA-F0-9]{40}$/.test(withdrawAddress.trim())) {
-        console.log("Ungültige Adresse:", withdrawAddress); // Debugging
         return res.status(400).json({ error: "Invalid wallet address format." });
     }
 

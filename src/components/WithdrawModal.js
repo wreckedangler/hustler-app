@@ -23,7 +23,6 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
         fetchDefaultAddress();
     }, [getDefaultAddress]);
 
-    // Validate the address and amount in real-time
     useEffect(() => {
         // Validate the address
         if (!withdrawAddress || withdrawAddress.trim() === '') {
@@ -37,8 +36,8 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
         // Validate the amount
         if (withdrawAmount === '' || withdrawAmount < 10) {
             setAmountError('Amount must be at least $10.');
-        } else if (withdrawAmount > availableBalance) {
-            setAmountError(`❌ Amount cannot exceed available balance of $${availableBalance.toFixed(2)}.`);
+        } else if (withdrawAmount > Number(availableBalance || 0)) {
+            setAmountError(`❌ Amount cannot exceed available balance of $${Number(availableBalance || 0).toFixed(2)}.`);
         } else {
             setAmountError('');
         }
@@ -46,6 +45,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
         // Set overall form validity
         setIsValid(!addressError && !amountError);
     }, [withdrawAddress, withdrawAmount, availableBalance, addressError, amountError]);
+
 
     const handleSaveDefaultAddress = async () => {
         if (saveDefaultAddress) {
@@ -77,13 +77,17 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
 
     return (
         <div className="modal-backdrop" onClick={closeModal}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal withdraw-modal" onClick={(e) => e.stopPropagation()}>
                 <h2>Withdraw</h2>
                 <p>
                     <strong>
-                        <big>Available Balance: ${parseFloat(availableBalance).toFixed(2)}</big>
+                        <big>
+                            Available Balance: $
+                            {!isNaN(Number(availableBalance)) ? Number(availableBalance).toFixed(2) : '0.00'}
+                        </big>
                     </strong>
                 </p>
+
 
                 {/* Fehleranzeige für die Adresse */}
                 {addressError && (
@@ -95,18 +99,10 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
                 {/* Wallet Address Input */}
                 <input
                     type="text"
+                    className="wallet-address-input" // Gleiche Klasse wie im Deposit Modal
                     placeholder="Wallet address"
                     value={withdrawAddress}
-                    onChange={(e) => setWithdrawAddress(e.target.value)} // Adresse aktualisieren
-                    onFocus={async () => {
-                        // Wenn das Eingabefeld fokussiert wird, Standardadresse erneut laden, falls sie nicht gesetzt ist
-                        if (!withdrawAddress && getDefaultAddress) {
-                            const address = await getDefaultAddress();
-                            if (address) {
-                                setWithdrawAddress(address);
-                            }
-                        }
-                    }}
+                    onChange={(e) => setWithdrawAddress(e.target.value)}
                 />
 
                 {/* Fehleranzeige für den Betrag */}
@@ -119,6 +115,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
                 {/* Betragseingabe */}
                 <input
                     type="number"
+                    className="wallet-amount-input"
                     placeholder="Amount"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(Number(e.target.value))}
@@ -135,6 +132,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
                 <button onClick={handleSaveDefaultAddress}>Save as Default Address</button>
             </div>
         </div>
+
     );
 
 };

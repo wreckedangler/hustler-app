@@ -775,3 +775,40 @@ main {
 .notification-info {
     background-color: #17a2b8; /* Blau */
 }
+
+
+.withdraw-modal {
+    width: 560px; /* Gleiche Breite wie das Deposit Modal */
+    padding: 20px;
+    background-color: #222;
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Wallet Address Input für Withdraw Modal */
+.withdraw-modal .wallet-address-input,
+.withdraw-modal .wallet-amount-input {
+    width: 537px; /* Gleiche Breite wie im Deposit Modal */
+    padding: 8px;
+    background-color: #333;
+    color: #fdc445;
+    border: 1px solid #444;
+    border-radius: 5px;
+    outline: none;
+    text-align: center;
+    font-size: 21px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    margin-bottom: 15px;
+    transition: border-color 0.3s;
+}
+
+.withdraw-modal .wallet-address-input::placeholder,
+.withdraw-modal .wallet-amount-input::placeholder {
+    color: #bbb;
+}
+
+.withdraw-modal .wallet-address-input:focus,
+.withdraw-modal .wallet-amount-input:focus {
+    border-color: #fdc445;
+}
