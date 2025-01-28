@@ -5,8 +5,11 @@ const pool = require("./db");
 const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
 const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWallets } = require('./potWallet');
-const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey} = require('./wallet'); // Import des Wallet-Moduls
+const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey } = require('./wallet');
 const { sendUSDT } = require("./sendUSDT");
+const Web3 = require("web3");
+const { abi } = require("/smart-contract/contracts/BatchTransferABI.json");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
@@ -14,6 +17,19 @@ const PORT = 5000;
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000" }));
 
+const web3 = new Web3(process.env.WEB3_PROVIDER_URL);
+const contractAddress = process.env.DEPLOYED_CONTRACT_ADDRESS;
+const privateKey = process.env.PRIVATE_KEY;
+const contract = new web3.eth.Contract(abi, contractAddress);
+const ownerAddress = process.env.OWNER_WALLET_ADDRESS; //
+
+// Rate Limiting für den gesamten Server
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 Minuten
+    max: 100,
+    message: "Too many requests from this IP, please try again later."
+});
+app.use(globalLimiter);
 
 // Middleware
 const authenticateToken = (req, res, next) => {
@@ -27,6 +43,105 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Withdraw mit Hauptwallet
+app.post("/api/withdraw", authenticateToken, async (req, res) => {
+    const { address, amount } = req.body;
+    const userId = req.user.id;
+
+    try {
+        // Eingabevalidierung
+        if (!web3.utils.isAddress(address)) {
+            return res.status(400).json({ error: "Invalid wallet address" });
+        }
+        if (isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ error: "Invalid amount" });
+        }
+
+        // Optimierte Überprüfung der täglichen Transaktionen
+        const dailyTransactionCheck = await pool.query(
+            `SELECT COUNT(*) AS daily_withdrawals FROM transactions 
+             WHERE user_id = $1 AND type = 'withdrawal' AND created_at > NOW() - INTERVAL '1 day'`,
+            [userId]
+        );
+
+        if (parseInt(dailyTransactionCheck.rows[0].daily_withdrawals, 10) > 0) {
+            return res.status(429).json({ error: "You can only make one withdrawal per day." });
+        }
+
+        // Abfrage der Benutzerinformationen
+        const userResult = await pool.query("SELECT balance, wallet_address FROM users WHERE id = $1", [userId]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const userBalance = userResult.rows[0]?.balance;
+        const userWalletAddress = userResult.rows[0]?.wallet_address;
+
+        if (!userBalance || userBalance < amount) {
+            return res.status(400).json({ error: "Insufficient balance" });
+        }
+
+        const tokenAmount = web3.utils.toWei(amount.toString(), "ether"); // Betrag in Wei umwandeln
+
+        // Nonce holen
+        const nonce = await web3.eth.getTransactionCount(ownerAddress, "latest");
+
+        // Transaktionsdaten vorbereiten
+        const data = contract.methods.withdrawTokens(address, tokenAmount).encodeABI();
+        const tx = {
+            from: ownerAddress,
+            to: contractAddress,
+            gas: 200000, // Passe den Gas-Limit an
+            nonce,
+            data,
+        };
+
+        // Signiere die Transaktion
+        const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
+
+        // Sende die Transaktion
+        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+
+        // Validierung des Transaktionsergebnisses
+        if (!receipt || !receipt.status) {
+            return res.status(500).json({ error: "Transaction failed on-chain" });
+        }
+
+        // Atomare Datenbankaktualisierung
+        const client = await pool.connect();
+        try {
+            await client.query("BEGIN");
+            await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [amount, userId]);
+            await client.query(
+                `INSERT INTO transactions (user_id, wallet_address, amount, type, tx_hash, gas_fee) 
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [
+                    userId,
+                    userWalletAddress,
+                    amount,
+                    'withdrawal',
+                    receipt.transactionHash,
+                    web3.utils.fromWei(receipt.gasUsed.toString(), 'ether')
+                ]
+            );
+            await client.query("COMMIT");
+        } catch (dbError) {
+            await client.query("ROLLBACK");
+            throw dbError;
+        } finally {
+            client.release();
+        }
+
+        res.status(200).json({
+            message: "Withdrawal successful",
+            newBalance: userBalance - amount,
+            transactionHash: receipt.transactionHash,
+        });
+    } catch (error) {
+        console.error("❌ Error during withdrawal:", error.message);
+        res.status(500).json({ error: "Withdrawal failed" });
+    }
+});
 
 // API-Route zum Senden von USDT
 app.post("/api/send-usdt", authenticateToken, async (req, res) => {

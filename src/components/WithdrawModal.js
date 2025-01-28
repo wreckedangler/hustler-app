@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {NotificationProvider, useNotification} from "../contexts/NotificationContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDefaultAddress, saveDefaultAddress }) => {
     const [withdrawAddress, setWithdrawAddress] = useState('');
@@ -69,12 +69,6 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
     };
 
 
-
-    const handleWithdraw = () => {
-        if (!isValid) return;
-        submitWithdraw(withdrawAddress, withdrawAmount);
-    };
-
     return (
         <div className="modal-backdrop" onClick={closeModal}>
             <div className="modal withdraw-modal" onClick={(e) => e.stopPropagation()}>
@@ -123,7 +117,7 @@ const WithdrawModal = ({ closeModal, submitWithdraw, availableBalance = 0, getDe
                 <p></p>
 
                 {/* Aktionen */}
-                <button onClick={handleWithdraw} disabled={!isValid}>
+                <button onClick={submitWithdraw} disabled={!isValid}>
                     Submit
                 </button>
                 <button className="close-button" onClick={closeModal}>
