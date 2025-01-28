@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract BatchTransfer is Ownable {
     IERC20 public token;
 
-    event FundsCollected(address indexed wallet, uint256 amount); // Protokollierung des Einsammelns von Geldern
-    event Withdrawal(address indexed recipient, uint256 amount);  // Protokollierung von Auszahlungen
+    event FundsCollected(address indexed wallet, uint256 amount);
+    event Withdrawal(address indexed recipient, uint256 amount);
 
     constructor(address _tokenAddress, address _initialOwner) Ownable(_initialOwner) {
         token = IERC20(_tokenAddress);

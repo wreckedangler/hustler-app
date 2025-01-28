@@ -6,7 +6,6 @@ const cors = require("cors");
 const gameAlgorithm = require("./gameAlgorithm");
 const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWallets } = require('./potWallet');
 const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey } = require('./wallet');
-const { sendUSDT } = require("./sendUSDT");
 const Web3 = require("web3");
 const { abi } = require("/smart-contract/contracts/BatchTransferABI.json");
 const rateLimit = require("express-rate-limit");
@@ -21,7 +20,10 @@ const web3 = new Web3(process.env.WEB3_PROVIDER_URL);
 const contractAddress = process.env.DEPLOYED_CONTRACT_ADDRESS;
 const privateKey = process.env.PRIVATE_KEY;
 const contract = new web3.eth.Contract(abi, contractAddress);
-const ownerAddress = process.env.OWNER_WALLET_ADDRESS; //
+const ownerAddress = process.env.OWNER_WALLET_ADDRESS;
+
+
+
 
 // Rate Limiting für den gesamten Server
 const globalLimiter = rateLimit({
@@ -43,138 +45,89 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Withdraw mit Hauptwallet
+// Batch Collect
+app.post("/api/batch-collect", authenticateToken, async (req, res) => {
+    const { wallets } = req.body;
+
+    try {
+        // Validierung der Eingabe
+        if (!wallets || !Array.isArray(wallets) || wallets.length === 0) {
+            return res.status(400).json({ error: "Invalid wallets array." });
+        }
+
+        // Transaktion ausführen
+        const receipt = await batchCollect(wallets);
+
+        // Erfolgreiche Antwort
+        res.status(200).json({
+            message: "Batch collect successful.",
+            transactionHash: receipt.transactionHash,
+        });
+    } catch (error) {
+        console.error("❌ Error during batch collect:", error.message);
+        res.status(500).json({ error: "Batch collect failed.", details: error.message });
+    }
+});
+
+// Withdraw Tokens
 app.post("/api/withdraw", authenticateToken, async (req, res) => {
-    const { address, amount } = req.body;
+    const { recipient, amount } = req.body;
     const userId = req.user.id;
 
     try {
         // Eingabevalidierung
-        if (!web3.utils.isAddress(address)) {
-            return res.status(400).json({ error: "Invalid wallet address" });
+        if (!web3.utils.isAddress(recipient)) {
+            return res.status(400).json({ error: "Invalid recipient address." });
         }
-        if (isNaN(amount) || amount <= 0) {
-            return res.status(400).json({ error: "Invalid amount" });
-        }
-
-        // Optimierte Überprüfung der täglichen Transaktionen
-        const dailyTransactionCheck = await pool.query(
-            `SELECT COUNT(*) AS daily_withdrawals FROM transactions 
-             WHERE user_id = $1 AND type = 'withdrawal' AND created_at > NOW() - INTERVAL '1 day'`,
-            [userId]
-        );
-
-        if (parseInt(dailyTransactionCheck.rows[0].daily_withdrawals, 10) > 0) {
-            return res.status(429).json({ error: "You can only make one withdrawal per day." });
+        if (isNaN(amount) || parseFloat(amount) <= 0) {
+            return res.status(400).json({ error: "Invalid amount." });
         }
 
-        // Abfrage der Benutzerinformationen
-        const userResult = await pool.query("SELECT balance, wallet_address FROM users WHERE id = $1", [userId]);
+        // Benutzerinformationen aus der Datenbank
+        const userResult = await pool.query("SELECT balance FROM users WHERE id = $1", [userId]);
         if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ error: "User not found." });
         }
 
-        const userBalance = userResult.rows[0]?.balance;
-        const userWalletAddress = userResult.rows[0]?.wallet_address;
-
-        if (!userBalance || userBalance < amount) {
-            return res.status(400).json({ error: "Insufficient balance" });
+        const userBalance = parseFloat(userResult.rows[0].balance);
+        if (userBalance < amount) {
+            return res.status(400).json({ error: "Insufficient balance." });
         }
 
         const tokenAmount = web3.utils.toWei(amount.toString(), "ether"); // Betrag in Wei umwandeln
 
-        // Nonce holen
-        const nonce = await web3.eth.getTransactionCount(ownerAddress, "latest");
+        // Transaktion auf der Blockchain ausführen
+        const receipt = await withdrawTokens(recipient, tokenAmount);
 
-        // Transaktionsdaten vorbereiten
-        const data = contract.methods.withdrawTokens(address, tokenAmount).encodeABI();
-        const tx = {
-            from: ownerAddress,
-            to: contractAddress,
-            gas: 200000, // Passe den Gas-Limit an
-            nonce,
-            data,
-        };
 
-        // Signiere die Transaktion
-        const signedTx = await web3.eth.accounts.signTransaction(tx, privateKey);
-
-        // Sende die Transaktion
-        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-
-        // Validierung des Transaktionsergebnisses
-        if (!receipt || !receipt.status) {
-            return res.status(500).json({ error: "Transaction failed on-chain" });
-        }
-
-        // Atomare Datenbankaktualisierung
-        const client = await pool.connect();
         try {
-            await client.query("BEGIN");
-            await client.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [amount, userId]);
-            await client.query(
-                `INSERT INTO transactions (user_id, wallet_address, amount, type, tx_hash, gas_fee) 
-                 VALUES ($1, $2, $3, $4, $5, $6)`,
-                [
-                    userId,
-                    userWalletAddress,
-                    amount,
-                    'withdrawal',
-                    receipt.transactionHash,
-                    web3.utils.fromWei(receipt.gasUsed.toString(), 'ether')
-                ]
+            await pool.query("BEGIN");
+            await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [amount, userId]);
+            await pool.query(
+                `INSERT INTO transactions (user_id, wallet_address, amount, type, tx_hash, created_at)
+                 VALUES ($1, $2, $3, $4, $5, NOW())`,
+                [userId, recipient, amount, "withdrawal", receipt.transactionHash]
             );
-            await client.query("COMMIT");
+            await pool.query("COMMIT");
         } catch (dbError) {
-            await client.query("ROLLBACK");
+            await pool.query("ROLLBACK");
             throw dbError;
         } finally {
             client.release();
         }
 
+        // Erfolgreiche Antwort
         res.status(200).json({
-            message: "Withdrawal successful",
-            newBalance: userBalance - amount,
+            message: "Withdrawal successful.",
             transactionHash: receipt.transactionHash,
+            newBalance: userBalance - amount,
         });
     } catch (error) {
         console.error("❌ Error during withdrawal:", error.message);
-        res.status(500).json({ error: "Withdrawal failed" });
+        res.status(500).json({ error: "Withdrawal failed.", details: error.message });
     }
 });
 
-// API-Route zum Senden von USDT
-app.post("/api/send-usdt", authenticateToken, async (req, res) => {
-    const { recipientAddress, amount } = req.body;
-    const userId = req.user.id;
-
-    try {
-        // Wallet-Informationen des Benutzers aus der Datenbank abrufen
-        const userResult = await pool.query(
-            "SELECT wallet_address, encrypted_private_key FROM users WHERE id = $1",
-            [userId]
-        );
-
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: "User wallet not found." });
-        }
-
-        const { wallet_address, encrypted_private_key } = userResult.rows[0];
-        const senderPrivateKey = decryptPrivateKey(encrypted_private_key); // Entschlüsselung der Private Keys
-
-        // USDT senden
-        const result = await sendUSDT(senderPrivateKey, wallet_address, recipientAddress, amount, userId);
-
-        if (result.success) {
-            res.status(200).json({ message: "USDT sent successfully.", txHash: result.txHash });
-        } else {
-            res.status(500).json({ error: "Failed to send USDT.", details: result.error });
-        }
-    } catch (error) {
-        console.error("❌ Error during USDT transfer:", error.message);
-        res.status(500).json({ error: "An error occurred while sending USDT." });
-    }
-});
 
 app.post("/api/save-default-withdraw-address", authenticateToken, async (req, res) => {
     const { withdrawAddress } = req.body;
