@@ -499,33 +499,6 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     }
 });
 
-
-// Withdraw
-app.post("/api/withdraw", authenticateToken, async (req, res) => {
-    const { amount } = req.body;
-    const userId = req.user.id;
-
-    try {
-        const userResult = await pool.query("SELECT balance FROM users WHERE id = $1", [userId]);
-        const userBalance = userResult.rows[0].balance;
-
-        if (userBalance < amount) {
-            return res.status(400).json({ error: "Insufficient balance" });
-        }
-
-        await pool.query("UPDATE users SET balance = balance - $1 WHERE id = $2", [amount, userId]);
-        await pool.query(
-            "INSERT INTO transactions (user_id, transaction_type, amount) VALUES ($1, 'withdrawal', $2)",
-            [userId, amount]
-        );
-
-        res.json({ message: "Withdrawal successful", newBalance: userBalance - amount });
-    } catch (error) {
-        console.error("Error during withdrawal:", error);
-        res.status(500).json({ error: "Withdrawal failed" });
-    }
-});
-
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
