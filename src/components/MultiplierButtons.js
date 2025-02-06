@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
 function MultiplierButtons({
@@ -42,6 +42,19 @@ function MultiplierButtons({
         }
     };
 
+    // Reset-Funktion für ein neues Spiel
+    useEffect(() => {
+        if (winningField === null) {
+            setTimeout(() => {
+                setSelectedField(null);
+                setWiggleComplete(false);
+                setIsRotationComplete(false);
+                rotationYRef.current = 0;
+            }, 0);
+        }
+    }, [winningField]);
+
+
     const count =
         selectedMultiplier === "2x"
             ? 2
@@ -60,12 +73,12 @@ function MultiplierButtons({
             scale: 1.1,
             transition: { duration: 0.4 },
         },
-        flipToReveal: (custom) => ({
+        flipToReveal: {
             rotateY: 180,
             transition: {
-                rotateY: { duration: 0.6, delay: 0.4 },
+                rotateY: { duration: 1, delay: 0.4 },
             },
-        }),
+        },
         highlight: {
             boxShadow: "0 0 10px 5px yellow",
             animation: "blink 0.5s ease-in-out infinite alternate",
@@ -80,32 +93,18 @@ function MultiplierButtons({
                 const isWinningField = fieldNumber === winningField;
                 const isSelected = fieldNumber === selectedField;
 
+                // Neue Logik: Sobald wiggleComplete true ist, flippen ALLE Buttons gleichzeitig.
                 let animateSequence;
-                if (isSelected) {
-                    if (wiggleComplete) {
-                        animateSequence =
-                            isRotationComplete && isWinningField
-                                ? ["flipToReveal", "highlight"]
-                                : "flipToReveal";
-                    } else {
-                        animateSequence = "wiggle";
-                    }
+                if (wiggleComplete) {
+                    animateSequence =
+                        isRotationComplete && isWinningField
+                            ? ["flipToReveal", "highlight"]
+                            : "flipToReveal";
                 } else {
-                    if (allFlipped && winningField !== null) {
-                        animateSequence =
-                            isRotationComplete && isWinningField
-                                ? ["flipToReveal", "highlight"]
-                                : "flipToReveal";
-                    } else {
-                        animateSequence = "initial";
-                    }
+                    animateSequence = isSelected ? "wiggle" : "initial";
                 }
 
-                // Dynamically choose the image based on rotation
-                const imageToShow =
-                    rotationYRef.current >= 90
-                        ? multiplierImages.back // Rückseite
-                        : multiplierImages.front[selectedMultiplier]; // Vorderseite
+
 
                 return (
                     <motion.button
@@ -115,11 +114,6 @@ function MultiplierButtons({
                         disabled={winningField !== null && !allFlipped}
                         initial="initial"
                         animate={animateSequence}
-                        custom={{
-                            isWinningField,
-                            isSelected,
-                            rotationProgress: rotationYRef.current,
-                        }}
                         variants={buttonVariants}
                         whileHover={{ scale: 1.05 }}
                         onUpdate={(latest) => {
@@ -145,7 +139,7 @@ function MultiplierButtons({
                             )
                         ) : (
                             <img
-                                src={imageToShow}
+                                src="/default.jpg"
                                 alt={`${selectedMultiplier} icon`}
                             />
                         )}
