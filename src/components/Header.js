@@ -5,7 +5,7 @@ import DropdownMenu from "./DropdownMenu";
 import DepositModal from "./DepositModal";
 import WithdrawModal from "./WithdrawModal";
 import InfoModal from "./InfoModal";
-
+import ReferralDashboard from "./ReferralDashboard"; // Referral-Dashboard importieren
 
 function Header({
                     isLoggedIn,
@@ -23,12 +23,12 @@ function Header({
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [isReferralDashboardOpen, setIsReferralDashboardOpen] = useState(false); // Neu: Referral Dashboard Zustand
     const dropdownRef = useRef(null);
 
     const toggleDropdown = () => {
         setIsDropdownVisible((prev) => !prev);
     };
-
 
     // Close the dropdown if clicked outside
     useEffect(() => {
@@ -57,14 +57,16 @@ function Header({
         setIsDropdownVisible(false); // Close dropdown
     };
 
-    // Close Deposit Modal
+    const openReferralDashboard = () => {
+        setIsReferralDashboardOpen(true);
+        setIsDropdownVisible(false); // Close dropdown
+    };
+
+    // Close Modals
     const closeDepositModal = () => setIsDepositModalOpen(false);
-
     const closeInfoModal = () => setIsInfoModalOpen(false);
-
-    // Close Withdraw Modal
     const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
-
+    const closeReferralDashboard = () => setIsReferralDashboardOpen(false);
 
     return (
         <header>
@@ -98,14 +100,13 @@ function Header({
                     openDepositModal={openDepositModal}
                     openWithdrawModal={openWithdrawModal}
                     openInfoModal={openInfoModal}
+                    openReferralDashboard={openReferralDashboard} // Referral-Dashboard öffnen
                     ref={dropdownRef}
                 />
             )}
 
             {isInfoModalOpen && (
-                <InfoModal
-                    closeModal={closeInfoModal}
-                    />
+                <InfoModal closeModal={closeInfoModal} />
             )}
 
             {isDepositModalOpen && (
@@ -120,6 +121,10 @@ function Header({
                     closeModal={closeWithdrawModal}
                     submitWithdraw={submitWithdraw}
                 />
+            )}
+
+            {isReferralDashboardOpen && (
+                <ReferralDashboard closeModal={closeReferralDashboard} /> // Referral Dashboard Modal
             )}
         </header>
     );

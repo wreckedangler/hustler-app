@@ -31,7 +31,6 @@ function App() {
         const decodedPayload = JSON.parse(atob(payload));
         return decodedPayload.exp * 1000; // Convert to milliseconds
     };
-    console.log("🚀 Neue Version geladen!");
 
     /**
      * 🔥 Refresh the token using the refresh token
@@ -77,28 +76,37 @@ function App() {
         }, timeUntilExpiration - 5 * 60 * 1000); // 5 minutes before expiration
     };
 
-    // 🟢 Handle Logout
+    // 🟢 Sicheres Logout (forciert das Logout lokal, egal was der Server macht)
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/logout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
+            const token = localStorage.getItem("token");
 
-            if (!response.ok) {
-                console.log("Failed to log out from server");
+            if (token) {
+                const response = await fetch("http://localhost:5000/api/logout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    console.warn("⚠️ Server-Logout fehlgeschlagen, lösche Token trotzdem.");
+                }
+            } else {
+                console.warn("⚠️ Kein Token vorhanden, erzwungenes Logout.");
             }
-
-            localStorage.removeItem("token"); // Remove token from local storage
-            setIsLoggedIn(false); // Set local login status to false
-            closeDropdown()
         } catch (error) {
-            console.log("Error during logout:", error.message);
+            console.error("❌ Fehler beim Logout-Request:", error.message);
+        } finally {
+            // Token und Login-Status in jedem Fall entfernen
+            localStorage.removeItem("token");
+            setIsLoggedIn(false);
+            closeDropdown();
+            console.log("✅ Lokales Logout erfolgreich.");
         }
     };
+
 
     // 🟢 Fetch Login State from Server
     useEffect(() => {

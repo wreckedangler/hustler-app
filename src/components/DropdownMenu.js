@@ -1,6 +1,6 @@
 import React from "react";
 
-const DropdownMenu = React.forwardRef(({ openLoginModal, openDepositModal, openWithdrawModal, isLoggedIn, handleLogout, openInfoModal }, ref) => {
+const DropdownMenu = React.forwardRef(({ openLoginModal, openDepositModal, openWithdrawModal, openReferralDashboard, isLoggedIn, handleLogout, openInfoModal }, ref) => {
     return (
         <div className="dropdown-menu" ref={ref}>
             <ul>
@@ -19,6 +19,14 @@ const DropdownMenu = React.forwardRef(({ openLoginModal, openDepositModal, openW
                                 <path fillRule="evenodd" d="M8.5 4a.5.5 0 0 1 .5.5v3.793l2.146-2.147a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 .708-.708L8 8.293V4.5a.5.5 0 0 1 .5-.5z"/>
                             </svg>
                             Withdraw
+                        </li>
+                        <li onClick={openReferralDashboard}>
+                            <svg width="16" height="16" fill="currentColor" className="bi bi-gift" viewBox="0 0 16 16">
+                                <path d="M4 3.5a1.5 1.5 0 1 1 3 0c0 .5-.5 1-1 1H4a1 1 0 0 1-1-1z"/>
+                                <path d="M10 3.5a1.5 1.5 0 1 1 3 0c0 .5-.5 1-1 1h-2a1 1 0 0 1-1-1z"/>
+                                <path d="M4 4h8a1 1 0 0 1 1 1v2H3V5a1 1 0 0 1 1-1zm-2 3h12v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7z"/>
+                            </svg>
+                            Referral Program
                         </li>
                         <li onClick={openInfoModal}>
                             <svg width="16" height="16" fill="currentColor" className="bi bi-info-circle" viewBox="0 0 16 16">

@@ -923,49 +923,49 @@ main {
 
 .win-popup {
     position: fixed;
+    width: 100%;
+    height: 100%;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)); /* Dunkler, luxuriöser Hintergrund */
-    color: #ffd700; /* Goldene Schriftfarbe */
-    padding: 30px 40px; /* Mehr Padding für ein besseres Layout */
-    border-radius: 12px; /* Abgerundete Ecken */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Tieferer Schatten */
+    transform: translate(-50%, -50%) scale(0); /* Unsichtbar und skaliert auf 0 */
     z-index: 1100;
-    animation: fadeIn 0.5s ease-out, pop 0.5s ease-out forwards; /* Hinzufügen der Pop-Animation */
+    animation: fadeIn 0.5s ease-out forwards, pop 0.5s ease-out forwards; /* Hinzufügen der Pop-Animation */
+    backdrop-filter: blur(5px);
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translate(-50%, -60%);
+        transform: translate(-50%, -60%) scale(0);
     }
     to {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(1);
     }
 }
 
 @keyframes pop {
     0% {
-        transform: translate(-50%, -50%) scale(0.8);
+        transform: translate(-50%, -50%) scale(0.8) rotate(10deg);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: translate(-50%, -50%) scale(1.1) rotate(-5deg);
     }
     100% {
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
     }
 }
 
 .win-popup-content {
+    margin-top: 300px;
     text-align: center; /* Text zentrieren */
+    color: #ffd700; /* Goldene Schriftfarbe */
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6); /* Glüheffekt */
 }
 
 .win-popup h2 {
-    font-size: 36px; /* Größere Schriftgröße für die Überschrift */
+    font-size: 76px; /* Größere Schriftgröße für die Überschrift */
     margin-bottom: 10px; /* Abstand nach unten */
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); /* Glüheffekt */
     animation: bounce 0.5s ease-in-out infinite; /* Hinzufügen einer Bounce-Animation */
 }
 
@@ -985,9 +985,10 @@ main {
     font-size: 24px; /* Schriftgröße für den Gewinntext */
     font-weight: bold; /* Fettdruck für den Gewinntext */
     margin-top: 10px; /* Abstand nach oben */
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); /* Glüheffekt */
 }
 
-/* Optional: Konfetti-Effekte */
+/* Konfetti-Effekte */
 .confetti {
     position: absolute;
     width: 100%;
@@ -997,3 +998,70 @@ main {
     z-index: -1; /* Hinter dem Popup */
 }
 
+.modal.referral-dashboard {
+    background: #1b1f38;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.referral-count {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #4a90e2;
+}
+
+.progress-container {
+    text-align: left;
+    margin-top: 15px;
+}
+
+.progress-container p {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #b0b0b0;
+}
+
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: #2c3150;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #4a90e2;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-container span {
+    position: absolute;
+    right: 10px;
+    top: -2px;
+    font-size: 0.8rem;
+    color: #ffffff;
+}
+
+.close-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #4a90e2;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.close-button:hover {
+    background: #357ac9;
+}

@@ -55,8 +55,8 @@ const WinPopup = ({ isVisible, winnings, onClose, delay = 0 }) => {
     return (
         <div className="win-popup">
             <div className="win-popup-content">
-                <h2>🎉 Glückwunsch! 🎉</h2>
-                <p>Du hast {winnings} gewonnen!</p>
+                <h2>Congratulations!</h2>
+                <p>You won {winnings} USDT!</p>
             </div>
             <div className="confetti">
                 {/* Hier kannst du Konfetti-Animationen hinzufügen */}

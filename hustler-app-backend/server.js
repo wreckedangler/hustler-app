@@ -40,7 +40,7 @@ app.use(express.json());
 // Globale Ratenbegrenzung
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 Minuten
-    max: 100, // Maximal 100 Anfragen pro IP und Fenster
+    max: 100,
     message: "Too many requests from this IP, please try again later."
 });
 app.use(globalLimiter);
@@ -287,8 +287,9 @@ app.get("/api/check-username", async (req, res) => {
     }
 });
 
+
 app.post("/api/register", async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, referralCode } = req.body;
     try {
         // Basisvalidierung
         if (!username || !email || !password) {
@@ -307,23 +308,47 @@ app.post("/api/register", async (req, res) => {
         // 1. Wallet erstellen
         const wallet = createWallet();
         if (!wallet || !wallet.privateKey) {
-            throw new Error('Wallet creation failed');
+            throw new Error("Wallet creation failed");
         }
         const { address: walletAddress, privateKey: rawPrivateKey } = wallet;
 
         // 2. Privaten Schlüssel verschlüsseln
         const encryptedPrivateKey = encryptPrivateKey(rawPrivateKey);
         if (!encryptedPrivateKey) {
-            throw new Error('Failed to encrypt private key');
+            throw new Error("Failed to encrypt private key");
         }
 
-        // 3. Benutzer in der Datenbank speichern
+        // 3. Referral-Code generieren
+        const generateReferralCode = () => {
+            return Math.random().toString(36).substr(2, 8).toUpperCase();
+        };
+        const generatedCode = generateReferralCode();
+
+        let referrerId = null;
+        if (referralCode) {
+            const referrer = await pool.query("SELECT id FROM users WHERE referral_code = $1", [referralCode]);
+            if (referrer.rows.length > 0) {
+                referrerId = referrer.rows[0].id;
+            }
+        }
+
+        // 4. Benutzer in der Datenbank speichern
         const result = await pool.query(
-            `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, username, balance, wallet_address`,
-            [username, email, hashedPassword, walletAddress, encryptedPrivateKey]
+            `INSERT INTO users (username, email, password, wallet_address, encrypted_private_key, referral_code, referred_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, username, balance, wallet_address, referral_code`,
+            [username, email, hashedPassword, walletAddress, encryptedPrivateKey, generatedCode, referrerId]
         );
+
+        const newUserId = result.rows[0].id;
+
+        // Falls es einen Werber gibt, Referral-Eintrag in DB setzen
+        if (referrerId) {
+            await pool.query(
+                `INSERT INTO referrals (referrer_id, referred_id) VALUES ($1, $2)`,
+                [referrerId, newUserId]
+            );
+        }
 
         return res.status(201).json({
             message: "Registration successful",
@@ -331,8 +356,9 @@ app.post("/api/register", async (req, res) => {
                 id: result.rows[0].id,
                 username: result.rows[0].username,
                 balance: result.rows[0].balance,
-                walletAddress: result.rows[0].wallet_address
-            }
+                walletAddress: result.rows[0].wallet_address,
+                referralCode: result.rows[0].referral_code, // Referral-Code zurückgeben
+            },
         });
 
     } catch (error) {
@@ -340,6 +366,7 @@ app.post("/api/register", async (req, res) => {
         return handleError(res, error, "User registration failed");
     }
 });
+
 
 app.post('/api/logout', authenticateToken, async (req, res) => {
     const userId = req.user.id;
@@ -443,6 +470,9 @@ app.post("/api/play", authenticateToken, async (req, res) => {
             [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
         );
 
+        // ⬇️ Referral-Wager Tracking hinzufügen ⬇️
+        await updateReferralProgress(userId, betAmount);
+
         return res.json({
             result: gameResult.result,
             winningField: gameResult.winningField,
@@ -454,6 +484,56 @@ app.post("/api/play", authenticateToken, async (req, res) => {
         return handleError(res, error, "Game data saving failed");
     }
 });
+
+
+const updateReferralProgress = async (userId, betAmount) => {
+    const referral = await pool.query(
+        "SELECT referrer_id, total_wagered, first_bonus_granted, second_bonus_granted FROM referrals WHERE referred_id = $1",
+        [userId]
+    );
+
+    if (referral.rows.length === 0) return;
+
+    let { referrer_id, total_wagered, first_bonus_granted, second_bonus_granted } = referral.rows[0];
+    total_wagered += betAmount;
+
+    let reward = 0;
+    if (total_wagered >= 20 && !first_bonus_granted) {
+        reward += 5;
+        first_bonus_granted = true;
+    }
+    if (total_wagered >= 50 && !second_bonus_granted) {
+        reward += 10;
+        second_bonus_granted = true;
+    }
+
+    await pool.query(
+        `UPDATE referrals SET total_wagered = $1, first_bonus_granted = $2, second_bonus_granted = $3 WHERE referred_id = $4`,
+        [total_wagered, first_bonus_granted, second_bonus_granted, userId]
+    );
+
+    if (reward > 0) {
+        await pool.query(
+            "UPDATE users SET balance = balance + $1 WHERE id = $2",
+            [reward, referrer_id]
+        );
+        console.log(`💰 ${reward}$ an Referrer ${referrer_id} ausgezahlt`);
+    }
+};
+
+app.post("/api/update-referral", authenticateToken, async (req, res) => {
+    const { betAmount } = req.body;
+    const userId = req.user.id;
+
+    try {
+        await updateReferralProgress(userId, betAmount);
+        res.status(200).json({ message: "Referral progress updated" });
+    } catch (error) {
+        console.error("Referral update error:", error);
+        res.status(500).json({ error: "Failed to update referral progress" });
+    }
+});
+
 
 // Optionale globale Fehlerbehandlung (fängt unvorhergesehene Fehler ab)
 app.use((err, req, res, next) => {
