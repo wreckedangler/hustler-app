@@ -1,30 +1,30 @@
 import React, { useEffect, useState } from "react";
 
 const ReferralDashboard = ({ closeModal }) => {
-    const [stats, setStats] = useState({
+    const [referralStats, setReferralStats] = useState({
         totalReferrals: 0,
-        played20: 0,
-        played50: 0,
+        referralsAt20: 0,
+        referralsAt50: 0,
         totalRewards: 0,
-        totalPoints: 0,
+        gamificationPoints: 0
     });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/get-referral-data", {
+                const response = await fetch("http://localhost:5000/api/get-referral-stats", {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
                 const data = await response.json();
-                setStats({
-                    totalReferrals: data.totalReferrals,
-                    played20: data.played20,
-                    played50: data.played50,
-                    totalRewards: data.totalRewards,
-                    totalPoints: data.totalPoints,
+                setReferralStats({
+                    totalReferrals: data.totalReferrals || 0,
+                    referralsAt20: data.referralsAt20 || 0,
+                    referralsAt50: data.referralsAt50 || 0,
+                    totalRewards: data.totalRewards || 0,
+                    gamificationPoints: data.gamificationPoints || 0
                 });
             } catch (error) {
                 console.error("Error fetching referral data:", error);
@@ -33,49 +33,53 @@ const ReferralDashboard = ({ closeModal }) => {
         fetchData();
     }, []);
 
-    const getPercentage = (value) => {
-        return stats.totalReferrals > 0 ? (value / stats.totalReferrals) * 100 : 0;
-    };
-
     return (
         <div className="modal-backdrop" onClick={closeModal}>
-            <div className="modal referral-modal" onClick={(e) => e.stopPropagation()}>
-                <h2>Referral Dashboard</h2>
-                <h1>{stats.totalReferrals} Registrations</h1>
+            <div className="modal referral-dashboard" onClick={(e) => e.stopPropagation()}>
+                <div className="referral-title">Referrals</div>
+                <p className="total-registrations">
+                    {referralStats.totalReferrals} <span>registrations</span>
+                </p>
 
                 <div className="progress-container">
                     <p>Users who played $20</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${getPercentage(stats.played20)}%` }}></div>
+                    <div className="progress-wrapper">
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: referralStats.totalReferrals > 0 ? `${(referralStats.referralsAt20 / referralStats.totalReferrals) * 100}%` : "0%" }}></div>
+                        </div>
+                        <span className="progress-value">{referralStats.referralsAt20}</span>
                     </div>
-                    <span>{stats.played20}</span>
                 </div>
 
                 <div className="progress-container">
                     <p>Users who played $50</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${getPercentage(stats.played50)}%` }}></div>
+                    <div className="progress-wrapper">
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: referralStats.totalReferrals > 0 ? `${(referralStats.referralsAt50 / referralStats.totalReferrals) * 100}%` : "0%" }}></div>
+                        </div>
+                        <span className="progress-value">{referralStats.referralsAt50}</span>
                     </div>
-                    <span>{stats.played50}</span>
                 </div>
 
                 <div className="progress-container">
                     <p>Total Referral Rewards ($)</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${getPercentage(stats.totalRewards)}%` }}></div>
+                    <div className="progress-wrapper">
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: `${Math.min(referralStats.totalRewards / 100, 1) * 100}%` }}></div>
+                        </div>
+                        <span className="progress-value">${referralStats.totalRewards.toFixed(2)}</span>
                     </div>
-                    <span>${stats.totalRewards}</span>
                 </div>
 
                 <div className="progress-container">
                     <p>Total Gamification Points</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${getPercentage(stats.totalPoints)}%` }}></div>
+                    <div className="progress-wrapper">
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: `${Math.min(referralStats.gamificationPoints / 1000, 1) * 100}%` }}></div>
+                        </div>
+                        <span className="progress-value">{referralStats.gamificationPoints}</span>
                     </div>
-                    <span>{stats.totalPoints} Points</span>
                 </div>
-
-                <button className="close-button" onClick={closeModal}>Close</button>
             </div>
         </div>
     );
