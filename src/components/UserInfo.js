@@ -6,7 +6,7 @@ function UserInfo({ isLoggedIn, username }) {
         <div className="user-info">
             {isLoggedIn ? (
                 <>
-                    <span className="user-name">{username}</span>
+                    <span className="user-name">{username} + "Hallo"</span>
                 </>
             ) : (
                 <span className="user-name"></span>

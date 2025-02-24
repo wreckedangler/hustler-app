@@ -21,6 +21,7 @@ function Header({
 
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const toggleDropdown = () => {
@@ -45,6 +46,11 @@ function Header({
         };
     }, []);
 
+    const openInfoModal = () => {
+        setIsInfoModalOpen(true);
+        setIsDropdownVisible(false); // Close dropdown
+    };
+
     const openDepositModal = () => {
         setIsDepositModalOpen(true);
         setIsDropdownVisible(false); // Close dropdown
@@ -53,7 +59,7 @@ function Header({
     // Close Deposit Modal
     const closeDepositModal = () => setIsDepositModalOpen(false);
 
-
+    const closeInfotModal = () => setIsInfoModalOpen(false);
 
     // Close Withdraw Modal
     const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
@@ -90,6 +96,7 @@ function Header({
                     openRegisterModal={openRegisterModal}
                     openDepositModal={openDepositModal}
                     openWithdrawModal={openWithdrawModal}
+                    openInfoModal={openInfoModal}
                     ref={dropdownRef}
                 />
             )}

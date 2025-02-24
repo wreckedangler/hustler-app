@@ -11,7 +11,6 @@ function App() {
     // Global state
     const [isLoginModalVisible, setIsLoginModalVisible] = useState(false);
     const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
-    const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
     const [username, setUsername] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +31,7 @@ function App() {
         const decodedPayload = JSON.parse(atob(payload));
         return decodedPayload.exp * 1000; // Convert to milliseconds
     };
+    console.log("🚀 Neue Version geladen!");
 
     /**
      * 🔥 Refresh the token using the refresh token
@@ -284,7 +284,7 @@ function App() {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const currentBalance = start + (end - start) * progress;
-            setDisplayBalance(currentBalance.toFixed(2));
+            setDisplayBalance(currentBalance);
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
