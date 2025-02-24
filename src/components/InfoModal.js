@@ -9,9 +9,9 @@ const InfoModal = ({ closeModal }) => {
                 <div className="info-content">
                     {/* SECTION 1: Game Overview */}
                     <section>
-                        <h2>Welcome to Hustler Game</h2>
+                        <h2>Welcome to Hustler</h2>
                         <p>
-                            Hustler is a fast-paced betting game where you can multiply your wager based on a selected multiplier and luck. 
+                            Hustler is a raw, fast-paced betting game where you can multiply your wager based on a selected multiplier or jackpot and luck.
                             The game is designed to be transparent and fair, offering multiple play modes.
                         </p>
                     </section>
@@ -22,7 +22,7 @@ const InfoModal = ({ closeModal }) => {
                         <p>Choose from the following multiplier options:</p>
                         <ul>
                             <li>
-                                <strong>2x Mode</strong>: 50% chance to win.
+                                <strong>2x Mode</strong>: 42% chance to win.
                             </li>
                             <li>
                                 <strong>5x Mode</strong>: 1 in 6 chance to win.
@@ -101,7 +101,6 @@ const InfoModal = ({ closeModal }) => {
                         <ul>
                             <li>You must be at least <strong>18 years old</strong> to play.</li>
                             <li>All transactions are conducted in <strong>USDT (Tether)</strong>.</li>
-                            <li>Withdrawals are only processed to your registered wallet.</li>
                             <li>One withdrawal per user per day, with a minimum of <strong>$10</strong>.</li>
                             <li>The operator covers all gas fees except for deposits.</li>
                             <li>Game rules and terms are subject to change at the operator’s discretion.</li>
@@ -124,7 +123,7 @@ const InfoModal = ({ closeModal }) => {
 
                 {/* Close Button */}
                 <div className="button-container">
-                    <button className="close-button" onClick={closeModal}>
+                    <button className="info-modal" onClick={closeModal}>
                         Close
                     </button>
                 </div>

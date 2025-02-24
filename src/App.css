@@ -179,40 +179,39 @@ main {
 
 .dropdown-menu {
     position: absolute;
-    top: 60px;
-    right: 20px;
-    background-color: rgb(26, 26, 26);
-    border-radius: 8px;
-    width: 150px;
-    box-shadow: 0 4px 12px rgb(26, 26, 26);
-    color: white;
-    padding: 10px 0;
-    z-index: 1000;
+    top: 60px; /* Positionierung */
+    right: 20px; /* Positionierung */
+    background: linear-gradient(90deg, #0259ff, #8a2be2); /* Farbverlauf von Blau zu Lila */
+    border-radius: 8px; /* Abgerundete Ecken */
+    width: 200px; /* Breite des Menüs */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Schatten für Tiefe */
+    color: white; /* Textfarbe */
+    z-index: 1000; /* Über anderen Elementen */
 }
 
 .dropdown-menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+    list-style-type: none; /* Keine Aufzählungszeichen */
+    margin: 0; /* Kein Margin */
+    padding: 0; /* Kein Padding */
 }
+
 .dropdown-menu ul li {
-    display: block; /* Standardmäßig als Block */
-    margin: 5px 10px; /* Abstand zu den Rändern */
-    padding: 10px 20px; /* Innenabstand für Text */
-    border-radius: 5px; /* Runde Kanten */
-    cursor: pointer;
-    background-color: transparent;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex; /* Flexbox für Symbole und Text */
+    align-items: center; /* Vertikale Zentrierung */
+    padding: 10px 20px; /* Innenabstand */
+    cursor: pointer; /* Zeiger-Cursor */
+    transition: background-color 0.3s ease; /* Übergangseffekt */
 }
 
-.dropdown-menu li {
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
+.dropdown-menu ul li svg {
+    margin-right: 10px; /* Abstand zwischen Icon und Text */
+    fill: white; /* Farbe der Icons */
 }
 
-.dropdown-menu li:hover {
-    background-color: rgb(42, 42, 42);
+.dropdown-menu ul li:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Leichte Hintergrundfarbe beim Hover */
+    border-radius: 8px; /* Abgerundete Ecken beim Hover */
+    color: #fdc445; /* Textfarbe beim Hover */
 }
 
 .modal-backdrop {
@@ -816,28 +815,28 @@ main {
     border-color: #fdc445;
 }
 
-/* Info Modal Styling */
 .info-modal {
-    width: 560px; /* Gleiche Breite wie das Deposit und Withdraw Modal */
+    width: 600px; /* Breite des Modals */
     max-height: 80vh; /* Maximale Höhe des Modals */
-    padding: 20px;
-    background-color: #222; /* Hintergrundfarbe */
-    color: white; /* Textfarbe */
-    border-radius: 8px; /* Abgerundete Ecken */
-    text-align: center; /* Text zentrieren */
-    overflow-y: auto; /* Scrollbalken aktivieren, wenn der Inhalt zu lang ist */
-    margin-top: 50px; /* Abstand vom oberen Bildschirmrand */
+    padding: 30px; /* Innenabstand */
+    background-color: #1e1e1e; /* Dunklerer Hintergrund */
+    color: #e0e0e0; /* Helle Textfarbe */
+    border-radius: 10px; /* Abgerundete Ecken */
+    text-align: left; /* Text linksbündig */
+    overflow-y: auto; /* Scrollbalken aktivieren */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); /* Schatten für Tiefe */
 }
 
 .info-modal h1 {
-    font-size: 24px; /* Größe der Hauptüberschrift */
-    margin-bottom: 20px; /* Abstand nach unten */
+    font-size: 28px; /* Größe der Hauptüberschrift */
+    margin-bottom: 15px; /* Abstand nach unten */
     color: #fdc445; /* Farbe der Hauptüberschrift */
+    text-align: center; /* Zentrierter Text */
 }
 
 .info-modal h2 {
-    font-size: 20px; /* Größe der Unterüberschrift */
-    margin-top: 20px; /* Abstand nach oben */
+    font-size: 22px; /* Größe der Unterüberschrift */
+    margin-top: 15px; /* Abstand nach oben */
     margin-bottom: 10px; /* Abstand nach unten */
     color: #fdc445; /* Farbe der Unterüberschrift */
 }
@@ -846,7 +845,7 @@ main {
 .info-modal ul,
 .info-modal ol {
     font-size: 16px; /* Schriftgröße für Text und Listen */
-    line-height: 1.5; /* Zeilenhöhe für bessere Lesbarkeit */
+    line-height: 1.6; /* Zeilenhöhe für bessere Lesbarkeit */
     color: #ddd; /* Farbe des Textes */
 }
 
@@ -855,7 +854,51 @@ main {
     margin-left: 20px; /* Abstand für Listen */
 }
 
-/* Schaltflächen im Info Modal */
+.info-modal .button-container {
+    display: flex;
+    justify-content: center; /* Zentriert die Schaltflächen */
+    margin-top: 20px; /* Abstand nach oben */
+}
+
+.info-modal {
+    width: 600px; /* Breite des Modals */
+    max-height: 80vh; /* Maximale Höhe des Modals */
+    padding: 30px; /* Innenabstand */
+    background-color: #1e1e1e; /* Dunklerer Hintergrund */
+    color: #e0e0e0; /* Helle Textfarbe */
+    border-radius: 10px; /* Abgerundete Ecken */
+    text-align: left; /* Text linksbündig */
+    overflow-y: auto; /* Scrollbalken aktivieren */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); /* Schatten für Tiefe */
+}
+
+.info-modal h1 {
+    font-size: 28px; /* Größe der Hauptüberschrift */
+    margin-bottom: 15px; /* Abstand nach unten */
+    color: #fdc445; /* Farbe der Hauptüberschrift */
+    text-align: center; /* Zentrierter Text */
+}
+
+.info-modal h2 {
+    font-size: 22px; /* Größe der Unterüberschrift */
+    margin-top: 15px; /* Abstand nach oben */
+    margin-bottom: 10px; /* Abstand nach unten */
+    color: #fdc445; /* Farbe der Unterüberschrift */
+}
+
+.info-modal p,
+.info-modal ul,
+.info-modal ol {
+    font-size: 16px; /* Schriftgröße für Text und Listen */
+    line-height: 1.6; /* Zeilenhöhe für bessere Lesbarkeit */
+    color: #ddd; /* Farbe des Textes */
+}
+
+.info-modal ul,
+.info-modal ol {
+    margin-left: 20px; /* Abstand für Listen */
+}
+
 .info-modal .button-container {
     display: flex;
     justify-content: center; /* Zentriert die Schaltflächen */
@@ -877,3 +920,80 @@ main {
 .info-modal .close-button:hover {
     background-color: #666; /* Hintergrundfarbe beim Hover */
 }
+
+.win-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)); /* Dunkler, luxuriöser Hintergrund */
+    color: #ffd700; /* Goldene Schriftfarbe */
+    padding: 30px 40px; /* Mehr Padding für ein besseres Layout */
+    border-radius: 12px; /* Abgerundete Ecken */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5); /* Tieferer Schatten */
+    z-index: 1100;
+    animation: fadeIn 0.5s ease-out, pop 0.5s ease-out forwards; /* Hinzufügen der Pop-Animation */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes pop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.win-popup-content {
+    text-align: center; /* Text zentrieren */
+}
+
+.win-popup h2 {
+    font-size: 36px; /* Größere Schriftgröße für die Überschrift */
+    margin-bottom: 10px; /* Abstand nach unten */
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); /* Glüheffekt */
+    animation: bounce 0.5s ease-in-out infinite; /* Hinzufügen einer Bounce-Animation */
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.win-popup p {
+    font-size: 24px; /* Schriftgröße für den Gewinntext */
+    font-weight: bold; /* Fettdruck für den Gewinntext */
+    margin-top: 10px; /* Abstand nach oben */
+}
+
+/* Optional: Konfetti-Effekte */
+.confetti {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Verhindert, dass die Konfetti-Elemente klickbar sind */
+    overflow: hidden;
+    z-index: -1; /* Hinter dem Popup */
+}
+

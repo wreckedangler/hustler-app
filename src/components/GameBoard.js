@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
 import { useNotification } from "../contexts/NotificationContext";
-import {line} from "framer-motion/m";
+import WinPopup from "./WinPopup"; // Importiere das WinPopup Modul
 
 function GameBoard({
                        selectedMultiplier,
                        selectedAmount,
                        setSelectedAmount,
-                       setBalance, // Use global balance
-                       balance, // Pass global balance as prop
+                       setBalance, // Globaler Saldo
+                       balance, // Globaler Saldo als Prop
                        isLoggedIn,
                        setSelectedMultiplier,
                        animateBalance,
@@ -20,19 +20,21 @@ function GameBoard({
     const [allFlipped, setAllFlipped] = useState(false);
     const [showIcons, setShowIcons] = useState(false);
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
-    let [previousAmount] = useState(selectedAmount); // Store the previous amount
+    const [showWinPopup, setShowWinPopup] = useState(false);
+    const [winAmount, setWinAmount] = useState(0);
+    let [previousAmount] = useState(selectedAmount); // Speichert den vorherigen Betrag
     const { showNotification } = useNotification();
 
-    // Dynamically set the selectedAmount if the multiplier is 20k, 50k, or 100k
+    // Setzt selectedAmount dynamisch, falls der Multiplikator 20k, 50k oder 100k ist
     useEffect(() => {
         if (["20k", "50k", "100k"].includes(selectedMultiplier)) {
-            setSelectedAmount("10$"); // Set selectedAmount to $10
+            setSelectedAmount("10$");
         }
     }, [selectedMultiplier, selectedAmount, setSelectedAmount]);
 
     const handleBackClick = () => {
         setSelectedMultiplier(null);
-        setSelectedAmount(previousAmount); // Restore the previous amount
+        setSelectedAmount(previousAmount);
         setSelectedField(null);
         setWinningField(null);
         setAllFlipped(false);
@@ -40,7 +42,7 @@ function GameBoard({
         setIsRoundInProgress(false);
     };
 
-    // Fetch balance from the backend
+    // Balance vom Backend abrufen
     const fetchBalanceFromDB = async () => {
         try {
             const response = await fetch("http://localhost:5000/api/get-balance", {
@@ -56,7 +58,7 @@ function GameBoard({
             }
 
             const data = await response.json();
-            setBalance(data.balance); // Set global balance
+            setBalance(data.balance);
         } catch (error) {
             console.error("Error fetching balance from backend:", error);
         }
@@ -65,7 +67,7 @@ function GameBoard({
     const checkBalanceAndPlay = async () => {
         const betAmount = parseFloat(selectedAmount.replace("$", ""));
 
-        // Skip balance check if username is "Hustler"
+        // Balance-Check überspringen, falls der Benutzer "Hustler" heißt
         if (username !== "Hustler") {
             await fetchBalanceFromDB();
             console.log("Current balance:", balance, "Bet amount:", betAmount);
@@ -102,12 +104,19 @@ function GameBoard({
             setTimeout(() => setAllFlipped(true), 600);
             setTimeout(() => setShowIcons(true), 1200);
 
+            // Hier wird geprüft, ob der Spieler gewonnen hat und das WinPopup angezeigt
+            if (data.result === "win") {
+                setWinAmount(data.winnings);
+                setShowWinPopup(true);
+            }
+
             setTimeout(() => {
                 const newBalance =
                     data.result === "win" ? balance + data.winnings : balance - betAmount;
                 animateBalance(balance, newBalance);
                 setBalance(newBalance);
 
+                // Reset der Spielzustände
                 setAllFlipped(false);
                 setShowIcons(false);
                 setSelectedField(null);
@@ -127,6 +136,13 @@ function GameBoard({
 
     return (
         <div className="game-board">
+            {/* WinPopup-Komponente wird hier gerendert */}
+            <WinPopup
+                isVisible={showWinPopup}
+                delay={2500}
+                winnings={winAmount}
+                onClose={() => setShowWinPopup(false)}
+            />
             {selectedMultiplier === "1m" ? (
                 <></>
             ) : (
