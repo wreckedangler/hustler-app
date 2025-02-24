@@ -4,6 +4,7 @@ import MenuButton from "./MenuButton";
 import DropdownMenu from "./DropdownMenu";
 import DepositModal from "./DepositModal";
 import WithdrawModal from "./WithdrawModal";
+import InfoModal from "./InfoModal";
 
 
 function Header({
@@ -59,7 +60,7 @@ function Header({
     // Close Deposit Modal
     const closeDepositModal = () => setIsDepositModalOpen(false);
 
-    const closeInfotModal = () => setIsInfoModalOpen(false);
+    const closeInfoModal = () => setIsInfoModalOpen(false);
 
     // Close Withdraw Modal
     const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
@@ -99,6 +100,12 @@ function Header({
                     openInfoModal={openInfoModal}
                     ref={dropdownRef}
                 />
+            )}
+
+            {isInfoModalOpen && (
+                <InfoModal
+                    closeModal={closeInfoModal}
+                    />
             )}
 
             {isDepositModalOpen && (

@@ -99,27 +99,27 @@ header {
 }
 
 .menu-button {
-    background-color: #313131;
-    color: #fdc445;
-    border: none;
-    border-radius: 50%;
+    background: linear-gradient(90deg, #0259ff, #8a2be2); /* Farbverlauf von Blau zu Lila */
+    color: white; /* Textfarbe */
+    border: none; /* Keine Rahmen */
     margin-top: 40px;
-    width: 40px;
-    height: 40px;
-    font-size: 23px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-    justify-content: center;
-
-    transition: all 0.3s ease; /* Smooth transition for hover effect */
+    border-radius: 10px; /* Abgerundete Ecken */
+    padding: 10px 20px; /* Innenabstand */
+    font-size: 16px; /* Schriftgröße */
+    cursor: pointer; /* Zeiger-Cursor */
+    display: flex; /* Flexbox für zentrierte Inhalte */
+    align-items: center; /* Vertikale Zentrierung */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); /* Schatten für Tiefe */
+    transition: all 0.3s ease; /* Übergangseffekt */
 }
 
 .menu-button:hover {
-    background-color: #444444; /* Change background color on hover */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4); /* Add a shadow effect */
-    color: #fdc445; /* Change the text/icon color */
+    opacity: 0.9; /* Leichte Transparenz beim Hover */
+    transform: scale(1.05); /* Leichte Vergrößerung beim Hover */
+}
+
+.menu-text {
+    margin-left: 8px; /* Abstand zwischen Icon und Text */
 }
 
 
@@ -216,6 +216,7 @@ main {
 }
 
 .modal-backdrop {
+    overflow-y: auto;
     position: fixed;
     top: 0;
     left: 0;
@@ -789,6 +790,8 @@ main {
 /* Wallet Address Input für Withdraw Modal */
 .withdraw-modal .wallet-address-input,
 .withdraw-modal .wallet-amount-input {
+    position: absolute;
+    overflow-y: auto;
     width: 537px; /* Gleiche Breite wie im Deposit Modal */
     padding: 8px;
     background-color: #333;
@@ -811,4 +814,66 @@ main {
 .withdraw-modal .wallet-address-input:focus,
 .withdraw-modal .wallet-amount-input:focus {
     border-color: #fdc445;
+}
+
+/* Info Modal Styling */
+.info-modal {
+    width: 560px; /* Gleiche Breite wie das Deposit und Withdraw Modal */
+    max-height: 80vh; /* Maximale Höhe des Modals */
+    padding: 20px;
+    background-color: #222; /* Hintergrundfarbe */
+    color: white; /* Textfarbe */
+    border-radius: 8px; /* Abgerundete Ecken */
+    text-align: center; /* Text zentrieren */
+    overflow-y: auto; /* Scrollbalken aktivieren, wenn der Inhalt zu lang ist */
+    margin-top: 50px; /* Abstand vom oberen Bildschirmrand */
+}
+
+.info-modal h1 {
+    font-size: 24px; /* Größe der Hauptüberschrift */
+    margin-bottom: 20px; /* Abstand nach unten */
+    color: #fdc445; /* Farbe der Hauptüberschrift */
+}
+
+.info-modal h2 {
+    font-size: 20px; /* Größe der Unterüberschrift */
+    margin-top: 20px; /* Abstand nach oben */
+    margin-bottom: 10px; /* Abstand nach unten */
+    color: #fdc445; /* Farbe der Unterüberschrift */
+}
+
+.info-modal p,
+.info-modal ul,
+.info-modal ol {
+    font-size: 16px; /* Schriftgröße für Text und Listen */
+    line-height: 1.5; /* Zeilenhöhe für bessere Lesbarkeit */
+    color: #ddd; /* Farbe des Textes */
+}
+
+.info-modal ul,
+.info-modal ol {
+    margin-left: 20px; /* Abstand für Listen */
+}
+
+/* Schaltflächen im Info Modal */
+.info-modal .button-container {
+    display: flex;
+    justify-content: center; /* Zentriert die Schaltflächen */
+    margin-top: 20px; /* Abstand nach oben */
+}
+
+.info-modal .close-button {
+    padding: 12px;
+    background-color: #444; /* Hintergrundfarbe der Schaltfläche */
+    color: white; /* Textfarbe */
+    border: none; /* Keine Rahmen */
+    border-radius: 5px; /* Abgerundete Ecken */
+    cursor: pointer; /* Zeiger-Cursor */
+    font-size: 16px; /* Schriftgröße */
+    transition: background-color 0.3s; /* Übergangseffekt */
+    width: 100%; /* Breite der Schaltfläche */
+}
+
+.info-modal .close-button:hover {
+    background-color: #666; /* Hintergrundfarbe beim Hover */
 }
