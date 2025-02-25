@@ -1128,14 +1128,14 @@ main {
     color: #00a67e;
     padding: 8px 14px;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 1rem;
     text-align: left !important; /* Erzwingt linksbündig */
     cursor: pointer;
     transition: background 0.2s ease-in-out;
     display: inline-block !important;
     width: auto;
     max-width: 100%; /* Flexible Größe */
-    word-break: break-all; /* Falls der Link zu lang ist */
+
 }
 
 .referral-link:hover {

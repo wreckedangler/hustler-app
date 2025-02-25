@@ -14,6 +14,7 @@ const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWalle
 const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey } = require('./wallet');
 const Web3 = require("web3").default;
 const { abi } = require("../smart-contract/contracts/BatchTransferABI.json");
+const router = express.Router();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -320,9 +321,12 @@ app.post("/api/register", async (req, res) => {
 
         // 3. Referral-Code generieren
         const generateReferralCode = () => {
+            console.log("Inside refcode gen")
             return Math.random().toString(36).substr(2, 8).toUpperCase();
         };
         const generatedCode = generateReferralCode();
+
+        console.log("After refcode gen. Code is:" + generatedCode)
 
         let referrerId = null;
         if (referralCode) {
@@ -535,6 +539,66 @@ app.post("/api/update-referral", authenticateToken, async (req, res) => {
 });
 
 
+// 🟢 GET: Referral-Daten für das Dashboard abrufen
+router.get("/api/get-referral-stats", authenticateToken, async (req, res) => {
+    const userId = req.user.id; // ID des eingeloggten Nutzers
+
+    try {
+        // 🟢 Gesamtanzahl geworbener Nutzer abrufen
+        const totalReferralsResult = await pool.query(
+            "SELECT COUNT(*) AS total FROM referrals WHERE referrer_id = $1",
+            [userId]
+        );
+        const totalReferrals = parseInt(totalReferralsResult.rows[0].total, 10) || 0;
+
+        // 🟢 Anzahl der Nutzer, die $20 oder mehr gespielt haben
+        const referralsAt20Result = await pool.query(
+            "SELECT COUNT(*) AS count FROM referrals WHERE referrer_id = $1 AND total_wagered >= 20",
+            [userId]
+        );
+        const referralsAt20 = parseInt(referralsAt20Result.rows[0].count, 10) || 0;
+
+        // 🟢 Anzahl der Nutzer, die $50 oder mehr gespielt haben
+        const referralsAt50Result = await pool.query(
+            "SELECT COUNT(*) AS count FROM referrals WHERE referrer_id = $1 AND total_wagered >= 50",
+            [userId]
+        );
+        const referralsAt50 = parseInt(referralsAt50Result.rows[0].count, 10) || 0;
+
+        // 🟢 Gesamtverdiente Referral-Belohnungen abrufen
+        const totalRewardsResult = await pool.query(
+            "SELECT SUM(reward_amount) AS total FROM referral_rewards WHERE referrer_id = $1",
+            [userId]
+        );
+        const totalRewards = parseFloat(totalRewardsResult.rows[0].total) || 0;
+
+        // 🟢 Referral-Code des Nutzers abrufen
+        const referralCodeResult = await pool.query(
+            "SELECT referral_code FROM users WHERE id = $1",
+            [userId]
+        );
+        const referralCode = referralCodeResult.rows[0]?.referral_code || "N/A";
+
+        // 🟢 Gamification-Punkte berechnen (z.B. 10 Punkte pro geworbenem User)
+        const gamificationPoints = totalReferrals * 10 + referralsAt20 * 20 + referralsAt50 * 50;
+
+        // 🟢 Erfolgreiche Antwort senden
+        res.json({
+            totalReferrals,
+            referralsAt20,
+            referralsAt50,
+            totalRewards,
+            gamificationPoints,
+            referralCode
+        });
+
+    } catch (error) {
+        console.error("Error fetching referral stats:", error);
+        res.status(500).json({ error: "Internal server error." });
+    }
+});
+
+
 // Optionale globale Fehlerbehandlung (fängt unvorhergesehene Fehler ab)
 app.use((err, req, res, next) => {
     console.error("Unhandled error:", err);
@@ -544,3 +608,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+module.exports = router;
