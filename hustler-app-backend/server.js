@@ -14,7 +14,8 @@ const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWalle
 const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey } = require('./wallet');
 const Web3 = require("web3").default;
 const { abi } = require("../smart-contract/contracts/BatchTransferABI.json");
-const router = express.Router();
+
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -540,7 +541,7 @@ app.post("/api/update-referral", authenticateToken, async (req, res) => {
 
 
 // 🟢 GET: Referral-Daten für das Dashboard abrufen
-router.get("/api/get-referral-stats", authenticateToken, async (req, res) => {
+app.get("/api/get-referral-stats", authenticateToken, async (req, res) => {
     const userId = req.user.id; // ID des eingeloggten Nutzers
 
     try {
@@ -608,5 +609,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-module.exports = router;

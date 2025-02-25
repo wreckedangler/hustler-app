@@ -272,6 +272,7 @@ function App() {
         const defaultAddress = await getDefaultWithdrawAddress();
         setDefaultWithdrawAddress(defaultAddress);
         setIsWithdrawModalVisible(true);
+        setIsDropdownVisible(false)
     };
 
 

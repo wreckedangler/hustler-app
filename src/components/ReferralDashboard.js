@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import CloseButton from "./CloseButton";
 
 const ReferralDashboard = ({ closeModal }) => {
     const [referralStats, setReferralStats] = useState({
@@ -28,7 +29,7 @@ const ReferralDashboard = ({ closeModal }) => {
                     totalRewards: data.totalRewards || 0,
                     gamificationPoints: data.gamificationPoints || 0
                 });
-                setReferralLink(`https://hustlerapp.com/signup?ref=${data.referralCode}`);
+                setReferralLink(`http://localhost:5000/signup?ref=${data.referralCode}`);
             } catch (error) {
                 console.error("Error fetching referral data:", error);
             }
@@ -44,9 +45,11 @@ const ReferralDashboard = ({ closeModal }) => {
     };
 
     return (
-        <div className="modal-backdrop" onClick={closeModal}>
+        <div className="modal-backdrop" >
+            <CloseButton onClick={closeModal} />
             <div className="modal referral-dashboard" onClick={(e) => e.stopPropagation()}>
                 <div className="referral-title">Referral dash</div>
+
                 <p className="total-registrations">
                     {referralStats.totalReferrals} <span>registrations</span>
                 </p>

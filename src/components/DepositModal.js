@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QRCodeGenerator from './QRCodeGenerator'; // Import QRCodeGenerator component
+import CloseButton from "./CloseButton";
 
 const DepositModal = ({ closeModal }) => {
     const [walletAddress, setWalletAddress] = useState('');
@@ -36,7 +37,8 @@ const DepositModal = ({ closeModal }) => {
     };
 
     return (
-        <div className="modal-backdrop" onClick={closeModal}>
+        <div className="modal-backdrop">
+            <CloseButton onClick={closeModal} />
             <div className="modal deposit-modal" onClick={(e) => e.stopPropagation()}>
                 <h1>Your Address</h1>
 
@@ -74,9 +76,6 @@ const DepositModal = ({ closeModal }) => {
                         Copy address
                     </button>
 
-                    <button className="close-button" onClick={closeModal}>
-                        Close
-                    </button>
                 </div>
             </div>
         </div>

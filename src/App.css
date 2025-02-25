@@ -566,7 +566,7 @@ main {
     border-radius: 10px;
     border: 2px solid #fdc445;
     justify-content: center;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 
 }
 
@@ -594,14 +594,9 @@ main {
 }
 
 
-.deposit-modal .close-button:hover {
-    background-color: #f44336;
-}
 .deposit-modal .copy-button:hover {
-    background-color: #4caf50;
+    background-color: #444444;
 }
-
-
 
 /* Wallet Address Container */
 .wallet-address-container {
@@ -804,90 +799,6 @@ main {
     background-color: #17a2b8; /* Blau */
 }
 
-
-.withdraw-modal {
-    width: 560px; /* Gleiche Breite wie das Deposit Modal */
-    padding: 20px;
-    background-color: #222;
-    color: white;
-    border-radius: 8px;
-    text-align: center;
-}
-
-/* Wallet Address Input für Withdraw Modal */
-.withdraw-modal .wallet-address-input,
-.withdraw-modal .wallet-amount-input {
-    position: absolute;
-    overflow-y: auto;
-    width: 537px; /* Gleiche Breite wie im Deposit Modal */
-    padding: 8px;
-    background-color: #333;
-    color: #fdc445;
-    border: 1px solid #444;
-    border-radius: 5px;
-    outline: none;
-    text-align: center;
-    font-size: 21px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-    margin-bottom: 15px;
-    transition: border-color 0.3s;
-}
-
-.withdraw-modal .wallet-address-input::placeholder,
-.withdraw-modal .wallet-amount-input::placeholder {
-    color: #bbb;
-}
-
-.withdraw-modal .wallet-address-input:focus,
-.withdraw-modal .wallet-amount-input:focus {
-    border-color: #fdc445;
-}
-
-.info-modal {
-    width: 600px; /* Breite des Modals */
-    max-height: 80vh; /* Maximale Höhe des Modals */
-    padding: 30px; /* Innenabstand */
-    background-color: #1e1e1e; /* Dunklerer Hintergrund */
-    color: #e0e0e0; /* Helle Textfarbe */
-    border-radius: 10px; /* Abgerundete Ecken */
-    text-align: left; /* Text linksbündig */
-    overflow-y: auto; /* Scrollbalken aktivieren */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7); /* Schatten für Tiefe */
-}
-
-.info-modal h1 {
-    font-size: 28px; /* Größe der Hauptüberschrift */
-    margin-bottom: 15px; /* Abstand nach unten */
-    color: #fdc445; /* Farbe der Hauptüberschrift */
-    text-align: center; /* Zentrierter Text */
-}
-
-.info-modal h2 {
-    font-size: 22px; /* Größe der Unterüberschrift */
-    margin-top: 15px; /* Abstand nach oben */
-    margin-bottom: 10px; /* Abstand nach unten */
-    color: #fdc445; /* Farbe der Unterüberschrift */
-}
-
-.info-modal p,
-.info-modal ul,
-.info-modal ol {
-    font-size: 16px; /* Schriftgröße für Text und Listen */
-    line-height: 1.6; /* Zeilenhöhe für bessere Lesbarkeit */
-    color: #ddd; /* Farbe des Textes */
-}
-
-.info-modal ul,
-.info-modal ol {
-    margin-left: 20px; /* Abstand für Listen */
-}
-
-.info-modal .button-container {
-    display: flex;
-    justify-content: center; /* Zentriert die Schaltflächen */
-    margin-top: 20px; /* Abstand nach oben */
-}
-
 .info-modal {
     width: 600px; /* Breite des Modals */
     max-height: 80vh; /* Maximale Höhe des Modals */
@@ -955,76 +866,36 @@ main {
     height: 100%;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0); /* Unsichtbar und skaliert auf 0 */
+    transform: translate(-50%, -50%) scale(0); /* Startet unsichtbar */
     z-index: 1100;
-    animation: fadeIn 0.5s ease-out forwards, pop 0.5s ease-out forwards; /* Hinzufügen der Pop-Animation */
-    backdrop-filter: blur(5px);
+    animation: fadeIn 0.8s ease-out forwards, pop 0.8s ease-out forwards;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -60%) scale(0);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
 
+/* Episches Pop beim Öffnen */
 @keyframes pop {
-    0% {
-        transform: translate(-50%, -50%) scale(0.8) rotate(10deg);
-    }
-    50% {
-        transform: translate(-50%, -50%) scale(1.1) rotate(-5deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-    }
+    0% { transform: translate(-50%, -50%) scale(0.7) rotate(10deg); }
+    50% { transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
 }
 
-.win-popup-content {
-    margin-top: 300px;
-    text-align: center; /* Text zentrieren */
-    color: #ffd700; /* Goldene Schriftfarbe */
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6); /* Glüheffekt */
-}
-
-.win-popup h2 {
-    font-size: 76px; /* Größere Schriftgröße für die Überschrift */
-    margin-bottom: 10px; /* Abstand nach unten */
-    animation: bounce 0.5s ease-in-out infinite; /* Hinzufügen einer Bounce-Animation */
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
-}
-
-.win-popup p {
-    font-size: 24px; /* Schriftgröße für den Gewinntext */
-    font-weight: bold; /* Fettdruck für den Gewinntext */
-    margin-top: 10px; /* Abstand nach oben */
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); /* Glüheffekt */
-}
-
-/* Konfetti-Effekte */
+/* 🎆 KONFETTI FÜR DEN FINALEN TOUCH */
 .confetti {
     position: absolute;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Verhindert, dass die Konfetti-Elemente klickbar sind */
+    pointer-events: none;
     overflow: hidden;
-    z-index: -1; /* Hinter dem Popup */
+    z-index: -1;
+    animation: confettiRain 3s linear infinite;
 }
+
+/* 🎉 Zufällige Konfetti-Bewegung */
+@keyframes confettiRain {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
 
 .modal.referral-dashboard {
     background: #202123; /* Dunkles Grau wie in ChatGPT */
@@ -1049,7 +920,7 @@ main {
 .total-registrations {
     font-size: 4.5rem;
     font-weight: bold;
-    color: #00a67e; /* ChatGPT-Grün für die Hauptzahl */
+    color: #fdc445; /* ChatGPT-Grün für die Hauptzahl */
     display: flex;
     align-items: baseline;
     justify-content: flex-start;
@@ -1101,7 +972,7 @@ main {
 
 .progress-fill {
     height: 100%;
-    background: #00a67e; /* ChatGPT-Grün für Fortschritt */
+    background: #fdc445; /* ChatGPT-Grün für Fortschritt */
     transition: width 0.5s ease-in-out;
     border-radius: 6px;
 }
@@ -1125,10 +996,11 @@ main {
 
 .referral-link {
     background: #2e2f36;
-    color: #00a67e;
+    color: #fdc445;
     padding: 8px 14px;
     border-radius: 6px;
     font-size: 1rem;
+    font-weight: bold;
     text-align: left !important; /* Erzwingt linksbündig */
     cursor: pointer;
     transition: background 0.2s ease-in-out;
@@ -1144,10 +1016,111 @@ main {
 
 .copy-success {
     font-size: 0.8rem;
-    color: #00a67e;
+    color: #fdc445;
     margin-top: 5px;
     font-weight: bold;
 }
 
+.close-button-cross {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.close-button-cross:hover {
+    color: red;
+}
+
+.withdraw-modal {
+    position: relative;
+    width: 560px; /* Gleiche Breite wie das Deposit Modal */
+    padding: 20px;
+    background-color: #222; /* Dunkler Hintergrund für Kontrast */
+    color: white;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
 
 
+.withdraw-modal input {
+    width: 95%;
+    background-color: #222222;
+    color: #fdc445;
+    border: 2px solid #fdc445;
+    border-radius: 5px;
+    outline: none;
+    text-align: center;
+    font-size: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+
+    transition: border-color 0.3s;
+}
+
+.withdraw-modal input::placeholder {
+    color: #bbb;
+}
+
+.withdraw-modal input:focus {
+    border-color: #fdc445;
+}
+
+/* ✅ Close-Button richtig positionieren */
+.withdraw-modal .close-button {
+    position: absolute;
+
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.withdraw-modal .close-button:hover {
+    color: red;
+}
+
+/* ✅ Styling für Buttons */
+.withdraw-modal button {
+    padding: 12px;
+    background-color: #383838;
+    color: white;
+    width: 271px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+
+    text-align: center;
+    transition: background-color 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+
+}
+
+.withdraw-modal button:hover {
+    background-color: #444444;
+}
+
+/* ✅ Fehlermeldungen richtig anzeigen */
+.withdraw-modal .error {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* ✅ Betragseingabe */
+.withdraw-modal .wallet-amount-input {
+    text-align: center;
+}

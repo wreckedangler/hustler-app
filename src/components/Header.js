@@ -57,6 +57,7 @@ function Header({
         setIsDropdownVisible(false); // Close dropdown
     };
 
+
     const openReferralDashboard = () => {
         setIsReferralDashboardOpen(true);
         setIsDropdownVisible(false); // Close dropdown

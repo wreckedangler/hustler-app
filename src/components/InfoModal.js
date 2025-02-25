@@ -1,8 +1,10 @@
 import React from "react";
+import CloseButton from "./CloseButton";
 
 const InfoModal = ({ closeModal }) => {
     return (
-        <div className="modal-backdrop" onClick={closeModal}>
+        <div className="modal-backdrop">
+            <CloseButton onClick={closeModal} />
             <div className="modal info-modal" onClick={(e) => e.stopPropagation()}>
                 <h1>Game Rules & Important Information</h1>
 
