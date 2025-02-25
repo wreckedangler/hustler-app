@@ -99,28 +99,36 @@ header {
 }
 
 .menu-button {
-    background: linear-gradient(90deg, #0259ff, #8a2be2); /* Farbverlauf von Blau zu Lila */
-    color: white; /* Textfarbe */
-    border: none; /* Keine Rahmen */
+    background: #313131; /* Dunkler Hintergrund */
+    color: #fdc445;
+    border: none; /* Entfernt jeden Rand */
+    outline: none; /* Entfernt den Fokus-Ring */
+    box-shadow: none; /* Entfernt mögliche Schatten-Effekte */
     margin-top: 40px;
-    border-radius: 10px; /* Abgerundete Ecken */
-    padding: 10px 20px; /* Innenabstand */
-    font-size: 16px; /* Schriftgröße */
-    cursor: pointer; /* Zeiger-Cursor */
-    display: flex; /* Flexbox für zentrierte Inhalte */
-    align-items: center; /* Vertikale Zentrierung */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); /* Schatten für Tiefe */
-    transition: all 0.3s ease; /* Übergangseffekt */
+    border-radius: 8px; /* Abgerundete Ecken */
+    padding: 5px 14px; /* Kleineres Padding für kompaktere Größe */
+    font-size: 14px; /* Kleinere Schrift für dezentes UI */
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 .menu-button:hover {
-    opacity: 0.9; /* Leichte Transparenz beim Hover */
-    transform: scale(1.05); /* Leichte Vergrößerung beim Hover */
+    background: #48484b; /* Leicht hellerer Hover-Effekt */
+}
+
+.menu-button:active {
+    transform: scale(0.98); /* Leichte Klick-Animation */
 }
 
 .menu-text {
     margin-left: 8px; /* Abstand zwischen Icon und Text */
 }
+
 
 
 
@@ -148,7 +156,7 @@ main {
 }
 
 .box-button {
-    background-color: #ff00ff;
+    background-color: #fdc445;
     color: #fff;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
     width: 300px;
@@ -179,40 +187,60 @@ main {
 
 .dropdown-menu {
     position: absolute;
-    top: 60px; /* Positionierung */
-    right: 20px; /* Positionierung */
-    background: linear-gradient(90deg, #0259ff, #8a2be2); /* Farbverlauf von Blau zu Lila */
-    border-radius: 8px; /* Abgerundete Ecken */
-    width: 200px; /* Breite des Menüs */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Schatten für Tiefe */
-    color: white; /* Textfarbe */
-    z-index: 1000; /* Über anderen Elementen */
+    top: 50px;
+    right: 20px;
+    background: #1e1f24;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 220px;
+    padding: 10px 0;
+    z-index: 100;
 }
 
 .dropdown-menu ul {
-    list-style-type: none; /* Keine Aufzählungszeichen */
-    margin: 0; /* Kein Margin */
-    padding: 0; /* Kein Padding */
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.dropdown-menu ul li {
-    display: flex; /* Flexbox für Symbole und Text */
-    align-items: center; /* Vertikale Zentrierung */
-    padding: 10px 20px; /* Innenabstand */
-    cursor: pointer; /* Zeiger-Cursor */
-    transition: background-color 0.3s ease; /* Übergangseffekt */
+.dropdown-menu li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    color: #e0e0e0;
+    margin-left: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    border-radius: 8px; /* Abgerundete Ecken für das Listenelement */
 }
 
-.dropdown-menu ul li svg {
-    margin-right: 10px; /* Abstand zwischen Icon und Text */
-    fill: white; /* Farbe der Icons */
+.dropdown-menu li:hover {
+    background: #27292f; /* Hintergrundfarbe beim Hover */
 }
 
-.dropdown-menu ul li:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Leichte Hintergrundfarbe beim Hover */
-    border-radius: 8px; /* Abgerundete Ecken beim Hover */
-    color: #fdc445; /* Textfarbe beim Hover */
+.dropdown-menu .logout {
+    color: #ff4b4b;
+    font-weight: bold;
 }
+
+.dropdown-menu .logout:hover {
+    background: #3a1a1a;
+}
+
+.icon {
+    width: 18px;
+    height: 18px;
+    fill: #a0a0a0;
+    transition: fill 0.2s ease-in-out;
+}
+
+.dropdown-menu li:hover .icon {
+    fill: #ffffff;
+}
+
 
 .modal-backdrop {
     overflow-y: auto;
@@ -999,8 +1027,8 @@ main {
 }
 
 .modal.referral-dashboard {
-    background: #1c1f36;
-    color: white;
+    background: #202123; /* Dunkles Grau wie in ChatGPT */
+    color: #ececf1; /* Helles Grau für gute Lesbarkeit */
     padding: 20px;
     border-radius: 10px;
     width: 450px;
@@ -1013,31 +1041,31 @@ main {
     color: #ffffff; /* Reinweiß */
     font-weight: bold; /* Fett */
     text-transform: uppercase; /* Einheitlich mit den Labels */
-    margin-bottom: 5px; /* Weniger Abstand zur "0" */
-    text-align: left; /* Links ausrichten */
-    width: 100%; /* Stellt sicher, dass es sich über die volle Breite erstreckt */
+    margin-bottom: 5px;
+    text-align: left;
+    width: 100%;
 }
 
-
 .total-registrations {
-    font-size: 4rem;
+    font-size: 4.5rem;
     font-weight: bold;
-    color: #4a90e2;
+    color: #00a67e; /* ChatGPT-Grün für die Hauptzahl */
     display: flex;
-    align-items: baseline; /* Gleiche Unterkante */
-    justify-content: flex-start; /* Links ausrichten */
+    align-items: baseline;
+    justify-content: flex-start;
     text-align: left;
-    width: 100%; /* Breite fixieren, damit kein zentrieren passiert */
+    width: 100%;
     margin-top: -5px;
     margin-bottom: 10px;
 }
 
 .total-registrations span {
     font-size: 1rem;
-    color: #b0b0b0;
+    color: #ffffff; /* Dezentes Grau statt knalligem Kontrast */
     font-weight: normal;
-    margin-left: 10px; /* Abstand zwischen Zahl und "registrations" */
-    white-space: nowrap; /* Verhindert Umbruch */
+    text-transform: capitalize;
+    margin-left: 10px;
+    white-space: nowrap;
 }
 
 .progress-container {
@@ -1049,41 +1077,77 @@ main {
 .progress-container p {
     font-size: 0.9rem;
     margin-bottom: 6px;
-    color: #b0b0b0;
+    color: #ffffff; /* Heller als der Hintergrund, aber nicht grell */
     text-transform: uppercase;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 .progress-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px; /* Abstand zwischen Balken und Zahl */
+    gap: 10px;
 }
 
 .progress-bar {
     position: relative;
     width: 100%;
-    max-width: 400px; /* Einheitliche Breite */
+    max-width: 400px;
     height: 12px;
-    background: #2c3150;
+    background: #2e2f36; /* Dunkler Hintergrund für den Balken */
     border-radius: 6px;
     overflow: hidden;
-    flex-grow: 1; /* Balken nimmt den verfügbaren Platz ein */
+    flex-grow: 1;
 }
 
 .progress-fill {
     height: 100%;
-    background: #4a90e2;
+    background: #00a67e; /* ChatGPT-Grün für Fortschritt */
     transition: width 0.5s ease-in-out;
     border-radius: 6px;
 }
 
-.progress-value {
-    font-size: 0.85rem;
+.referral-link-container {
+    margin-top: 20px;
+    width: 100%;
+    text-align: left !important; /* Forciert linksbündig */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important; /* Entfernt versteckte Zentrierung */
+}
+
+.referral-link-container p {
+    font-size: 1rem;
     color: #ffffff;
     font-weight: bold;
-    min-width: 40px; /* Stellt sicher, dass die Zahl immer sichtbar bleibt */
-    text-align: right;
+    text-transform: uppercase;
+    margin-bottom: 5px;
 }
+
+.referral-link {
+    background: #2e2f36;
+    color: #00a67e;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: left !important; /* Erzwingt linksbündig */
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    display: inline-block !important;
+    width: auto;
+    max-width: 100%; /* Flexible Größe */
+    word-break: break-all; /* Falls der Link zu lang ist */
+}
+
+.referral-link:hover {
+    background: #3a3d44;
+}
+
+.copy-success {
+    font-size: 0.8rem;
+    color: #00a67e;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
 
 

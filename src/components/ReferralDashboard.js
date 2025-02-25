@@ -8,6 +8,8 @@ const ReferralDashboard = ({ closeModal }) => {
         totalRewards: 0,
         gamificationPoints: 0
     });
+    const [referralLink, setReferralLink] = useState(""); // Referral-Link
+    const [copySuccess, setCopySuccess] = useState(false); // Erfolgsmeldung
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,6 +28,7 @@ const ReferralDashboard = ({ closeModal }) => {
                     totalRewards: data.totalRewards || 0,
                     gamificationPoints: data.gamificationPoints || 0
                 });
+                setReferralLink(`https://hustlerapp.com/signup?ref=${data.referralCode}`);
             } catch (error) {
                 console.error("Error fetching referral data:", error);
             }
@@ -33,10 +36,17 @@ const ReferralDashboard = ({ closeModal }) => {
         fetchData();
     }, []);
 
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(referralLink).then(() => {
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000); // Erfolgsmeldung nach 2s ausblenden
+        });
+    };
+
     return (
         <div className="modal-backdrop" onClick={closeModal}>
             <div className="modal referral-dashboard" onClick={(e) => e.stopPropagation()}>
-                <div className="referral-title">Referrals</div>
+                <div className="referral-title">Referral dash</div>
                 <p className="total-registrations">
                     {referralStats.totalReferrals} <span>registrations</span>
                 </p>
@@ -72,13 +82,22 @@ const ReferralDashboard = ({ closeModal }) => {
                 </div>
 
                 <div className="progress-container">
-                    <p>Total Gamification Points</p>
+                    <p>Total Points</p>
                     <div className="progress-wrapper">
                         <div className="progress-bar">
                             <div className="progress-fill" style={{ width: `${Math.min(referralStats.gamificationPoints / 1000, 1) * 100}%` }}></div>
                         </div>
                         <span className="progress-value">{referralStats.gamificationPoints}</span>
                     </div>
+                </div>
+
+                {/* Referral Link Section (100% linksbündig) */}
+                <div className="referral-link-container">
+                    <p>Your Referral Link</p>
+                    <div className="referral-link" onClick={copyToClipboard}>
+                        {referralLink}
+                    </div>
+                    {copySuccess && <p className="copy-success">Copied to clipboard!</p>}
                 </div>
             </div>
         </div>
