@@ -123,12 +123,6 @@ const InfoModal = ({ closeModal }) => {
                     </section>
                 </div>
 
-                {/* Close Button */}
-                <div className="button-container">
-                    <button className="info-modal" onClick={closeModal}>
-                        Close
-                    </button>
-                </div>
             </div>
         </div>
     );

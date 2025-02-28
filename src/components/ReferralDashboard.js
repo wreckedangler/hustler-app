@@ -75,16 +75,6 @@ const ReferralDashboard = ({ closeModal }) => {
                 </div>
 
                 <div className="progress-container">
-                    <p>Total Referral Rewards ($)</p>
-                    <div className="progress-wrapper">
-                        <div className="progress-bar">
-                            <div className="progress-fill" style={{ width: `${Math.min(referralStats.totalRewards / 100, 1) * 100}%` }}></div>
-                        </div>
-                        <span className="progress-value">${referralStats.totalRewards.toFixed(2)}</span>
-                    </div>
-                </div>
-
-                <div className="progress-container">
                     <p>Total Points</p>
                     <div className="progress-wrapper">
                         <div className="progress-bar">
@@ -94,14 +84,26 @@ const ReferralDashboard = ({ closeModal }) => {
                     </div>
                 </div>
 
+                <div className="progress-container">
+                    <p>Total Referral Rewards ($)</p>
+                    <div className="progress-wrapper">
+                        <div className="progress-bar">
+                            <div className="progress-fill" style={{ width: `${Math.min(referralStats.totalRewards / 100, 1) * 100}%` }}></div>
+                        </div>
+                        <span className="progress-value">${referralStats.totalRewards.toFixed(2)}</span>
+                    </div>
+                </div>
+
                 {/* Referral Link Section (100% linksbündig) */}
                 <div className="referral-link-container">
-                    <p>Your Referral Link</p>
+                    <p>Click on your referral-link to copy</p>
                     <div className="referral-link" onClick={copyToClipboard}>
                         {referralLink}
                     </div>
                     {copySuccess && <p className="copy-success">Copied to clipboard!</p>}
                 </div>
+
+                
             </div>
         </div>
     );

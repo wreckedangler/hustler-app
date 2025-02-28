@@ -100,7 +100,7 @@ header {
 
 .menu-button {
     background: #313131; /* Dunkler Hintergrund */
-    color: #fdc445;
+    color: #ffffff;
     border: none; /* Entfernt jeden Rand */
     outline: none; /* Entfernt den Fokus-Ring */
     box-shadow: none; /* Entfernt mögliche Schatten-Effekte */
@@ -114,7 +114,6 @@ header {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 .menu-button:hover {
@@ -169,12 +168,13 @@ main {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.4s ease;
+    transition: transform 0.4s ease, box-shadow 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
 
 .box-button:hover {
     transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(242, 240, 240, 0.6);
 }
 
 .button-image {
@@ -221,10 +221,6 @@ main {
     background: #27292f; /* Hintergrundfarbe beim Hover */
 }
 
-.dropdown-menu .logout {
-    color: #ff4b4b;
-    font-weight: bold;
-}
 
 .dropdown-menu .logout:hover {
     background: #3a1a1a;
@@ -376,7 +372,7 @@ main {
 }
 
 .dynamic-button {
-    background-color: #ff00ff;
+    background-color: #fdc445;
     color: #fff;
     font-size: 18px;
     font-weight: bold;
@@ -385,7 +381,7 @@ main {
     cursor: pointer;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;;
+    transition: transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden;
 }
 
@@ -432,7 +428,12 @@ main {
 }
 
 .dynamic-button:hover {
-    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(242, 242, 238, 0.6);
+    transform: scale(1.0);
+}
+
+.dynamic-button:click {
+    transform: scale(0.95);  
 }
 
 .dollar-buttons {
@@ -479,23 +480,25 @@ main {
 }
 
 .back-button {
-    background-color: #444;
+    background-color: #313131;
     color: white;
-    padding: 10px 20px;
+    padding: 5px 14px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 26px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
     margin-top: 20px;
     position: absolute;
     right: 0;
     bottom: -70px;
-    transition: transform 0.4s ease;
 }
 
 .back-button:hover {
-    transform: scale(1.05);
+    background-color: #3a3d44;
+}
+
+.back-button:active {
+    transform: scale(0.98); /* Leichte Klick-Animation */
 }
 
 .dynamic-buttons-wrapper {
@@ -567,7 +570,6 @@ main {
     border: 2px solid #fdc445;
     justify-content: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-
 }
 
 .button-container {
@@ -908,7 +910,7 @@ main {
 }
 
 .referral-title {
-    font-size: 1rem; /* Gleiche Größe wie die Balkenbeschriftungen */
+    font-size: 1.2rem; /* Gleiche Größe wie die Balkenbeschriftungen */
     color: #ffffff; /* Reinweiß */
     font-weight: bold; /* Fett */
     text-transform: uppercase; /* Einheitlich mit den Labels */
@@ -978,8 +980,8 @@ main {
 }
 
 .referral-link-container {
-    margin-top: 20px;
     width: 100%;
+    margin-top: 20px;
     text-align: left !important; /* Forciert linksbündig */
     display: flex;
     flex-direction: column;
@@ -987,7 +989,7 @@ main {
 }
 
 .referral-link-container p {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #ffffff;
     font-weight: bold;
     text-transform: uppercase;
@@ -995,12 +997,11 @@ main {
 }
 
 .referral-link {
-    background: #2e2f36;
+    background: #2e2f36; 
     color: #fdc445;
     padding: 8px 14px;
     border-radius: 6px;
     font-size: 1rem;
-    font-weight: bold;
     text-align: left !important; /* Erzwingt linksbündig */
     cursor: pointer;
     transition: background 0.2s ease-in-out;
@@ -1015,7 +1016,7 @@ main {
 }
 
 .copy-success {
-    font-size: 0.8rem;
+    font-size: 0.2rem;
     color: #fdc445;
     margin-top: 5px;
     font-weight: bold;
@@ -1023,11 +1024,11 @@ main {
 
 .close-button-cross {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 5px;
+    right: 15px;
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 30px;
     color: white;
     cursor: pointer;
     z-index: 10;
