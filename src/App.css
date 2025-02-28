@@ -19,42 +19,109 @@ header {
     position: relative;
 }
 
-.login-button {
-    background-color: #0259ff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-right: 2px;
-    margin-top: 40px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-
-.login-button:hover {
-    background-color: #2573ff;
-}
-
-.user-name {
-    position: absolute;
-    left: 30px; /* Final position for the username */
-    margin-top: 45px;
-    color: #fdc445;
-    font-size: 23px;
-    text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
-}
-
-
 .right-header {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     position: absolute;
     right: 20px;
-    gap: 15px; /* Space between balance and menu button */
+    margin-top: 20px;
+    gap: 10px; /* Space between balance and menu button */
 }
+
+.login-button {
+    background-color: #313131;
+
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: -10px;
+}
+
+.sign-in-button {
+    background-color: #0259ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 2px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.sign-in-button:hover {
+    background-color: #0056b3;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+    color: white;
+}
+
+/* Flexbox für automatische Anordnung */
+.user-header {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Abstand zwischen Name, Level & EP-Leiste */
+    margin-top: -10px;
+    margin-left: 10px;
+}
+
+/* Username ganz links */
+.user-name {
+    font-weight: bold;
+    color: #fdc445;
+    font-size: 23px;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
+}
+
+/* Level direkt rechts vom Namen */
+.user-level {
+    font-size: 20px;
+    font-weight: bold;
+    color: #fdc445;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
+}
+
+/* EP-Bar direkt rechts vom Level */
+.ep-bar-container {
+    display: flex;
+    align-items: center;
+    width: 120px;
+}
+
+.ep-bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: #5a5858;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.ep-fill {
+    height: 100%;
+    background: #fdc445;
+    transition: width 0.3s ease-in-out;
+}
+
+
+.prestige-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: 135px;
+    margin-top: -10px;
+}
+
 
 .balance {
     font-size: 23px;
@@ -62,7 +129,7 @@ header {
     font-weight: bold;
     display: flex;
     align-items: center;
-    margin-top: 45px;
+    margin-top: -10px;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
 }
 
@@ -103,8 +170,7 @@ header {
     color: #ffffff;
     border: none; /* Entfernt jeden Rand */
     outline: none; /* Entfernt den Fokus-Ring */
-    box-shadow: none; /* Entfernt mögliche Schatten-Effekte */
-    margin-top: 40px;
+    margin-top: -10px;
     border-radius: 8px; /* Abgerundete Ecken */
     padding: 5px 14px; /* Kleineres Padding für kompaktere Größe */
     font-size: 14px; /* Kleinere Schrift für dezentes UI */
@@ -113,7 +179,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+
 }
 
 .menu-button:hover {
@@ -127,8 +193,6 @@ header {
 .menu-text {
     margin-left: 8px; /* Abstand zwischen Icon und Text */
 }
-
-
 
 
 main {
@@ -512,10 +576,6 @@ main {
     margin-top: 10px; /* Space between sub-jackpot buttons and back button */
 }
 
-.user-info {
-    display: flex;
-    align-items: center;
-}
 
 .logged-in-icon,
 .logged-out-icon {
@@ -524,9 +584,6 @@ main {
     margin-left: 10px;
 }
 
-.user-name {
-    font-weight: bold;
-}
 
 .bet-amount-banner {
     text-align: center;

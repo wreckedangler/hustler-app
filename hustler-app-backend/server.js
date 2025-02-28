@@ -446,11 +446,20 @@ app.post("/api/play", authenticateToken, async (req, res) => {
     betAmount = typeof betAmount === 'string' ? parseFloat(betAmount.replace('$', '')) : betAmount;
 
     try {
-        const userResult = await pool.query("SELECT balance FROM users WHERE id = $1", [userId]);
+        // Aktuelle Benutzerdaten abrufen
+        const userResult = await pool.query("SELECT balance, ep, level, prestige FROM users WHERE id = $1", [userId]);
         if (userResult.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
         }
-        const currentBalance = parseFloat(userResult.rows[0].balance);
+
+        let { balance: currentBalance, ep, level, prestige } = userResult.rows[0];
+
+        // Sicherstellen, dass alle Werte numerisch sind
+        currentBalance = parseFloat(currentBalance);
+        ep = parseInt(ep) || 0;
+        level = parseInt(level) || 1;
+        prestige = parseInt(prestige) || 0;
+
         if (currentBalance < betAmount) {
             return res.status(400).json({ error: "Insufficient balance" });
         }
@@ -467,15 +476,38 @@ app.post("/api/play", authenticateToken, async (req, res) => {
             newBalance -= betAmount;
         }
 
-        await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [newBalance, userId]);
+        // ✅ EP-Berechnung: 1 EP pro gesetztem Dollar
+        ep += Math.floor(betAmount); // Abrunden, falls Centbeträge vorhanden sind
+
+        // ✅ Level-Update (z.B. 100 EP = 1 Level)
+        while (ep >= 100) {
+            ep -= 100;
+            level += 1;
+
+            // ✅ Prestige-Upgrade
+            if (level > 50) {
+                level = 1;
+                if (prestige < 10) {
+                    prestige += 1;
+                }
+            }
+        }
+
+        // Benutzer-Datenbank aktualisieren
+        await pool.query(
+            "UPDATE users SET balance = $1, ep = $2, level = $3, prestige = $4 WHERE id = $5",
+            [newBalance, ep, level, prestige, userId]
+        );
+
+        // Spieltransaktion speichern
         await pool.query(
             `INSERT INTO game_transactions 
-       (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+            (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
         );
 
-        // ⬇️ Referral-Wager Tracking hinzufügen ⬇️
+        // ✅ Referral-Wager Tracking hinzufügen
         await updateReferralProgress(userId, betAmount);
 
         return res.json({
@@ -483,12 +515,16 @@ app.post("/api/play", authenticateToken, async (req, res) => {
             winningField: gameResult.winningField,
             winnings: gameResult.winnings,
             newBalance,
+            ep,
+            level,
+            prestige
         });
     } catch (error) {
         console.error("Gameplay error:", error);
         return handleError(res, error, "Game data saving failed");
     }
 });
+
 
 
 const updateReferralProgress = async (userId, betAmount) => {
@@ -598,6 +634,54 @@ app.get("/api/get-referral-stats", authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Internal server error." });
     }
 });
+
+app.get("/api/get-level", authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+    
+    try {
+        const result = await pool.query("SELECT level, prestige FROM users WHERE id = $1", [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        return res.json(result.rows[0]);
+    } catch (error) {
+        console.error("Error fetching user level:", error);
+        return res.status(500).json({ error: "Failed to fetch level data" });
+    }
+});
+
+// API zum Level-Up
+app.post("/api/level-up", authenticateToken, async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const userResult = await pool.query("SELECT level, prestige FROM users WHERE id = $1", [userId]);
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        let { level, prestige } = userResult.rows[0];
+
+        if (level < 50) {
+            level += 1;
+        } else {
+            level = 1;
+            if (prestige < 10) {
+                prestige += 1;
+            }
+        }
+
+        await pool.query("UPDATE users SET level = $1, prestige = $2 WHERE id = $3", [level, prestige, userId]);
+
+        return res.json({ level, prestige });
+    } catch (error) {
+        console.error("Error leveling up user:", error);
+        return res.status(500).json({ error: "Failed to level up" });
+    }
+});
+
 
 
 // Optionale globale Fehlerbehandlung (fängt unvorhergesehene Fehler ab)

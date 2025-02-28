@@ -80,15 +80,18 @@ function Header({
                         <div className="balance">
                             <span>${parseFloat(displayBalance).toFixed(2)}</span>
                         </div>
-                        <MenuButton toggleDropdown={toggleDropdown}/>
+                        <MenuButton toggleDropdown={toggleDropdown} />
                     </>
                 ) : (
-                    <button
-                        className="login-button"
-                        onClick={openLoginModal}
-                    >
-                        Login
-                    </button>
+                    <>
+                        <button className="login-button" onClick={openLoginModal}>
+                            Login
+                        </button>
+
+                        <button className="sign-in-button" onClick={openRegisterModal}>
+                            Sign up
+                        </button>
+                    </>
                 )}
             </div>
 
