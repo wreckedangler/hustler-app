@@ -5,32 +5,30 @@ import DropdownMenu from "./DropdownMenu";
 import DepositModal from "./DepositModal";
 import WithdrawModal from "./WithdrawModal";
 import InfoModal from "./InfoModal";
-import ReferralDashboard from "./ReferralDashboard"; // Referral-Dashboard importieren
+import ReferralDashboard from "./ReferralDashboard";
 
 function Header({
-                    isLoggedIn,
-                    username,
-                    displayBalance,
-                    openLoginModal,
-                    openRegisterModal,
-                    handleLogout,
-                    openWithdrawModal,
-                    submitWithdraw,
-                    isDropdownVisible,
-                    setIsDropdownVisible
-                }) {
-
+    isLoggedIn,
+    username,
+    displayBalance,
+    openLoginModal,
+    openRegisterModal,
+    handleLogout,
+    openWithdrawModal,
+    submitWithdraw,
+    isDropdownVisible,
+    setIsDropdownVisible
+}) {
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-    const [isReferralDashboardOpen, setIsReferralDashboardOpen] = useState(false); // Neu: Referral Dashboard Zustand
+    const [isReferralDashboardOpen, setIsReferralDashboardOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const toggleDropdown = () => {
         setIsDropdownVisible((prev) => !prev);
     };
 
-    // Close the dropdown if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -47,34 +45,17 @@ function Header({
         };
     }, []);
 
-    const openInfoModal = () => {
-        setIsInfoModalOpen(true);
-        setIsDropdownVisible(false); // Close dropdown
-    };
-
-    const openDepositModal = () => {
-        setIsDepositModalOpen(true);
-        setIsDropdownVisible(false); // Close dropdown
-    };
-
-
-    const openReferralDashboard = () => {
-        setIsReferralDashboardOpen(true);
-        setIsDropdownVisible(false); // Close dropdown
-    };
-
-    // Close Modals
-    const closeDepositModal = () => setIsDepositModalOpen(false);
-    const closeInfoModal = () => setIsInfoModalOpen(false);
-    const closeWithdrawModal = () => setIsWithdrawModalOpen(false);
-    const closeReferralDashboard = () => setIsReferralDashboardOpen(false);
-
     return (
-        <header>
-            <UserInfo isLoggedIn={isLoggedIn} username={username} />
-            <div className="title">HUSTLER</div>
+        <header className="header">
+            <div className="header-left">
+                <UserInfo isLoggedIn={isLoggedIn} username={username} />
+            </div>
 
-            <div className="right-header">
+            <div className="header-center">
+                <div className="title">HUSTLER</div>
+            </div>
+
+            <div className="header-right">
                 {isLoggedIn ? (
                     <>
                         <div className="balance">
@@ -84,13 +65,8 @@ function Header({
                     </>
                 ) : (
                     <>
-                        <button className="login-button" onClick={openLoginModal}>
-                            Login
-                        </button>
-
-                        <button className="sign-in-button" onClick={openRegisterModal}>
-                            Sign up
-                        </button>
+                        <button className="login-button" onClick={openLoginModal}>Login</button>
+                        <button className="sign-in-button" onClick={openRegisterModal}>Sign up</button>
                     </>
                 )}
             </div>
@@ -101,35 +77,18 @@ function Header({
                     isLoggedIn={isLoggedIn}
                     openLoginModal={openLoginModal}
                     openRegisterModal={openRegisterModal}
-                    openDepositModal={openDepositModal}
+                    openDepositModal={() => setIsDepositModalOpen(true)}
                     openWithdrawModal={openWithdrawModal}
-                    openInfoModal={openInfoModal}
-                    openReferralDashboard={openReferralDashboard} // Referral-Dashboard öffnen
+                    openInfoModal={() => setIsInfoModalOpen(true)}
+                    openReferralDashboard={() => setIsReferralDashboardOpen(true)}
                     ref={dropdownRef}
                 />
             )}
 
-            {isInfoModalOpen && (
-                <InfoModal closeModal={closeInfoModal} />
-            )}
-
-            {isDepositModalOpen && (
-                <DepositModal
-                    walletAddress="0xYourWalletAddressHere"
-                    closeModal={closeDepositModal}
-                />
-            )}
-
-            {isWithdrawModalOpen && (
-                <WithdrawModal
-                    closeModal={closeWithdrawModal}
-                    submitWithdraw={submitWithdraw}
-                />
-            )}
-
-            {isReferralDashboardOpen && (
-                <ReferralDashboard closeModal={closeReferralDashboard} /> // Referral Dashboard Modal
-            )}
+            {isInfoModalOpen && <InfoModal closeModal={() => setIsInfoModalOpen(false)} />}
+            {isDepositModalOpen && <DepositModal closeModal={() => setIsDepositModalOpen(false)} />}
+            {isWithdrawModalOpen && <WithdrawModal closeModal={() => setIsWithdrawModalOpen(false)} submitWithdraw={submitWithdraw} />}
+            {isReferralDashboardOpen && <ReferralDashboard closeModal={() => setIsReferralDashboardOpen(false)} />}
         </header>
     );
 }

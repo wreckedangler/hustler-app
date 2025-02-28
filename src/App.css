@@ -19,13 +19,23 @@ header {
     position: relative;
 }
 
-.right-header {
+.header-right {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     position: absolute;
     right: 20px;
-    margin-top: 20px;
+    margin-top: 40px;
+    gap: 10px; /* Space between balance and menu button */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: absolute;
+    left: 15px;
+    margin-top: 60px;
     gap: 10px; /* Space between balance and menu button */
 }
 
@@ -67,14 +77,6 @@ header {
     color: white;
 }
 
-/* Flexbox für automatische Anordnung */
-.user-header {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Abstand zwischen Name, Level & EP-Leiste */
-    margin-top: -10px;
-    margin-left: 10px;
-}
 
 /* Username ganz links */
 .user-name {
@@ -86,9 +88,9 @@ header {
 
 /* Level direkt rechts vom Namen */
 .user-level {
-    font-size: 20px;
+    font-size: 12px;
     font-weight: bold;
-    color: #fdc445;
+    color: #a413b7;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
 }
 
@@ -97,15 +99,17 @@ header {
     display: flex;
     align-items: center;
     width: 120px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .ep-bar {
     position: relative;
-    width: 100%;
+    width: 150px;
     height: 10px;
     background: #5a5858;
     border-radius: 5px;
     overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .ep-fill {
@@ -129,7 +133,7 @@ header {
     font-weight: bold;
     display: flex;
     align-items: center;
-    margin-top: -10px;
+    
     text-shadow: 0 4px 10px rgba(0, 0, 0, 1);
 }
 
@@ -142,7 +146,7 @@ header {
     font-size: 80px;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 2);
     color: #fdc445;
-    margin-top: 100px;
+    margin-top: 50px;
 
 }
 
@@ -177,6 +181,7 @@ header {
     font-weight: 500;
     cursor: pointer;
     display: flex;
+    margin-top: -1px;
     align-items: center;
     justify-content: center;
 
@@ -516,32 +521,15 @@ main {
     margin-top: 150px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
 }
 
 .dollar-button.selected {
     background-color: #28a745;
-    transform: scale(1.5);
+    transform: scale(1.25);
 }
 
-.losing-field {
-    background-color: #d71212;
-    color: #070707;
-    font-weight: bold;
-}
-
-.winning-field {
-    background-color: #28a745;
-    color: #ffffff;
-}
-
-.congratulations {
-    font-size: 1.5em;
-    color: gold;
-    font-weight: bold;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-}
 
 .back-button {
     background-color: #313131;
@@ -576,15 +564,6 @@ main {
     margin-top: 10px; /* Space between sub-jackpot buttons and back button */
 }
 
-
-.logged-in-icon,
-.logged-out-icon {
-    font-size: 1.5rem;
-    margin-right: 8px;
-    margin-left: 10px;
-}
-
-
 .bet-amount-banner {
     text-align: center;
     font-size: 1.2rem;
@@ -593,7 +572,7 @@ main {
     padding: 5px;
     background-color: #a413b7;
     color: #ffff00;
-    width: 97%;
+    width: 98%;
     border-radius: 8px;
     margin-top: 150px;
     border: 2px solid yellow;
