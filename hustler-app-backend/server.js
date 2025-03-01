@@ -14,32 +14,20 @@ const { createPotWallet, setActivePotWallet, getActivePotWallet, listAllPotWalle
 const { createWallet, encryptPrivateKey, getTokenBalance, decryptPrivateKey } = require('./wallet');
 const Web3 = require("web3").default;
 const { abi } = require("../smart-contract/contracts/BatchTransferABI.json");
-
-
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─────────────────────────────────────────────────────────────
 // Sicherheits-Middleware
 // ─────────────────────────────────────────────────────────────
-
-// Setze sichere HTTP-Header
 app.use(helmet());
-
-// Schütze vor HTTP-Parameter-Pollution
 app.use(hpp());
-
-// CORS-Konfiguration (im Produktionsbetrieb den Ursprung anpassen)
 app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
     optionsSuccessStatus: 200
 }));
-
-// Globaler JSON-Parser
 app.use(express.json());
 
-// Globale Ratenbegrenzung
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 Minuten
     max: 100,
@@ -47,7 +35,6 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// Zusätzliche Ratenbegrenzung für sensible Endpunkte (z. B. Login)
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,
@@ -79,6 +66,32 @@ const authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+// ─────────────────────────────────────────────────────────────
+// Socket.IO Integration
+// ─────────────────────────────────────────────────────────────
+
+const http = require("http");
+const { Socket } = require('dgram');
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+    console.log("New client connected:", socket.id);
+    socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
+    });
+});
+
+// Funktion zum Broadcasten eines neuen Gewinns
+function broadcastNewWin(winData) {
+    io.emit("newWin", winData);
+}
 
 // Helferfunktion zur Fehlerbehandlung (im Produktionsmodus keine internen Details preisgeben)
 const handleError = (res, error, message = "An error occurred") => {
@@ -441,89 +454,91 @@ app.post("/api/login", loginLimiter, async (req, res) => {
 app.post("/api/play", authenticateToken, async (req, res) => {
     let { betAmount, betType, selectedField } = req.body;
     const userId = req.user.id;
-
+  
     // Sicherstellen, dass betAmount eine Zahl ist
     betAmount = typeof betAmount === 'string' ? parseFloat(betAmount.replace('$', '')) : betAmount;
-
+  
     try {
-        // Aktuelle Benutzerdaten abrufen
-        const userResult = await pool.query("SELECT balance, ep, level, prestige FROM users WHERE id = $1", [userId]);
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: "User not found" });
+      // Aktuelle Benutzerdaten inklusive username abrufen
+      const userResult = await pool.query(
+        "SELECT username, balance, ep, level, prestige FROM users WHERE id = $1",
+        [userId]
+      );
+      if (userResult.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      let { username, balance: currentBalance, ep, level, prestige } = userResult.rows[0];
+  
+      // Sicherstellen, dass alle Werte numerisch sind
+      currentBalance = parseFloat(currentBalance);
+      ep = parseInt(ep) || 0;
+      level = parseInt(level) || 1;
+      prestige = parseInt(prestige) || 0;
+  
+      if (currentBalance < betAmount) {
+        return res.status(400).json({ error: "Insufficient balance" });
+      }
+  
+      const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
+      if (!gameResult.success) {
+        return res.status(400).json({ error: gameResult.message });
+      }
+  
+      let newBalance = currentBalance;
+      if (gameResult.result === "win") {
+        newBalance += gameResult.winnings;
+        // broadcastNewWin verwendet nun den abgefragten username
+        broadcastNewWin({ username, amount: gameResult.winnings });
+      } else {
+        newBalance -= betAmount;
+      }
+  
+      // EP-Update: 1 EP pro gesetztem Dollar
+      ep += Math.floor(betAmount);
+      while (ep >= 100) {
+        ep -= 100;
+        level += 1;
+        // Prestige-Upgrade: Bei Überschreiten von Level 50
+        if (level > 50) {
+          level = 1;
+          if (prestige < 10) {
+            prestige += 1;
+          }
         }
-
-        let { balance: currentBalance, ep, level, prestige } = userResult.rows[0];
-
-        // Sicherstellen, dass alle Werte numerisch sind
-        currentBalance = parseFloat(currentBalance);
-        ep = parseInt(ep) || 0;
-        level = parseInt(level) || 1;
-        prestige = parseInt(prestige) || 0;
-
-        if (currentBalance < betAmount) {
-            return res.status(400).json({ error: "Insufficient balance" });
-        }
-
-        const gameResult = gameAlgorithm.processBet(betAmount, betType, selectedField);
-        if (!gameResult.success) {
-            return res.status(400).json({ error: gameResult.message });
-        }
-
-        let newBalance = currentBalance;
-        if (gameResult.result === "win") {
-            newBalance += gameResult.winnings;
-        } else {
-            newBalance -= betAmount;
-        }
-
-        // ✅ EP-Berechnung: 1 EP pro gesetztem Dollar
-        ep += Math.floor(betAmount); // Abrunden, falls Centbeträge vorhanden sind
-
-        // ✅ Level-Update (z.B. 100 EP = 1 Level)
-        while (ep >= 100) {
-            ep -= 100;
-            level += 1;
-
-            // ✅ Prestige-Upgrade
-            if (level > 50) {
-                level = 1;
-                if (prestige < 10) {
-                    prestige += 1;
-                }
-            }
-        }
-
-        // Benutzer-Datenbank aktualisieren
-        await pool.query(
-            "UPDATE users SET balance = $1, ep = $2, level = $3, prestige = $4 WHERE id = $5",
-            [newBalance, ep, level, prestige, userId]
-        );
-
-        // Spieltransaktion speichern
-        await pool.query(
-            `INSERT INTO game_transactions 
-            (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
-        );
-
-        // ✅ Referral-Wager Tracking hinzufügen
-        await updateReferralProgress(userId, betAmount);
-
-        return res.json({
-            result: gameResult.result,
-            winningField: gameResult.winningField,
-            winnings: gameResult.winnings,
-            newBalance,
-            ep,
-            level,
-            prestige
-        });
+      }
+  
+      // Benutzer-Datenbank aktualisieren
+      await pool.query(
+        "UPDATE users SET balance = $1, ep = $2, level = $3, prestige = $4 WHERE id = $5",
+        [newBalance, ep, level, prestige, userId]
+      );
+  
+      // Spieltransaktion speichern
+      await pool.query(
+        `INSERT INTO game_transactions 
+        (user_id, bet_amount, multiplier, selected_field, winning_field, winnings, result) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [userId, betAmount, gameResult.multiplier, selectedField, gameResult.winningField, gameResult.winnings, gameResult.result]
+      );
+  
+      // Referral-Wager Tracking (falls implementiert)
+      await updateReferralProgress(userId, betAmount);
+  
+      return res.json({
+        result: gameResult.result,
+        winningField: gameResult.winningField,
+        winnings: gameResult.winnings,
+        newBalance,
+        ep,
+        level,
+        prestige
+      });
     } catch (error) {
-        console.error("Gameplay error:", error);
-        return handleError(res, error, "Game data saving failed");
+      console.error("Gameplay error:", error);
+      return handleError(res, error, "Game data saving failed");
     }
-});
+  });  
 
 
 
@@ -693,6 +708,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: "An unexpected error occurred." });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

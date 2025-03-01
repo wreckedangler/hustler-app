@@ -29,17 +29,17 @@ function UserInfo({ isLoggedIn, username, refreshTrigger }) {
       setDbLevel(data.level);
       setDbEp(data.ep);
       // Starte die Animation von dem aktuell angezeigten Wert zu den DB-Werten.
-      animateEP(displayEp, data.ep, displayLevel, data.level);
+      // Wichtig: Hier wird displayEp (aktueller Wert) mit data.ep (Zielwert) und data.level (Ziel-Level) übergeben.
+      animateEP(displayEp, data.ep, data.level);
     } catch (error) {
       console.error("Error fetching level data:", error);
     }
   };
 
-  // Eine Hilfsfunktion, die displayEp von startValue zu endValue über duration (in ms) animiert.
-  // Sie animiert nur, wenn endValue >= startValue; andernfalls wird sofort der Zielwert gesetzt.
+  // Hilfsfunktion: Animiert displayEp von startValue zu endValue über die angegebene Dauer (in ms).
+  // Sollte endValue kleiner als startValue sein, wird sofort der Zielwert gesetzt.
   const simpleAnimate = (startValue, endValue, duration = 1000) => {
     return new Promise((resolve) => {
-      // Falls endValue kleiner als startValue ist, einfach setzen.
       if (endValue < startValue) {
         setDisplayEp(endValue);
         resolve();
@@ -61,49 +61,42 @@ function UserInfo({ isLoggedIn, username, refreshTrigger }) {
     });
   };
 
-  // Hauptfunktion zur Animation von EP und Level-Up.
-  // Ablauf:
-  //  • Wenn targetEP < 100: einfache Animation von displayEp zu targetEP.
-  //  • Wenn targetEP ≥ 100:
-  //      1. (Phase 1) Falls displayEp < 100, animiere von displayEp bis 100.
-  //      2. Sobald 100 erreicht ist, _sofort_ (ohne Animation) wird displayEp auf 0 gesetzt
-  //         und das Level (displayLevel) wird auf targetLevel aktualisiert.
-  //      3. (Phase 2) Falls ein Überschuss existiert (targetEP – 100 > 0), animiere von 0 bis zum Überschuss.
-  const animateEP = async (currentEP, targetEP, currentLevel, targetLevel) => {
-    // Kein Level-Up nötig:
+  // Animiert den EP-Balken und passt ggf. den Level an.
+  // Bei einem Level-Up wird zunächst der Balken bis 100 animiert, dann Level aktualisiert und EP zurückgesetzt,
+  // bevor der Rest der EP animiert wird.
+  const animateEP = async (currentEP, targetEP, targetLevel) => {
+    // Kein Level-Up nötig: Einfach von currentEP zu targetEP animieren.
     if (targetEP < 100) {
       await simpleAnimate(currentEP, targetEP, 1000);
-      // Stelle sicher, dass das Level aus der DB übernommen wird.
       flushSync(() => {
         setDisplayLevel(targetLevel);
       });
       return;
     }
-    // Level-Up nötig:
-    // Phase 1: Von currentEP bis 100 animieren (falls currentEP < 100)
+    // Level-Up: Zuerst EP-Balken bis 100 animieren (falls noch nicht voll)
     if (currentEP < 100) {
       await simpleAnimate(currentEP, 100, 1000);
     }
-    // Sobald 100 erreicht ist, sofort das Level aktualisieren und den Balken _ohne Animation_ auf 0 setzen.
+    // Sobald 100 erreicht ist, sofort Level aktualisieren und den EP-Balken ohne Rückwärts-Animation auf 0 setzen.
     flushSync(() => {
       setDisplayLevel(targetLevel);
-      setDisplayEp(0); // Hier wird der Balken _sofort_ auf 0 gesetzt, ohne animiert rückwärts zu fahren.
+      setDisplayEp(0);
     });
-    // Berechne den Überschuss (Rest-EP)
+    // Berechne den Überschuss (Rest-EP, die über 100 hinausgehen)
     const remainder = targetEP - 100;
-    // Phase 2: Falls Rest vorhanden, animiere von 0 bis remainder
+    // Falls noch Rest vorhanden ist, animiere diesen vom Startwert 0 bis zum Rest
     if (remainder > 0) {
       await simpleAnimate(0, remainder, 1000);
     }
   };
 
-  // Bei jedem Trigger (Login, Spielende etc.) die DB-Daten abrufen
+  // Bei jedem Trigger (z.B. Login, Spielende) werden die DB-Daten abgerufen.
   useEffect(() => {
     console.log("Refresh trigger activated:", refreshTrigger);
     fetchLevelData();
   }, [isLoggedIn, refreshTrigger]);
 
-  // Berechne den Füllstand in Prozent für den EP-Balken (immer 0-100)
+  // Berechne den Füllstand in Prozent für den EP-Balken (immer zwischen 0 und 100)
   const epPercentage = Math.min((displayEp / 100) * 100, 100);
 
   return (

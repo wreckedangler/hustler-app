@@ -29,6 +29,8 @@
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
     "redis": "^4.7.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4",
     "web3": "^4.16.0"
   },
@@ -48,6 +50,7 @@
     "ajv": "^6.12.6",
     "ajv-keywords": "^3.5.2",
     "chai": "^4.3.7",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "ethers": "^6.13.4",
     "hardhat": "^2.16.1",
     "hardhat-gas-reporter": "^1.0.10",
@@ -77,5 +80,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ],
+    "plugins": [
+      "react-hooks"
+    ],
+    "rules": {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn"
+    }
   }
 }

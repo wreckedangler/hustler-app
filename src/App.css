@@ -576,7 +576,7 @@ main {
     width: 98%;
     border-radius: 8px;
     margin-top: 150px;
-    border: 2px solid yellow;
+    border: 1px solid yellow;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
 }
 
@@ -1162,3 +1162,27 @@ main {
 .withdraw-modal .wallet-amount-input {
     text-align: center;
 }
+
+.live-feed-container {
+    position: fixed;
+    top: 180px;          /* Abstand vom oberen Rand, anpassen nach Bedarf */
+    left: 15px;
+    width: 245px;       /* Breite des LiveWinFeed-Bereichs */
+    max-height: 90vh;   /* maximale Höhe, mit Scrollbar falls nötig */
+    overflow-y: auto;
+    border-radius: 12px;
+    background: #383838;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    z-index: 1000;      /* Damit es über anderen Elementen liegt */
+  }
+  
+  /* Optional: Falls du verhindern möchtest, dass die Hauptinhalte vom LiveWinFeed überlappt werden,
+     kannst du dem Hauptcontainer einen linken Margin hinzufügen. Wenn du aber willst, dass die
+     Buttons im GameBoard ihre Position beibehalten, lasse diesen Wert weg. */
+  /*
+  .main-content-container {
+    margin-left: 260px; 
+  }
+  */
+  
