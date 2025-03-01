@@ -19,6 +19,7 @@ function App() {
     const [defaultWithdrawAddress, setDefaultWithdrawAddress] = useState(""); // Store the default withdrawal address
     const inactivityTimer = useRef(null);
     const [isDropdownVisible, setIsDropdownVisible] = useState(false)
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     /**
      * 🔥 Get expiration time from JWT Token
@@ -318,6 +319,8 @@ function App() {
                     submitWithdraw={handleWithdraw}
                     isDropdownVisible={isDropdownVisible}
                     setIsDropdownVisible={setIsDropdownVisible}
+                    refreshTrigger={refreshTrigger}     
+                    setRefreshTrigger={setRefreshTrigger}
                 />
                 <MainContent
                     isLoggedIn={isLoggedIn}
@@ -328,7 +331,10 @@ function App() {
                     openLoginModal={openLoginModal}
                     animateBalance={animateBalance}
                     username={username}
+                    refreshTrigger={refreshTrigger}     
+                    setRefreshTrigger={setRefreshTrigger}
                 />
+                
                 {isLoginModalVisible && (
                     <LoginModal
                         isRegisterMode={isRegisterMode}

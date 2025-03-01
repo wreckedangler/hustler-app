@@ -17,13 +17,15 @@ function Header({
     openWithdrawModal,
     submitWithdraw,
     isDropdownVisible,
-    setIsDropdownVisible
+    setIsDropdownVisible,
+    refreshTrigger
 }) {
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [isReferralDashboardOpen, setIsReferralDashboardOpen] = useState(false);
     const dropdownRef = useRef(null);
+    
 
     const toggleDropdown = () => {
         setIsDropdownVisible((prev) => !prev);
@@ -48,7 +50,8 @@ function Header({
     return (
         <header className="header">
             <div className="header-left">
-                <UserInfo isLoggedIn={isLoggedIn} username={username} />
+                {/* UserInfo bekommt refreshTrigger zur Aktualisierung */}
+                <UserInfo isLoggedIn={isLoggedIn} username={username} refreshTrigger={refreshTrigger} />
             </div>
 
             <div className="header-center">
@@ -71,6 +74,7 @@ function Header({
                 )}
             </div>
 
+            
             {isDropdownVisible && (
                 <DropdownMenu
                     handleLogout={handleLogout}

@@ -637,9 +637,12 @@ app.get("/api/get-referral-stats", authenticateToken, async (req, res) => {
 
 app.get("/api/get-level", authenticateToken, async (req, res) => {
     const userId = req.user.id;
-    
+
     try {
-        const result = await pool.query("SELECT level, prestige FROM users WHERE id = $1", [userId]);
+        const result = await pool.query(
+            "SELECT level, prestige, ep FROM users WHERE id = $1",
+            [userId]
+        );
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "User not found" });
@@ -647,10 +650,10 @@ app.get("/api/get-level", authenticateToken, async (req, res) => {
 
         return res.json(result.rows[0]);
     } catch (error) {
-        console.error("Error fetching user level:", error);
         return res.status(500).json({ error: "Failed to fetch level data" });
     }
 });
+
 
 // API zum Level-Up
 app.post("/api/level-up", authenticateToken, async (req, res) => {

@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
 import MultiplierButtons from "./MultiplierButtons";
 import { useNotification } from "../contexts/NotificationContext";
-import WinPopup from "./WinPopup"; // Importiere das WinPopup Modul
+import WinPopup from "./WinPopup";
 
 function GameBoard({
-                       selectedMultiplier,
-                       selectedAmount,
-                       setSelectedAmount,
-                       setBalance, // Globaler Saldo
-                       balance, // Globaler Saldo als Prop
-                       isLoggedIn,
-                       setSelectedMultiplier,
-                       animateBalance,
-                       openLoginModal,
-                       username,
-                   }) {
+    selectedMultiplier,
+    selectedAmount,
+    setSelectedAmount,
+    setBalance,
+    balance,
+    isLoggedIn,
+    setSelectedMultiplier,
+    animateBalance,
+    openLoginModal,
+    username,
+    setRefreshTrigger
+}) {
     const [selectedField, setSelectedField] = useState(null);
     const [winningField, setWinningField] = useState(null);
     const [allFlipped, setAllFlipped] = useState(false);
@@ -22,8 +23,8 @@ function GameBoard({
     const [isRoundInProgress, setIsRoundInProgress] = useState(false);
     const [showWinPopup, setShowWinPopup] = useState(false);
     const [winAmount, setWinAmount] = useState(0);
-    let [previousAmount] = useState(selectedAmount); // Speichert den vorherigen Betrag
     const { showNotification } = useNotification();
+    let [previousAmount] = useState(selectedAmount);
 
     // Setzt selectedAmount dynamisch, falls der Multiplikator 20k, 50k oder 100k ist
     useEffect(() => {
@@ -42,7 +43,6 @@ function GameBoard({
         setIsRoundInProgress(false);
     };
 
-    // Balance vom Backend abrufen
     const fetchBalanceFromDB = async () => {
         try {
             const response = await fetch("http://localhost:5000/api/get-balance", {
@@ -104,7 +104,6 @@ function GameBoard({
             setTimeout(() => setAllFlipped(true), 600);
             setTimeout(() => setShowIcons(true), 1200);
 
-            // Hier wird geprüft, ob der Spieler gewonnen hat und das WinPopup angezeigt
             if (data.result === "win") {
                 setWinAmount(data.winnings);
                 setShowWinPopup(true);
@@ -122,6 +121,9 @@ function GameBoard({
                 setSelectedField(null);
                 setWinningField(null);
                 setIsRoundInProgress(false);
+
+                // Level-Refresh triggern
+                setRefreshTrigger(prev => prev + 1);
             }, 3000);
         } catch (error) {
             showNotification("Error sending bet to backend: " + error.message, "error");
@@ -136,7 +138,6 @@ function GameBoard({
 
     return (
         <div className="game-board">
-            {/* WinPopup-Komponente wird hier gerendert */}
             <WinPopup
                 isVisible={showWinPopup}
                 delay={2500}

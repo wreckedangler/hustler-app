@@ -26,7 +26,7 @@ header {
     position: absolute;
     right: 20px;
     margin-top: 40px;
-    gap: 10px; /* Space between balance and menu button */
+    gap: 5px; /* Space between balance and menu button */
 }
 
 .header-left {
@@ -105,7 +105,7 @@ header {
 .ep-bar {
     position: relative;
     width: 150px;
-    height: 10px;
+    height: 5px;
     background: #5a5858;
     border-radius: 5px;
     overflow: hidden;
@@ -188,7 +188,7 @@ header {
 }
 
 .menu-button:hover {
-    background: #48484b; /* Leicht hellerer Hover-Effekt */
+    background: #3d3d3d; /* Leicht hellerer Hover-Effekt */
 }
 
 .menu-button:active {
@@ -259,11 +259,12 @@ main {
     top: 50px;
     right: 20px;
     background: #1e1f24;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     width: 220px;
     padding: 10px 0;
     z-index: 100;
+    border: 1px solid #424242;
 }
 
 .dropdown-menu ul {
@@ -546,7 +547,7 @@ main {
 }
 
 .back-button:hover {
-    background-color: #3a3d44;
+    background-color: #3d3d3d;
 }
 
 .back-button:active {

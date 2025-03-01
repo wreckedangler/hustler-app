@@ -13,6 +13,8 @@ function MainContent({
                          openLoginModal,
                          animateBalance,
                          username,
+                         refreshTrigger,    
+                         setRefreshTrigger
                      }) {
     const [selectedMultiplier, setSelectedMultiplier] = useState(null);
     const [selectedAmount, setSelectedAmount] = useState("1$");
@@ -49,6 +51,8 @@ function MainContent({
                     animateBalance={animateBalance}
                     openLoginModal={openLoginModal}
                     username={username}
+                    refreshTrigger={refreshTrigger}    // ✅ NEU: Wird an GameBoard übergeben
+                    setRefreshTrigger={setRefreshTrigger}
                 />
             )}
         </main>
