@@ -25,11 +25,11 @@ const LiveWinFeed = () => {
 
   return (
     <div className="live-win-feed">
-      <h4>Live Gewinne</h4>
+      <h4>Live wins</h4>
       <div className="win-feed-messages">
         {wins.map((win, index) => (
           <div key={index} className="win-message">
-            <strong>{win.username}</strong> gewann {win.amount}$
+            <strong>{win.username}</strong> won {win.amount} USDT
           </div>
         ))}
       </div>

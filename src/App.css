@@ -147,6 +147,7 @@ header {
     text-shadow: 0 4px 10px rgba(0, 0, 0, 2);
     color: #fdc445;
     margin-top: 50px;
+    margin-left: 50px;
 
 }
 
@@ -207,6 +208,7 @@ main {
     gap: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
+    margin-left: 100px;
 }
 
 .multiplier-selector {
@@ -1163,26 +1165,132 @@ main {
     text-align: center;
 }
 
+/* LiveWinFeed-Container: fixiert am linken Rand, mit dezentem Verlauf */
 .live-feed-container {
     position: fixed;
-    top: 180px;          /* Abstand vom oberen Rand, anpassen nach Bedarf */
+    top: 180px;
     left: 15px;
-    width: 245px;       /* Breite des LiveWinFeed-Bereichs */
-    max-height: 90vh;   /* maximale Höhe, mit Scrollbar falls nötig */
+    width: 230px;
+    max-height: 90vh; /* Damit bei vielen Einträgen gescrollt werden kann */
     overflow-y: auto;
     border-radius: 12px;
-    background: #383838;
+    background: linear-gradient(135deg, #2c2c2c 0%, #3f3f3f 100%);
     padding: 10px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    z-index: 1000;      /* Damit es über anderen Elementen liegt */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+  
+    /* Leichte Fade-In-Animation beim Laden */
+    animation: fadeIn 0.6s ease-out forwards;
   }
   
-  /* Optional: Falls du verhindern möchtest, dass die Hauptinhalte vom LiveWinFeed überlappt werden,
-     kannst du dem Hauptcontainer einen linken Margin hinzufügen. Wenn du aber willst, dass die
-     Buttons im GameBoard ihre Position beibehalten, lasse diesen Wert weg. */
-  /*
-  .main-content-container {
-    margin-left: 260px; 
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-15px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
-  */
   
+  /* Überschrift für den LiveWinFeed */
+  .live-win-feed h4 {
+    margin: 0 0 10px;
+    margin-left: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffd700; /* Gold */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  
+  /* Container für die Gewinn-Messages */
+  .win-feed-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Einzelne Gewinnmeldung */
+  .win-message {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* Hover-Effekt für moderne Interaktivität */
+  .win-message:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: scale(1.01);
+  }
+  
+  /* Username in gold hervorheben */
+  .win-message strong {
+    color: #ffd700;
+    margin-right: 4px;
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+  }
+  
+  .roulette-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, #111 60%, #222 100%);
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0px 6px 12px rgba(255, 215, 0, 0.4);
+ 
+    position: relative;
+    overflow: visible;
+}
+
+.roulette-wheel {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.roulette-pointer {
+    position: absolute;
+    top: -8px; /* 🎯 Perfekte Position über dem Rad */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #FFD700 40%, #FFAA00 70%);
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px rgba(255, 0, 0, 0.5);
+    z-index: 20;
+}
+
+.spin-button {
+    margin-top: 16px;
+    padding: 10px 24px;
+    background: linear-gradient(145deg, #FFD700, #E6B800);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    box-shadow: 0px 6px 12px rgba(255, 215, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.spin-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 10px 20px rgba(255, 215, 0, 0.6);
+}

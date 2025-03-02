@@ -9,10 +9,10 @@ function DollarAmountSelector({ selectedAmount, setSelectedAmount }) {
         "10$",
         "25$",
         "50$",
-        // "100$",
-        // "200$",
-        // "500$",
-        // "1000$",
+        "100$",
+        "200$",
+        "500$",
+        "1000$",
     ];
 
     return (
