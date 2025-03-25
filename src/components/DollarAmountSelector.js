@@ -13,6 +13,8 @@ function DollarAmountSelector({ selectedAmount, setSelectedAmount }) {
         "200$",
         "500$",
         "1000$",
+        "5000$",
+        "10000$"
     ];
 
     return (

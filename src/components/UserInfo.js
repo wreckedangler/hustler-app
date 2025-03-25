@@ -103,13 +103,14 @@ function UserInfo({ isLoggedIn, username, refreshTrigger }) {
     <div className="user-info">
       {isLoggedIn && (
         <div className="user-content">
-          <span className="user-name">{username}</span>
+          
           <div className="level-container">
             <span className="user-level">LV {displayLevel}</span>
             <div className="ep-bar">
               <div className="ep-fill" style={{ width: `${epPercentage}%` }}></div>
             </div>
           </div>
+          <span className="user-name">{username}</span>
         </div>
       )}
     </div>

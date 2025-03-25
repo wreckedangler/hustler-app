@@ -6,16 +6,12 @@ const LiveWinFeed = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Verbindung zum Socket.IO-Server (URL ggf. anpassen)
     socketRef.current = io("http://localhost:5000");
 
-    // Auf das "newWin"-Event hören, das vom Server gesendet wird
     socketRef.current.on("newWin", (winData) => {
-      // Beispiel-Payload: { username: "User123", amount: 50 }
-      setWins((prevWins) => [winData, ...prevWins].slice(0, 50)); // Behalte maximal 50 Nachrichten
+      setWins((prevWins) => [winData, ...prevWins].slice(0, 12));
     });
 
-    // Aufräumen, wenn das Component unmontiert wird
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -23,12 +19,24 @@ const LiveWinFeed = () => {
     };
   }, []);
 
+  const getColor = (amount) => {
+    if (amount < 100) return "green";
+    if (amount < 500) return "blue";
+    if (amount < 1000) return "orange";
+    if (amount < 10000) return "red";
+    return "violet";
+  };
+
   return (
     <div className="live-win-feed">
       <h4>Live wins</h4>
       <div className="win-feed-messages">
         {wins.map((win, index) => (
-          <div key={index} className="win-message">
+          <div
+            key={index}
+            className="win-message"
+            style={{ color: getColor(win.amount), fontWeight: "bold" }}
+          >
             <strong>{win.username}</strong> won {win.amount} USDT
           </div>
         ))}
