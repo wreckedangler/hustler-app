@@ -682,7 +682,7 @@ app.post("/api/level-up", authenticateToken, async (req, res) => {
 
         let { level, prestige } = userResult.rows[0];
 
-        if (level < 50) {
+        if (level < 9999) {
             level += 1;
         } else {
             level = 1;
