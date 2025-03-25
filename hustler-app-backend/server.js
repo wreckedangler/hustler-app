@@ -500,8 +500,8 @@ app.post("/api/play", authenticateToken, async (req, res) => {
         ep -= 100;
         level += 1;
         // Prestige-Upgrade: Bei Überschreiten von Level 50
-        if (level > 50) {
-          level = 50;
+        if (level > 9999) {
+          level = 9999;
           if (prestige < 10) {
             prestige += 1;
           }
